@@ -24,7 +24,24 @@ const storagePattern = storageImagePattern();
 // Next bloquea por defecto optimizar imágenes de IPs locales. Solo se levanta con un Supabase LOCAL (desarrollo y CI).
 const localSupabase = storagePattern !== null && ["localhost", "127.0.0.1"].includes(storagePattern.hostname);
 
+/**
+ * Cabeceras de seguridad para todas las rutas. No hay CSP todavía: exige inventariar los scripts de Next, Supabase y las
+ * imágenes, y una CSP mal armada rompe la app en silencio (decisión pendiente, ver docs/piloto.md). HSTS lo agrega
+ * Vercel en el dominio.
+ */
+const securityHeaders = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  // La subida de fotos usa <input type="file"> (el sistema abre la cámara): no hace falta getUserMedia.
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
+];
+
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  async headers() {
+    return [{ source: "/:path*", headers: securityHeaders }];
+  },
   // Permite un build separado (p. ej. e2e contra Supabase local) sin pisar `.next`.
   distDir: process.env.NEXT_DIST_DIR || ".next",
   images: {

@@ -128,3 +128,15 @@ insuficientes.
 - `npm audit` reporta un aviso *high* en `braces` (vía `eslint-config-next` → `fast-glob`), solo en
   dependencias de desarrollo; no hay versión corregida compatible al momento.
 - El logo subido se guarda como data URL (máx. 200 KB) en `localStorage`.
+
+## Base de datos (Fase 2, aún no conectada al frontend)
+
+Migraciones, RLS, fixtures y pruebas de seguridad en `supabase/`. Diseño, matriz de acceso, decisiones y
+plan de recuperación: [`docs/fase-2-modelo-de-datos.md`](docs/fase-2-modelo-de-datos.md).
+
+```bash
+npx supabase start && npx supabase db reset   # local: migraciones + seed ficticio
+npx supabase test db                          # pgTAP (RLS, permisos, reglas de negocio)
+node --test supabase/tests/api/data-api.test.mjs   # Data API real
+npx supabase db advisors --local --type all
+```

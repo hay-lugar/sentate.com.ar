@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Bell, Check, Play, Star, TrendingUp } from "lucide-react";
+import { ArrowRight, Bell, Check, Eye, Play } from "lucide-react";
 import type { ReactNode } from "react";
+import type { TenantSummary } from "@/lib/domain/types";
+import { trialLabel } from "@/lib/config/plan";
 
 const ease = [0.2, 0.8, 0.2, 1] as const;
 
-export function Hero({ phone }: { phone: ReactNode }) {
+export function Hero({ phone, examples }: { phone: ReactNode; examples: TenantSummary[] }) {
   return (
     <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 lg:pb-28">
       {/* Fondo: glow cálido + grano */}
@@ -25,8 +27,8 @@ export function Hero({ phone }: { phone: ReactNode }) {
             transition={{ duration: 0.6, ease }}
             className="inline-flex items-center gap-2 rounded-full bg-surface py-1.5 pr-4 pl-1.5 text-[13px] font-semibold shadow-soft ring-1 ring-line/70"
           >
-            <span className="rounded-full bg-brand px-2 py-0.5 text-[11px] text-brand-fg">Nuevo</span>
-            Reservas con aviso por WhatsApp
+            <span className="rounded-full bg-brand px-2 py-0.5 text-[11px] text-brand-fg">Demo</span>
+            Probala con locales de ejemplo
           </motion.span>
 
           <h1 className="mt-6 text-[3.4rem] leading-[0.9] font-bold tracking-[-0.045em] sm:text-7xl lg:text-[5.6rem]">
@@ -80,8 +82,8 @@ export function Hero({ phone }: { phone: ReactNode }) {
               href="#empezar"
               className="pressable group inline-flex h-15 items-center justify-center gap-2 rounded-2xl bg-ink px-7 text-[16px] font-semibold text-white shadow-lift hover:bg-ink/90"
             >
-              Probar gratis 14 días
-              <ArrowRight className="size-[18px] transition-transform group-hover:translate-x-1" />
+              Probar {trialLabel}
+              <ArrowRight className="size-[18px] transition-transform group-hover:translate-x-1" aria-hidden />
             </Link>
             <Link
               href="/el-bodegon"
@@ -100,31 +102,23 @@ export function Hero({ phone }: { phone: ReactNode }) {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4"
           >
-            <div className="flex items-center gap-3">
-              <div className="flex -space-x-2.5">
-                {["#b8461b", "#0f766e", "#be123c", "#4338ca"].map((c, i) => (
-                  <span
-                    key={c}
-                    style={{ background: c }}
-                    className="grid size-9 place-items-center rounded-full font-display text-[12px] font-bold text-white ring-[3px] ring-background"
-                  >
-                    {["EB", "LE", "SK", "CM"][i]}
-                  </span>
-                ))}
-              </div>
-              <div className="text-[13px] leading-tight">
-                <div className="flex text-amber-400">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <Star key={i} className="size-3.5 fill-current" />
-                  ))}
-                </div>
-                <span className="font-semibold">+320 locales</span> <span className="text-muted">ya no hacen fila</span>
-              </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[13px] font-medium text-muted">Locales de ejemplo:</span>
+              {examples.map((t) => (
+                <Link
+                  key={t.slug}
+                  href={`/${t.slug}`}
+                  className="pressable inline-flex items-center gap-2 rounded-full bg-surface py-1 pr-3 pl-1 text-[13px] font-semibold shadow-soft ring-1 ring-line/70 hover:shadow-lift"
+                >
+                  <span aria-hidden style={{ background: t.theme.primary }} className="size-6 rounded-full" />
+                  {t.name}
+                </Link>
+              ))}
             </div>
             <ul className="flex gap-4 text-[13px] font-medium text-muted">
-              {["Sin tarjeta", "Sin comisiones"].map((t) => (
+              {["Sin tarjeta", "Sin comisión por reserva"].map((t) => (
                 <li key={t} className="inline-flex items-center gap-1.5">
-                  <Check className="size-4 text-emerald-600" strokeWidth={3} /> {t}
+                  <Check className="size-4 text-emerald-700" strokeWidth={3} aria-hidden /> {t}
                 </li>
               ))}
             </ul>
@@ -137,6 +131,7 @@ export function Hero({ phone }: { phone: ReactNode }) {
           animate={{ opacity: 1, y: 0, rotate: 0 }}
           transition={{ duration: 1, ease, delay: 0.2 }}
           className="relative mx-auto flex justify-center"
+          aria-hidden
         >
           {phone}
 
@@ -145,22 +140,18 @@ export function Hero({ phone }: { phone: ReactNode }) {
               <Bell className="size-[18px]" />
             </span>
             <div className="text-[13px] leading-tight">
-              <p className="font-semibold">Nueva reserva</p>
-              <p className="text-muted">Martina · 4 pers · 21:30</p>
+              <p className="font-semibold">Nueva solicitud</p>
+              <p className="text-muted">Ejemplo · 4 pers · 21:30</p>
             </div>
           </FloatingCard>
 
           <FloatingCard className="-right-4 bottom-28 sm:-right-16" delay={1.1} float={8}>
+            <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand">
+              <Eye className="size-[18px]" />
+            </span>
             <div className="text-[13px] leading-tight">
-              <p className="text-muted">Reservas del mes</p>
-              <p className="mt-0.5 flex items-center gap-1 font-display text-2xl font-bold">
-                +38% <TrendingUp className="size-5 text-emerald-600" />
-              </p>
-            </div>
-            <div className="flex h-10 items-end gap-1">
-              {[30, 45, 38, 60, 52, 80, 100].map((h, i) => (
-                <span key={i} style={{ height: `${h}%` }} className="w-1.5 rounded-full bg-brand/80 last:bg-brand" />
-              ))}
+              <p className="font-semibold">Visitas al menú</p>
+              <p className="text-muted">Métricas en tu panel</p>
             </div>
           </FloatingCard>
         </motion.div>

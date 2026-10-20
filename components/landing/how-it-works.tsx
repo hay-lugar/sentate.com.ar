@@ -1,10 +1,12 @@
-import { Bell, Eye, GripVertical, Plus, QrCode, UtensilsCrossed } from "lucide-react";
+import { ArrowDown, ArrowUp, Bell, Eye, Plus, QrCode, UtensilsCrossed } from "lucide-react";
 import type { ReactNode } from "react";
 import { Reveal } from "@/components/ui/reveal";
-import { cn, formatPrice, hashUnit } from "@/lib/utils";
+import type { TenantSummary } from "@/lib/domain/types";
+import { cn, formatPrice } from "@/lib/format";
+import { hashUnit } from "@/lib/reservation/availability";
 import { BrandPicker } from "./brand-picker";
 
-export function HowItWorks() {
+export function HowItWorks({ examples }: { examples: TenantSummary[] }) {
   return (
     <section id="como-funciona" className="scroll-mt-24 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-5">
@@ -46,7 +48,7 @@ export function HowItWorks() {
                       i === 0 && "sm:-mx-2 sm:rotate-[-1.2deg] sm:shadow-lift",
                     )}
                   >
-                    <GripVertical className="size-4 text-line" />
+                    <span aria-hidden className="flex flex-col text-muted"><ArrowUp className="size-3" /><ArrowDown className="size-3" /></span>
                     <span className="min-w-0 flex-1 truncate text-[14px] font-semibold">{d.name}</span>
                     <span className="hidden font-display text-[14px] font-bold sm:block">{formatPrice(d.price)}</span>
                     <span className={cn("flex h-6 w-10 items-center rounded-full p-0.5", d.on ? "bg-emerald-500" : "bg-line")}>
@@ -62,7 +64,7 @@ export function HowItWorks() {
           <BentoCard tone="brand" className="relative overflow-hidden lg:col-span-2" delay={0.08}>
             <StepTag n="02" icon={QrCode} inverted />
             <h3 className="mt-5 text-2xl font-bold">Poné el QR en la mesa</h3>
-            <p className="mt-2 text-[15px] opacity-80">Y un link para Instagram y Google Maps.</p>
+            <p className="mt-2 text-[15px] opacity-90">Y el mismo link para Instagram y Google Maps.</p>
             <div className="mt-8 flex justify-center">
               <div className="rotate-3 rounded-3xl bg-white p-3 shadow-lift transition-transform duration-500 group-hover:rotate-0">
                 <FakeQR />
@@ -73,7 +75,7 @@ export function HowItWorks() {
           {/* 03 — Reservas */}
           <BentoCard tone="ink" className="lg:col-span-2" delay={0}>
             <StepTag n="03" icon={Bell} inverted />
-            <h3 className="mt-5 text-2xl font-bold">Recibí reservas, no llamadas</h3>
+            <h3 className="mt-5 text-2xl font-bold">Recibí solicitudes y confirmalas</h3>
             <div className="relative mt-6 h-32">
               {[
                 { who: "Lucas · 2 pers", when: "Hoy 20:45", z: "z-30 translate-y-0" },
@@ -92,7 +94,7 @@ export function HowItWorks() {
                   </span>
                   <div className="text-[13px] leading-tight">
                     <p className="font-semibold">{n.who}</p>
-                    <p className="text-white/60">{n.when}</p>
+                    <p className="text-white/75">{n.when}</p>
                   </div>
                   <span className="ml-auto rounded-full bg-emerald-400/20 px-2.5 py-1 text-[11px] font-semibold text-emerald-300">
                     Confirmar
@@ -106,7 +108,7 @@ export function HowItWorks() {
           <BentoCard className="lg:col-span-2" delay={0.08}>
             <h3 className="text-2xl font-bold">Tu marca, tus colores</h3>
             <p className="mt-2 text-muted">Nada de plantillas genéricas: el menú adopta la identidad de tu local.</p>
-            <BrandPicker />
+            <BrandPicker examples={examples} />
           </BentoCard>
 
           {/* Métricas */}
@@ -114,7 +116,7 @@ export function HowItWorks() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-2xl font-bold">Métricas que importan</h3>
-                <p className="mt-2 text-muted">Visitas al menú, platos más vistos y horarios pico.</p>
+                <p className="mt-2 text-muted">Visitas al menú por día. Gráfico ilustrativo con datos de ejemplo.</p>
               </div>
               <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand">
                 <Eye className="size-5" />
@@ -183,7 +185,7 @@ function StepTag({ n, icon: Icon, inverted }: { n: string; icon: React.Component
       >
         <Icon className="size-5" />
       </span>
-      <span className={cn("font-display text-sm font-bold tracking-widest", inverted ? "opacity-60" : "text-muted")}>PASO {n}</span>
+      <span className={cn("font-display text-sm font-bold tracking-widest", inverted ? "opacity-85" : "text-muted")}>PASO {n}</span>
     </div>
   );
 }

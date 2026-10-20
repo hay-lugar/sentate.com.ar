@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, CalendarCheck } from "lucide-react";
 
 /** Bottom bar permanente con el CTA principal del comensal. */
-export function ReserveBar({ open, onReserve }: { open: boolean; onReserve: () => void }) {
+export function ReserveBar({ onReserve }: { onReserve: () => void }) {
   return (
     <motion.div
       initial={{ y: 120 }}
@@ -17,16 +17,15 @@ export function ReserveBar({ open, onReserve }: { open: boolean; onReserve: () =
         onClick={onReserve}
         whileTap={{ scale: 0.97 }}
         whileHover={{ y: -2 }}
+        aria-haspopup="dialog"
         className="group flex h-16 w-full items-center gap-3 rounded-[1.4rem] bg-brand pr-3 pl-5 text-left text-brand-fg shadow-brand"
       >
-        <CalendarCheck className="size-6 shrink-0" strokeWidth={2.25} />
+        <CalendarCheck className="size-6 shrink-0" strokeWidth={2.25} aria-hidden />
         <span className="flex-1 leading-tight">
           <span className="block font-display text-[17px] font-bold">Reservar mesa</span>
-          <span className="block text-[12px] font-medium opacity-80">
-            {open ? "Confirmación al instante · sin costo" : "Reservá ahora para cuando abramos"}
-          </span>
+          <span className="block text-[12px] font-medium opacity-90">Pedí tu mesa · el local la confirma</span>
         </span>
-        <span className="grid size-10 place-items-center rounded-2xl bg-white/20 transition-transform duration-300 group-hover:translate-x-0.5">
+        <span aria-hidden className="grid size-10 place-items-center rounded-2xl bg-white/20 transition-transform duration-300 group-hover:translate-x-0.5">
           <ArrowRight className="size-5" strokeWidth={2.5} />
         </span>
       </motion.button>

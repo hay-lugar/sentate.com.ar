@@ -1,13 +1,13 @@
 import { Flame, Leaf, Sparkles, Star, WheatOff, type LucideIcon } from "lucide-react";
-import type { DishTag } from "@/data/mock";
-import { cn } from "@/lib/utils";
+import type { DishTag } from "@/lib/domain/types";
+import { cn } from "@/lib/format";
 
 const TAGS: Record<DishTag, { label: string; icon: LucideIcon; className: string }> = {
   popular: { label: "Popular", icon: Star, className: "bg-brand-soft text-brand" },
-  nuevo: { label: "Nuevo", icon: Sparkles, className: "bg-violet-50 text-violet-700" },
-  veggie: { label: "Veggie", icon: Leaf, className: "bg-emerald-50 text-emerald-700" },
-  picante: { label: "Picante", icon: Flame, className: "bg-red-50 text-red-600" },
-  "sin-tacc": { label: "Sin TACC", icon: WheatOff, className: "bg-amber-50 text-amber-700" },
+  nuevo: { label: "Nuevo", icon: Sparkles, className: "bg-violet-50 text-violet-800" },
+  veggie: { label: "Veggie", icon: Leaf, className: "bg-emerald-50 text-emerald-800" },
+  picante: { label: "Picante", icon: Flame, className: "bg-red-50 text-red-700" },
+  "sin-tacc": { label: "Sin TACC", icon: WheatOff, className: "bg-amber-50 text-amber-800" },
 };
 
 export function DishTags({ tags, className }: { tags?: DishTag[]; className?: string }) {

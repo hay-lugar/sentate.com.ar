@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/format";
 
 /** Wordmark de Sentate: la silla minimalista + punto final como gesto de "listo". */
 export function Logo({ className, mono = false }: { className?: string; mono?: boolean }) {

@@ -3,37 +3,37 @@
 import { motion } from "framer-motion";
 import { CalendarCheck, Eye, TrendingDown, TrendingUp, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { cn, formatNumber } from "@/lib/utils";
-import { useReservations } from "./reservations-provider";
+import { cn, formatNumber } from "@/lib/format";
+import { useDemo } from "./demo-provider";
 
-type Props = {
-  activeDishes: number;
-  totalDishes: number;
-  views: number[];
-  prevViews: number;
-};
-
-export function StatCards({ activeDishes, totalDishes, views, prevViews }: Props) {
-  const { reservations } = useReservations();
-  const today = reservations.filter((r) => r.dayOffset === 0 && r.status !== "rejected");
+export function StatCards() {
+  const { state, stats } = useDemo();
+  const dishes = state.categories.flatMap((c) => c.dishes);
+  const activeDishes = dishes.filter((d) => d.active).length;
+  const totalDishes = dishes.length;
+  const views = stats.menuViewsLast7;
+  const prevViews = stats.menuViewsPrev7Total;
+  const pct = totalDishes ? Math.round((activeDishes / totalDishes) * 100) : 0;
+  // Fecha de servicio de hoy (incluye turnos después de medianoche).
+  const today = state.reservations.filter((r) => r.dayOffset === 0 && r.status !== "rejected");
   const covers = today.reduce((n, r) => n + r.guests, 0);
   const pendingToday = today.filter((r) => r.status === "pending").length;
 
   const totalViews = views.reduce((a, b) => a + b, 0);
-  const trend = Math.round(((totalViews - prevViews) / prevViews) * 100);
+  const trend = prevViews ? Math.round(((totalViews - prevViews) / prevViews) * 100) : 0;
 
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <StatCard
         index={0}
         icon={CalendarCheck}
-        label="Reservas de hoy"
+        label="Mesas de hoy · ejemplo"
         value={today.length}
         highlight
         footer={
           <>
             <b className="font-semibold">{covers}</b> cubiertos ·{" "}
-            <b className="font-semibold">{pendingToday}</b> {pendingToday === 1 ? "pendiente" : "pendientes"}
+            <b className="font-semibold">{pendingToday}</b> {pendingToday === 1 ? "solicitud pendiente" : "solicitudes pendientes"}
           </>
         }
       />
@@ -49,26 +49,26 @@ export function StatCards({ activeDishes, totalDishes, views, prevViews }: Props
               <motion.div
                 className="h-full rounded-full bg-brand"
                 initial={{ width: 0 }}
-                animate={{ width: `${(activeDishes / totalDishes) * 100}%` }}
+                animate={{ width: `${pct}%` }}
                 transition={{ duration: 1, delay: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
               />
             </div>
-            <span className="tabular-nums">{Math.round((activeDishes / totalDishes) * 100)}%</span>
+            <span className="tabular-nums">{pct}%</span>
           </div>
         }
       />
       <StatCard
         index={2}
         icon={Eye}
-        label="Visitas al menú · 7 días"
+        label="Visitas al menú · 7 días · ejemplo"
         value={formatNumber(totalViews)}
         className="sm:col-span-2 xl:col-span-1"
         aside={<Sparkline data={views} />}
         footer={
           <span className={cn("inline-flex items-center gap-1 font-semibold", trend >= 0 ? "text-emerald-600" : "text-rose-600")}>
-            {trend >= 0 ? <TrendingUp className="size-4" /> : <TrendingDown className="size-4" />}
+            {trend >= 0 ? <TrendingUp className="size-4" aria-hidden /> : <TrendingDown className="size-4" aria-hidden />}
             {trend >= 0 ? "+" : ""}
-            {trend}% <span className="font-normal text-muted">vs. semana anterior</span>
+            {trend}% <span className="font-normal text-muted">vs. semana anterior (dato ficticio)</span>
           </span>
         }
       />
@@ -105,7 +105,7 @@ function StatCard({
       whileHover={{ y: -3 }}
       className={cn(
         "relative overflow-hidden rounded-[1.75rem] p-5 shadow-soft ring-1 transition-shadow hover:shadow-lift",
-        highlight ? "bg-brand text-brand-fg ring-transparent shadow-brand" : "bg-surface ring-line/70",
+        highlight ? "bg-brand text-brand-fg shadow-brand ring-transparent" : "bg-surface ring-line/70",
         className,
       )}
     >
@@ -120,9 +120,9 @@ function StatCard({
               highlight ? "bg-white/20" : "bg-brand-soft text-brand",
             )}
           >
-            <Icon className="size-5" />
+            <Icon className="size-5" aria-hidden />
           </span>
-          <p className={cn("mt-4 text-[13px] font-medium", highlight ? "opacity-80" : "text-muted")}>{label}</p>
+          <p className={cn("mt-4 text-[13px] font-medium", highlight ? "opacity-90" : "text-muted")}>{label}</p>
           <p className="mt-0.5 font-display text-[2.6rem] leading-none font-bold tracking-tight tabular-nums">
             {value}
             {suffix && <span className={cn("ml-1 text-xl font-semibold", highlight ? "opacity-60" : "text-muted")}>{suffix}</span>}

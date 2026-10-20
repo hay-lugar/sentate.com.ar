@@ -4,6 +4,7 @@
 
 import type { TenantRecord } from "@/lib/domain/types";
 import { DEFAULT_TIMEZONE } from "@/lib/time/zoned";
+import { weeklySchedule } from "@/lib/domain/schedule";
 
 const img = (id: string) => `https://images.unsplash.com/photo-${id}`;
 
@@ -25,12 +26,17 @@ export const TENANT_FIXTURES: TenantRecord[] = [
         accentForeground: "#6b2a10",
       },
       timezone: DEFAULT_TIMEZONE,
+      // Cerrado los lunes; el domingo solo almuerzo (horarios distintos por día).
       schedule: {
-        openDays: [0, 2, 3, 4, 5, 6],
-        shifts: [
-          { id: "almuerzo", label: "Almuerzo", open: "12:00", close: "16:00" },
-          { id: "cena", label: "Cena", open: "20:00", close: "00:30" },
+        week: [
+          [{ id: "d0-almuerzo", label: "Almuerzo", open: "12:00", close: "16:30" }],
+          [],
+          ...[2, 3, 4, 5, 6].map((d) => [
+            { id: `d${d}-almuerzo`, label: "Almuerzo", open: "12:00", close: "16:00" },
+            { id: `d${d}-cena`, label: "Cena", open: "20:00", close: "00:30" },
+          ]),
         ],
+        closures: [],
       },
     },
     categories: [
@@ -272,10 +278,7 @@ export const TENANT_FIXTURES: TenantRecord[] = [
         accentForeground: "#0b4d47",
       },
       timezone: DEFAULT_TIMEZONE,
-      schedule: {
-        openDays: [0, 1, 2, 3, 4, 5, 6],
-        shifts: [{ id: "noche", label: "Noche", open: "18:00", close: "03:00" }],
-      },
+      schedule: weeklySchedule([0, 1, 2, 3, 4, 5, 6], [{ id: "noche", label: "Noche", open: "18:00", close: "03:00" }]),
     },
     categories: [
       {
@@ -348,10 +351,7 @@ export const TENANT_FIXTURES: TenantRecord[] = [
         accentForeground: "#881337",
       },
       timezone: DEFAULT_TIMEZONE,
-      schedule: {
-        openDays: [1, 2, 3, 4, 5, 6],
-        shifts: [{ id: "cena", label: "Cena", open: "19:30", close: "00:00" }],
-      },
+      schedule: weeklySchedule([1, 2, 3, 4, 5, 6], [{ id: "cena", label: "Cena", open: "19:30", close: "00:00" }]),
     },
     categories: [
       {

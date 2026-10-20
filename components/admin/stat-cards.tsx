@@ -16,7 +16,7 @@ export function StatCards() {
   const prevViews = stats?.menuViewsPrev7Total ?? 0;
   const pct = totalDishes ? Math.round((activeDishes / totalDishes) * 100) : 0;
   // Fecha de servicio de hoy (incluye turnos después de medianoche).
-  const today = state.reservations.filter((r) => r.dayOffset === 0 && r.status !== "rejected");
+  const today = state.reservations.filter((r) => r.dayOffset === 0 && r.status !== "rejected" && r.status !== "cancelled");
   const covers = today.reduce((n, r) => n + r.guests, 0);
   const pendingToday = today.filter((r) => r.status === "pending").length;
 

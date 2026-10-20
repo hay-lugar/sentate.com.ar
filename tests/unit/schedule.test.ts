@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Schedule } from "@/lib/domain/types";
-import { bookableDays, findSlot, getOpenState, isSlotPast, slotsForServiceDate } from "@/lib/domain/schedule";
+import { bookableDays, describeWeek, findSlot, getOpenState, isSlotPast, shiftsOn, slotsForServiceDate, weeklySchedule } from "@/lib/domain/schedule";
 import { addDays, weekdayOf, zonedNow, type ZonedNow } from "@/lib/time/zoned";
 
 const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
@@ -8,14 +8,12 @@ const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
 const FRI = "2026-10-23";
 const SAT = "2026-10-24";
 
-const bar: Schedule = { openDays: ALL_DAYS, shifts: [{ id: "noche", label: "Noche", open: "18:00", close: "03:00" }] };
-const bodegon: Schedule = {
-  openDays: [0, 2, 3, 4, 5, 6], // cerrado lunes
-  shifts: [
-    { id: "almuerzo", label: "Almuerzo", open: "12:00", close: "16:00" },
-    { id: "cena", label: "Cena", open: "20:00", close: "00:30" },
-  ],
-};
+const bar: Schedule = weeklySchedule(ALL_DAYS, [{ id: "noche", label: "Noche", open: "18:00", close: "03:00" }]);
+const bodegon: Schedule = weeklySchedule([0, 2, 3, 4, 5, 6], [
+  // cerrado lunes
+  { id: "almuerzo", label: "Almuerzo", open: "12:00", close: "16:00" },
+  { id: "cena", label: "Cena", open: "20:00", close: "00:30" },
+]);
 const at = (date: string, hhmm: string): ZonedNow => {
   const [h, m] = hhmm.split(":").map(Number);
   return { date, minutes: h * 60 + m, weekday: weekdayOf(date) };
@@ -52,14 +50,14 @@ describe("turnos que cruzan medianoche", () => {
   });
 
   it("no usa cortes arbitrarios: un turno de madrugada 02:00–07:00 es del mismo día", () => {
-    const early: Schedule = { openDays: ALL_DAYS, shifts: [{ id: "m", label: "Madrugada", open: "02:00", close: "07:00" }] };
+    const early: Schedule = weeklySchedule(ALL_DAYS, [{ id: "m", label: "Madrugada", open: "02:00", close: "07:00" }]);
     const slot = findSlot(early, FRI, "03:00")!;
     expect(slot.calendarDate).toBe(FRI);
     expect(slot.afterMidnight).toBe(false);
   });
 
   it("un turno que cierra a 00:00 cruza medianoche (Sakura 19:30–00:00)", () => {
-    const sakura: Schedule = { openDays: ALL_DAYS, shifts: [{ id: "c", label: "Cena", open: "19:30", close: "00:00" }] };
+    const sakura: Schedule = weeklySchedule(ALL_DAYS, [{ id: "c", label: "Cena", open: "19:30", close: "00:00" }]);
     expect(slotsForServiceDate(sakura, FRI).at(-1)!.time).toBe("23:00");
   });
 
@@ -98,7 +96,7 @@ describe("getOpenState", () => {
   });
 
   it("sin turnos no promete apertura", () => {
-    expect(getOpenState({ openDays: ALL_DAYS, shifts: [] }, at(FRI, "12:00"))).toEqual({ open: false, label: "Sin horarios cargados" });
+    expect(getOpenState(weeklySchedule(ALL_DAYS, []), at(FRI, "12:00"))).toEqual({ open: false, label: "Sin horarios cargados" });
   });
 });
 
@@ -125,5 +123,51 @@ describe("isSlotPast y calendario", () => {
     const days = bookableDays(bodegon, at(FRI, "10:00"), 7, 30);
     const monday = days.find((d) => d.serviceDate === addDays(FRI, 3))!;
     expect(monday.closed).toBe(true);
+  });
+});
+
+describe("horarios por día y cierres excepcionales", () => {
+  // Domingo solo almuerzo; viernes además trasnoche que cruza medianoche.
+  const mixed: Schedule = {
+    week: [
+      [{ id: "d0", label: "Almuerzo", open: "12:00", close: "16:30" }],
+      [],
+      [],
+      [],
+      [],
+      [
+        { id: "v1", label: "Almuerzo", open: "12:00", close: "16:00" },
+        { id: "v2", label: "Trasnoche", open: "22:00", close: "04:00" },
+      ],
+      [],
+    ],
+    closures: [{ date: FRI, reason: "Evento privado" }],
+  };
+  const SUN = "2026-10-25";
+  const NEXT_FRI = "2026-10-30";
+
+  it("cada día ofrece SUS turnos", () => {
+    expect(slotsForServiceDate(mixed, SUN).map((s) => s.time)).toEqual(["12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30"]);
+    const fri = slotsForServiceDate(mixed, NEXT_FRI);
+    expect(fri.some((s) => s.time === "20:00")).toBe(false);
+    expect(fri.at(-1)).toMatchObject({ time: "03:00", calendarDate: "2026-10-31", afterMidnight: true });
+  });
+
+  it("un cierre excepcional prevalece sobre el día de la semana", () => {
+    expect(shiftsOn(mixed, FRI)).toEqual([]);
+    expect(slotsForServiceDate(mixed, FRI)).toEqual([]);
+    const day = bookableDays(mixed, at(FRI, "09:00"), 7, 30).find((d) => d.serviceDate === FRI)!;
+    expect(day).toMatchObject({ closed: true, closedReason: "Evento privado" });
+    expect(getOpenState(mixed, at(FRI, "13:00")).open).toBe(false);
+  });
+
+  it("abierto/cerrado usa los turnos del día (trasnoche del viernes abierta el sábado 02:00)", () => {
+    expect(getOpenState(mixed, at("2026-10-31", "02:00"))).toMatchObject({ open: true, closesAt: "04:00" });
+    expect(getOpenState(mixed, at("2026-10-31", "13:00")).open).toBe(false);
+  });
+
+  it("resume la semana agrupando días con los mismos horarios", () => {
+    expect(describeWeek(bodegon)).toEqual(["Mar a Dom · 12:00–16:00 · 20:00–00:30"]);
+    expect(describeWeek(mixed)).toEqual(["Vie · 12:00–16:00 · 22:00–04:00", "Dom · 12:00–16:30"]);
   });
 });

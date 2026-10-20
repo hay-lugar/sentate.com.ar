@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { CalendarDays, Clock3, Moon } from "lucide-react";
 import { useMemo } from "react";
 import type { PlainDate, PublicTenant, WallTime } from "@/lib/domain/types";
-import { bookableDays, isSlotPast, slotsForServiceDate, type Slot } from "@/lib/domain/schedule";
+import { bookableDays, isSlotPast, shiftsOn, slotsForServiceDate, type Slot } from "@/lib/domain/schedule";
 import { isSlotFullMock } from "@/lib/reservation/availability";
 import { RESERVATION_LIMITS } from "@/lib/reservation/validation";
 import { formatPlainDate, type ZonedNow } from "@/lib/time/zoned";
@@ -36,7 +36,7 @@ export function DateTimeStep({ tenant, now, guests, fakeAvailability, serviceDat
   const stateOf = (slot: Slot): SlotState =>
     isSlotPast(slot, now, RESERVATION_LIMITS.leadMinutes) ? "past" : fakeAvailability && isSlotFullMock(tenant.slug, slot, guests) ? "full" : "free";
 
-  const groups = tenant.schedule.shifts
+  const groups = (serviceDate ? shiftsOn(tenant.schedule, serviceDate) : [])
     .map((shift) => ({ shift, items: slots.filter((s) => s.shiftId === shift.id) }))
     .filter((g) => g.items.length);
   const anyFree = slots.some((s) => stateOf(s) === "free");
@@ -55,7 +55,7 @@ export function DateTimeStep({ tenant, now, guests, fakeAvailability, serviceDat
               type="button"
               disabled={d.closed}
               aria-pressed={selected}
-              aria-label={`${d.label} ${formatPlainDate(d.serviceDate, { weekday: "long", day: "numeric", month: "long" })}${d.closed ? ", cerrado" : ""}`}
+              aria-label={`${d.label} ${formatPlainDate(d.serviceDate, { weekday: "long", day: "numeric", month: "long" })}${d.closed ? `, cerrado${d.closedReason ? ` (${d.closedReason})` : ""}` : ""}`}
               onClick={() => onDate(d.serviceDate)}
               className={cn(
                 "pressable flex w-[4.25rem] shrink-0 snap-start flex-col items-center rounded-2xl py-3 ring-1",
@@ -65,7 +65,9 @@ export function DateTimeStep({ tenant, now, guests, fakeAvailability, serviceDat
             >
               <span className={cn("max-w-full truncate px-1 text-[11px] font-semibold uppercase", !selected && "text-muted")}>{d.label}</span>
               <span className="mt-0.5 font-display text-[22px] leading-tight font-bold">{Number(d.serviceDate.slice(8))}</span>
-              <span className={cn("text-[11px] font-medium", !selected && "text-muted")}>{d.closed ? "Cerrado" : d.sublabel}</span>
+              <span className={cn("max-w-full truncate px-1 text-[11px] font-medium", !selected && "text-muted")} title={d.closedReason}>
+                {d.closed ? (d.closedReason ? "Cierre" : "Cerrado") : d.sublabel}
+              </span>
             </button>
           );
         })}

@@ -13,7 +13,7 @@ import { DishFormSheet, type DishFormTarget } from "./dish-form-sheet";
 import { Switch } from "./switch";
 
 export function MenuManager() {
-  const { state, dispatch, notify } = useDemo();
+  const { state, dispatch } = useDemo();
   const { categories } = state;
   const [formTarget, setFormTarget] = useState<DishFormTarget>(null);
   const [newName, setNewName] = useState("");
@@ -24,8 +24,7 @@ export function MenuManager() {
     const error = validateCategoryName(newName, categories);
     setNewError(error);
     if (error) return;
-    dispatch({ type: "addCategory", name: newName });
-    notify(`Categoría “${newName.trim()}” creada`);
+    dispatch({ type: "addCategory", name: newName }, `Categoría “${newName.trim()}” creada`);
     setNewName("");
   };
 
@@ -85,13 +84,11 @@ export function MenuManager() {
         categories={categories}
         onClose={() => setFormTarget(null)}
         onSave={({ categoryId, previousCategoryId, dish }) => {
-          dispatch({ type: "saveDish", categoryId, previousCategoryId, dish });
-          notify(dish.id ? `“${dish.name}” actualizado` : `“${dish.name}” agregado`);
+          dispatch({ type: "saveDish", categoryId, previousCategoryId, dish }, dish.id ? `“${dish.name}” actualizado` : `“${dish.name}” agregado`);
           setFormTarget(null);
         }}
         onDelete={(categoryId, dishId) => {
-          dispatch({ type: "deleteDish", categoryId, dishId });
-          notify("Plato eliminado", "neutral");
+          dispatch({ type: "deleteDish", categoryId, dishId }, "Plato eliminado", "neutral");
           setFormTarget(null);
         }}
       />
@@ -114,7 +111,7 @@ function CategoryCard({
   onAddDish: () => void;
   onEditDish: (dish: Category["dishes"][number]) => void;
 }) {
-  const { dispatch, notify } = useDemo();
+  const { dispatch } = useDemo();
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(cat.name);
   const [error, setError] = useState<string | null>(null);
@@ -127,13 +124,12 @@ function CategoryCard({
     const err = validateCategoryName(name, categories, cat.id);
     setError(err);
     if (err) return;
-    dispatch({ type: "renameCategory", categoryId: cat.id, name });
+    dispatch({ type: "renameCategory", categoryId: cat.id, name }, `Categoría renombrada a “${name.trim()}”`);
     setRenaming(false);
   };
 
   const move = (direction: -1 | 1) => {
-    dispatch({ type: "moveCategory", categoryId: cat.id, direction });
-    notify(`“${cat.name}” movida a la posición ${index + 1 + direction}`, "neutral");
+    dispatch({ type: "moveCategory", categoryId: cat.id, direction }, `“${cat.name}” movida a la posición ${index + 1 + direction}`, "neutral");
   };
 
   return (
@@ -217,8 +213,7 @@ function CategoryCard({
               <button
                 type="button"
                 onClick={() => {
-                  dispatch({ type: "deleteCategory", categoryId: cat.id });
-                  notify(`Categoría “${cat.name}” eliminada`, "neutral");
+                  dispatch({ type: "deleteCategory", categoryId: cat.id }, `Categoría “${cat.name}” eliminada`, "neutral");
                 }}
                 className="pressable h-8 rounded-lg bg-rose-700 px-2.5 text-white"
               >
@@ -250,8 +245,9 @@ function CategoryCard({
       ) : (
         <ul className="space-y-1">
           {cat.dishes.map((d) => (
-            <li key={d.id} className={cn("flex items-center gap-3 rounded-2xl p-2 transition-opacity hover:bg-background", !d.active && "opacity-60")}>
-              <span className="relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-background text-muted">
+            <li key={d.id} className="flex items-center gap-3 rounded-2xl p-2 hover:bg-background">
+              {/* Sin opacidad sobre el texto: un plato no disponible se marca con etiqueta (contraste AA). */}
+              <span className={cn("relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-background text-muted", !d.active && "opacity-50 grayscale")}>
                 {d.image ? <DishImage src={d.image} alt="" sizes="48px" /> : <ImageOff className="size-4" aria-hidden />}
               </span>
               <div className="min-w-0 flex-1 leading-tight">
@@ -260,7 +256,9 @@ function CategoryCard({
                 </p>
                 <p className="mt-0.5 font-display text-[13px] font-bold text-muted">
                   {formatPrice(d.price)}
-                  {!d.active && <span className="ml-2 font-sans text-[11px] font-semibold">· No disponible</span>}
+                  {!d.active && (
+                    <span className="ml-2 rounded-md bg-amber-50 px-1.5 py-0.5 font-sans text-[11px] font-semibold text-amber-900">No disponible</span>
+                  )}
                 </p>
               </div>
               <IconButton label={`Editar ${d.name}`} onClick={() => onEditDish(d)}>

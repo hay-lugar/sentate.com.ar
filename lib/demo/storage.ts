@@ -3,7 +3,8 @@
 
 import type { Category, TenantProfile } from "@/lib/domain/types";
 
-export const DEMO_STORAGE_VERSION = 1;
+// v2: horarios por día (Schedule.week + closures). Los datos v1 se ignoran y se vuelve al ejemplo.
+export const DEMO_STORAGE_VERSION = 2;
 export const demoStorageKey = (slug: string) => `sentate:demo:v${DEMO_STORAGE_VERSION}:${slug}`;
 
 export type PersistedDemo = {
@@ -34,7 +35,9 @@ function isPersistedDemo(v: unknown, slug: string): v is PersistedDemo {
     typeof o.profile === "object" &&
     Array.isArray(o.categories) &&
     typeof (o.profile as TenantProfile).name === "string" &&
-    !!(o.profile as TenantProfile).schedule &&
+    Array.isArray((o.profile as TenantProfile).schedule?.week) &&
+    (o.profile as TenantProfile).schedule.week.length === 7 &&
+    Array.isArray((o.profile as TenantProfile).schedule?.closures) &&
     !!(o.profile as TenantProfile).theme
   );
 }

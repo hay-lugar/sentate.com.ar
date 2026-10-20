@@ -4,7 +4,7 @@
 // Si el turno 20:00–00:30 abre el viernes, el horario 00:15 es del servicio del
 // viernes aunque su fecha calendario sea el sábado. No hay cortes arbitrarios.
 
-import type { PlainDate, Schedule, Shift, WallTime } from "./types";
+import type { ClosureDay, PlainDate, Schedule, Shift, WallTime } from "./types";
 import {
   absoluteMinutes,
   addDays,
@@ -39,14 +39,69 @@ export type Slot = {
   afterMidnight: boolean;
 };
 
-export const isServiceDay = (schedule: Schedule, serviceDate: PlainDate) =>
-  schedule.openDays.includes(weekdayOf(serviceDate)) && schedule.shifts.length > 0;
+export const WEEKDAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"] as const;
+
+/** Arma un horario semanal con los mismos turnos en todos los días indicados (fixtures y tests). */
+export function weeklySchedule(openDays: number[], shifts: Omit<Shift, "id">[] | Shift[], closures: ClosureDay[] = []): Schedule {
+  return {
+    week: Array.from({ length: 7 }, (_, day) =>
+      openDays.includes(day) ? shifts.map((s, i) => ({ ...s, id: `d${day}-${"id" in s ? s.id : i + 1}` })) : [],
+    ),
+    closures,
+  };
+}
+
+export const closureFor = (schedule: Schedule, serviceDate: PlainDate) => schedule.closures.find((c) => c.date === serviceDate);
+
+/** Turnos de una fecha de servicio: los del día de la semana, salvo cierre excepcional. */
+export function shiftsOn(schedule: Schedule, serviceDate: PlainDate): Shift[] {
+  if (closureFor(schedule, serviceDate)) return [];
+  return schedule.week[weekdayOf(serviceDate)] ?? [];
+}
+
+export const isServiceDay = (schedule: Schedule, serviceDate: PlainDate) => shiftsOn(schedule, serviceDate).length > 0;
+
+/** Días de la semana con al menos un turno. */
+export const openWeekdays = (schedule: Schedule) => schedule.week.flatMap((shifts, day) => (shifts.length ? [day] : []));
+
+const shiftKey = (s: Shift) => `${s.open}-${s.close}`;
+const dayKey = (shifts: Shift[]) => shifts.map(shiftKey).join(",");
+
+/**
+ * Resumen legible para el comensal, agrupando días con los mismos horarios.
+ * Ej.: ["Mar a Sáb · 12:00–16:00 · 20:00–00:30", "Dom · 12:00–16:00"].
+ */
+export function describeWeek(schedule: Schedule): string[] {
+  const SHORT = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+  // Empieza el lunes para agrupar "Lun a Dom" de forma natural.
+  const order = [1, 2, 3, 4, 5, 6, 0];
+  const groups: { days: number[]; shifts: Shift[] }[] = [];
+  for (const day of order) {
+    const shifts = schedule.week[day] ?? [];
+    if (!shifts.length) continue;
+    const last = groups[groups.length - 1];
+    const prevDay = last?.days[last.days.length - 1];
+    const contiguous = last && order.indexOf(day) === order.indexOf(prevDay!) + 1;
+    if (last && contiguous && dayKey(last.shifts) === dayKey(shifts)) last.days.push(day);
+    else groups.push({ days: [day], shifts });
+  }
+  return groups.map((g) => {
+    const days =
+      g.days.length === 1
+        ? SHORT[g.days[0]]
+        : g.days.length === 2
+          ? `${SHORT[g.days[0]]} y ${SHORT[g.days[1]]}`
+          : `${SHORT[g.days[0]]} a ${SHORT[g.days[g.days.length - 1]]}`;
+    return `${days} · ${g.shifts.map((s) => `${s.open}–${s.close}`).join(" · ")}`;
+  });
+}
 
 /** Horarios reservables de una fecha de servicio, ordenados cronológicamente. */
 export function slotsForServiceDate(schedule: Schedule, serviceDate: PlainDate): Slot[] {
-  if (!isServiceDay(schedule, serviceDate)) return [];
+  const shifts = shiftsOn(schedule, serviceDate);
+  if (!shifts.length) return [];
   const slots: Slot[] = [];
-  for (const shift of schedule.shifts) {
+  for (const shift of shifts) {
     const open = toMinutes(shift.open);
     const last = open + shiftDuration(shift) - LAST_SEATING_BEFORE_CLOSE;
     for (let m = Math.ceil(open / SLOT_STEP_MINUTES) * SLOT_STEP_MINUTES; m <= last; m += SLOT_STEP_MINUTES) {
@@ -88,8 +143,7 @@ export function getOpenState(schedule: Schedule, now: ZonedNow): OpenState {
   // Desde ayer (turnos que cruzan medianoche) hasta una semana adelante.
   for (let offset = -1; offset <= 7; offset++) {
     const serviceDate = addDays(now.date, offset);
-    if (!isServiceDay(schedule, serviceDate)) continue;
-    for (const shift of schedule.shifts) {
+    for (const shift of shiftsOn(schedule, serviceDate)) {
       const start = absoluteMinutes(serviceDate, toMinutes(shift.open));
       const end = start + shiftDuration(shift);
       if (start <= nowAbs && nowAbs < end) {
@@ -101,7 +155,7 @@ export function getOpenState(schedule: Schedule, now: ZonedNow): OpenState {
     }
   }
 
-  if (!next) return { open: false, label: "Sin horarios cargados" };
+  if (!next) return { open: false, label: openWeekdays(schedule).length ? "Cerrado por unos días" : "Sin horarios cargados" };
   const diff = daysBetween(now.date, next.calendarDate);
   const when =
     diff === 0
@@ -123,6 +177,8 @@ export type BookableDay = {
   label: string;
   sublabel: string;
   closed: boolean;
+  /** Motivo del cierre excepcional, si lo hay. */
+  closedReason?: string;
 };
 
 /**
@@ -143,6 +199,7 @@ export function bookableDays(schedule: Schedule, now: ZonedNow, windowDays: numb
       label: i === 0 ? "Hoy" : i === 1 ? "Mañ" : formatPlainDate(serviceDate, { weekday: "short" }),
       sublabel: formatPlainDate(serviceDate, { month: "short" }),
       closed: !isServiceDay(schedule, serviceDate),
+      closedReason: closureFor(schedule, serviceDate)?.reason || undefined,
     });
   }
   return days;

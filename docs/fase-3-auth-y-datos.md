@@ -46,7 +46,7 @@ En modo live la UI no muestra insignias ni pie de "demo", y el botón final dice
   - Con RLS, un UPDATE/DELETE sin permiso afecta 0 filas sin error: se trata como "sin permiso".
   - El cliente aplica el cambio de forma optimista y luego `router.refresh()`; ante error, revierte con
     el registro del servidor.
-- Horarios: `public.replace_tenant_schedule` (SECURITY INVOKER, todo o nada). El panel modela "mismos turnos
+- Horarios (reemplazado en Fase 3.1 por `save_tenant_settings` con horarios por día; ver `fase-3.1-estabilizacion.md`): `public.replace_tenant_schedule` (SECURITY INVOKER, todo o nada). El panel modela "mismos turnos
   todos los días abiertos"; si la base tiene horarios distintos por día, se muestran los del primer día.
 - Publicar/despublicar la carta: tarjeta en el inicio del panel (`setPublishedAction`).
 

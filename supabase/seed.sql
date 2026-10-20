@@ -5,6 +5,7 @@
 --   owner.bodegon@example.test  → El Bodegón (publicado, prueba vigente)
 --   owner.esquina@example.test  → La Esquina (publicado, prueba vigente, turno hasta las 03:00)
 --   owner.sakura@example.test   → Sakura     (publicado, PRUEBA VENCIDA con estado 'trialing')
+--   owner.borrador@example.test → Casa Borrador (SIN publicar, prueba vigente): para probar avisos de carta no publicada
 --   sin.local@example.test      → usuario sin comercio
 --   recuperacion@example.test   → usuario sin comercio; lo usa la prueba de recuperación de contraseña
 
@@ -14,6 +15,7 @@ declare
     {"email": "owner.bodegon@example.test"},
     {"email": "owner.esquina@example.test"},
     {"email": "owner.sakura@example.test"},
+    {"email": "owner.borrador@example.test"},
     {"email": "sin.local@example.test"},
     {"email": "recuperacion@example.test"}
   ]';
@@ -47,13 +49,17 @@ values
    'https://images.unsplash.com/photo-1514933651103-005eec06c04b', '#0f766e', '#ffffff', '#d9f2ec', '#0b4d47', true),
   ('33333333-3333-4333-8333-333333333333', 'prueba-sakura', 'Sakura', 'Nikkei & sushi de autor', 'Japonesa · Nikkei',
    '$$$', 'Gorriti 5870, Palermo Hollywood', '+54 11 4775-8800', 'America/Argentina/Buenos_Aires',
-   'https://images.unsplash.com/photo-1579871494447-9811cf80d66c', '#be123c', '#ffffff', '#fde4ea', '#881337', true);
+   'https://images.unsplash.com/photo-1579871494447-9811cf80d66c', '#be123c', '#ffffff', '#fde4ea', '#881337', true),
+  ('44444444-4444-4444-8444-444444444444', 'prueba-borrador', 'Casa Borrador', 'Todavía sin publicar', 'Cafetería',
+   '$', 'Av. Rivadavia 1000, Almagro', '+54 11 4000-4444', 'America/Argentina/Buenos_Aires',
+   null, '#0f766e', '#ffffff', '#d9f2ec', '#0b4d47', false);
 
 insert into public.tenant_members (tenant_id, user_id, role)
 select t.id, u.id, 'owner'
 from (values ('prueba-bodegon', 'owner.bodegon@example.test'),
              ('prueba-esquina', 'owner.esquina@example.test'),
-             ('prueba-sakura', 'owner.sakura@example.test')) m(slug, email)
+             ('prueba-sakura', 'owner.sakura@example.test'),
+             ('prueba-borrador', 'owner.borrador@example.test')) m(slug, email)
 join public.tenants t on t.slug = m.slug
 join auth.users u on u.email = m.email;
 

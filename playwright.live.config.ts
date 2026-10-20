@@ -32,6 +32,10 @@ export default defineConfig({
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: SUPABASE_KEY,
       // Enlaces de email (alta y recuperación) apuntan al puerto del servidor de prueba.
       APP_URL: `http://localhost:${PORT}`,
+      // Límite por conexión de las reservas: la IP se lee de este header (lo pone tests/e2e-live/fixtures.ts) y se firma
+      // con este secreto, que es solo de prueba. Producción usa los suyos (ver docs/reservas-piloto.md).
+      RATE_LIMIT_IP_HEADER: "x-test-client-ip",
+      RATE_LIMIT_SECRET: "e2e-only-secret-not-for-production-0123456789abcdef",
     },
   },
 });

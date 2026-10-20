@@ -1,12 +1,13 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Ban, CalendarDays, Check, Clock3, Inbox, MessageSquare, Phone, Radio, Users, WifiOff, X } from "lucide-react";
+import { Ban, CalendarDays, Check, Clock3, Inbox, MessageCircle, MessageSquare, Phone, Radio, Users, WifiOff, X } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { Reservation, ReservationStatus } from "@/lib/domain/types";
 import { cn, initials, timeAgo } from "@/lib/format";
 import { useZonedNow } from "@/lib/hooks/use-zoned-now";
+import { contactMessage, telLink, whatsappLink, whatsappTarget } from "@/lib/reservation/contact";
 import { zonedNow } from "@/lib/time/zoned";
 import { useDemo } from "./demo-provider";
 import { resolveReservationTime } from "./reservation-time";
@@ -61,6 +62,12 @@ export function ReservationsList({
           <h2 className="text-xl font-bold">{title}</h2>
           <p className="text-[12px] text-muted">{mode === "demo" ? "Ejemplos ficticios · pendiente ≠ confirmada" : "Una solicitud pendiente todavía no es una reserva confirmada"}</p>
           {realtime && <LiveIndicator status={realtime} />}
+          {mode === "live" && (
+            <p className="mt-1 max-w-prose text-[12px] text-muted">
+              «WhatsApp» abre una conversación con un mensaje ya escrito: lo enviás vos. Sentate no manda mensajes a los comensales ni verifica el
+              teléfono que dejaron.
+            </p>
+          )}
         </div>
         <div className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto rounded-2xl bg-background p-1 sm:ml-auto">
           {FILTERS.map((f) => (
@@ -115,7 +122,7 @@ export function ReservationsList({
               exit={{ opacity: 0, x: 40, transition: { duration: 0.2 } }}
               transition={{ type: "spring", stiffness: 400, damping: 36 }}
             >
-              <ReservationRow r={r} when={t} onAction={setStatus} />
+              <ReservationRow r={r} when={t} onAction={setStatus} contact={mode === "live" ? { tenantName: state.profile.name } : undefined} />
             </motion.li>
           ))}
         </AnimatePresence>
@@ -147,10 +154,13 @@ function ReservationRow({
   r,
   when,
   onAction,
+  contact,
 }: {
   r: Reservation;
   when: ReturnType<typeof resolveReservationTime>;
   onAction: (id: string, s: ReservationStatus) => void;
+  /** Solo en modo real: la demo tiene teléfonos ficticios que podrían ser de alguien. */
+  contact?: { tenantName: string };
 }) {
   const isNew = r.status === "pending" && r.receivedMinutesAgo <= 15;
 
@@ -170,7 +180,11 @@ function ReservationRow({
           <p className="mt-0.5 flex items-center gap-1.5 text-[12px] text-muted">
             <Phone className="size-3" aria-hidden /> {r.phone}
             <span className="hidden sm:inline">· {timeAgo(r.receivedMinutesAgo)}</span>
+            {r.status === "pending" && (
+              <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold text-amber-900">Pendiente</span>
+            )}
           </p>
+          {contact && <ContactActions r={r} when={when} tenantName={contact.tenantName} />}
         </div>
       </div>
 
@@ -219,6 +233,40 @@ function ReservationRow({
           <StatusBadge status={r.status} />
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Contacto manual con quien pidió la mesa. Los enlaces solo ABREN WhatsApp o el teléfono: nada se envía desde acá.
+ * Se muestra el número exacto y, si el comensal no escribió el país, se avisa que se asumió Argentina.
+ */
+function ContactActions({ r, when, tenantName }: { r: Reservation; when: ReturnType<typeof resolveReservationTime>; tenantName: string }) {
+  const target = whatsappTarget(r.phone);
+  const text = contactMessage({ status: r.status, name: r.name, tenantName, guests: r.guests, dayLabel: when.dayLabel, time: r.time });
+  const chip = "pressable inline-flex h-11 items-center gap-1.5 rounded-xl bg-background px-3 text-[13px] font-semibold ring-1 ring-line hover:bg-surface";
+
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2">
+      {target ? (
+        <a href={whatsappLink(target, text)} target="_blank" rel="noopener noreferrer" className={chip}>
+          <MessageCircle className="size-4" aria-hidden /> WhatsApp
+          <span className="sr-only"> con {r.name} al {target.display}. Abre WhatsApp con un mensaje escrito; vos lo enviás.</span>
+        </a>
+      ) : null}
+      <a href={telLink(r.phone)} className={chip}>
+        <Phone className="size-4" aria-hidden /> Llamar<span className="sr-only"> a {r.name}</span>
+      </a>
+      <span className="text-[11px] leading-tight text-muted">
+        {target ? (
+          <>
+            {target.display}
+            {target.assumedCountry && " · asumimos Argentina"}
+          </>
+        ) : (
+          "Sin enlace de WhatsApp: el número no trae el país o es ambiguo."
+        )}
+      </span>
     </div>
   );
 }

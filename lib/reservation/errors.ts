@@ -21,6 +21,14 @@ const MAP: Record<string, ReservationErrorInfo> = {
     retryable: false,
   },
   rate_limited: { message: "El local recibió muchas solicitudes. Probá de nuevo en unos minutos.", retryable: true },
+  ip_rate_limited: {
+    message: "Hiciste muchas solicitudes en poco tiempo desde esta conexión. Esperá unos minutos y probá de nuevo, o llamá al local.",
+    retryable: true,
+  },
+  service_unavailable: {
+    message: "Por ahora no podemos recibir solicitudes desde la web. Probá más tarde o llamá al local.",
+    retryable: true,
+  },
   idempotency_key_reused: { message: "La solicitud cambió mientras se enviaba. Volvé a intentar.", retryable: true },
 };
 

@@ -104,7 +104,7 @@ export function ReservationFlow({
   return (
     <BottomSheet open={open} onClose={onClose} label="Pedir una mesa" header={header} footer={footer}>
       {r.phase === "submitted" && r.summary ? (
-        <SubmittedView tenantName={tenant.name} summary={r.summary} live={live} onClose={onClose} />
+        <SubmittedView tenantName={tenant.name} tenantPhone={tenant.phone} summary={r.summary} live={live} onClose={onClose} />
       ) : r.phase === "failed" ? (
         <FailedView message={r.failure} onRetry={r.submit} onBack={r.backToForm} retrying={submitting} />
       ) : (

@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import type { Browser, Page } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 // E2E contra Supabase LOCAL real (ver playwright.live.config.ts). Usa los datos de supabase/seed.sql:
 // prueba-bodegon (cerrado lunes, domingo solo almuerzo), prueba-esquina y prueba-sakura (prueba vencida).

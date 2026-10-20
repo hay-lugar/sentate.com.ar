@@ -1,17 +1,20 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { AlertTriangle, Check, FlaskConical, RotateCcw } from "lucide-react";
+import { AlertTriangle, Check, FlaskConical, MessageCircle, RotateCcw } from "lucide-react";
 import { describeSlot } from "@/lib/domain/schedule";
 import type { SubmittedSummary } from "./use-reservation-request";
 
 export function SubmittedView({
   tenantName,
+  tenantPhone,
   summary,
   live,
   onClose,
 }: {
   tenantName: string;
+  /** Teléfono público del local (el mismo que muestra la carta). */
+  tenantPhone?: string;
   summary: SubmittedSummary;
   live: boolean;
   onClose: () => void;
@@ -33,8 +36,8 @@ export function SubmittedView({
       <p className="mx-auto mt-1.5 max-w-[19rem] text-[14px] text-muted">
         {live ? (
           <>
-            Gracias, {summary.firstName}. {tenantName} recibió tu pedido. <b className="text-foreground">Todavía no es una reserva confirmada:</b>{" "}
-            el local la revisa según su disponibilidad.
+            Gracias, {summary.firstName}. {tenantName} recibió tu pedido. <b className="text-foreground">Todavía no es una reserva:</b> no hay una
+            mesa guardada para vos hasta que el local la confirme.
           </>
         ) : (
           <>
@@ -60,6 +63,30 @@ export function SubmittedView({
           <dd className="font-semibold">{describeSlot(summary.slot)}</dd>
         </dl>
       </div>
+
+      {live && (
+        <div className="mt-4 rounded-2xl bg-background p-4 text-left text-[13px] leading-snug ring-1 ring-line/70">
+          <p className="flex items-center gap-2 font-semibold">
+            <MessageCircle className="size-4 shrink-0" aria-hidden /> ¿Cómo te enterás de la respuesta?
+          </p>
+          <p className="mt-1.5 text-muted">
+            El local revisa las solicitudes por su cuenta y, si puede recibirte, se comunica con vos al teléfono que dejaste (llamada o WhatsApp).{" "}
+            <b className="text-foreground">Sentate todavía no envía mensajes ni emails automáticos</b>, y no hay una pantalla para seguir el estado.
+          </p>
+          <p className="mt-1.5 text-muted">
+            Si no tenés novedades, llamá al local
+            {tenantPhone ? (
+              <>
+                :{" "}
+                <a href={`tel:${tenantPhone.replace(/[^\d+]/g, "")}`} className="font-semibold text-foreground underline underline-offset-2">
+                  {tenantPhone}
+                </a>
+              </>
+            ) : null}
+            .
+          </p>
+        </div>
+      )}
 
       {!live && (
       <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-accent p-3 text-left text-[12px] leading-snug text-accent-fg">

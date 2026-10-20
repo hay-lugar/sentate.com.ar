@@ -1,5 +1,6 @@
 "use client";
 
+import { redact } from "@/lib/log/redact";
 import { RefreshCw, WifiOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useTransition } from "react";
@@ -12,7 +13,8 @@ export function DataError({ error, reset, title = "No pudimos cargar esto" }: { 
   const router = useRouter();
   const [pending, start] = useTransition();
   useEffect(() => {
-    console.error(error);
+    // Solo nombre, mensaje depurado y digest: el objeto completo puede citar datos de la fila que falló.
+    console.error("[sentate] error de página", error.name, redact(error.message), error.digest);
   }, [error]);
 
   return (

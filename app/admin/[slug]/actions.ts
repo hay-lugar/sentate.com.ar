@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { liveMutation, type MutationErrorCode, type MutationResult } from "@/lib/admin/live-mutations";
 import { validateProfileInfo, validateSchedule } from "@/lib/demo/profile-validation";
 import { IMAGE_BUCKET } from "@/lib/images/config";
+import { redact } from "@/lib/log/redact";
 import { imageRefProblem } from "@/lib/images/paths";
 import { createClient } from "@/utils/supabase/server";
 import { z } from "zod";
@@ -45,7 +46,7 @@ function describe(error: PgError): MutationResult {
       if (error.message === "invalid_schedule") return fail("invalid", "El horario no es válido.");
       return fail("invalid", "Algún dato no es válido. Revisá el formulario.");
     default:
-      console.error("[sentate] mutation", error?.code, error?.message);
+      console.error("[sentate] mutation", error?.code, redact(error?.message));
       return fail("error", "No se pudo guardar. Probá de nuevo.");
   }
 }
@@ -298,6 +299,6 @@ export async function sweepOrphanImagesAction(tenantId: unknown): Promise<{ remo
   const names = (data as { name: string }[]).map((r) => r.name).slice(0, 100);
   if (!names.length) return { removed: 0 };
   const { data: removed, error: removeError } = await supabase.storage.from(IMAGE_BUCKET).remove(names);
-  if (removeError) console.error("[sentate] sweep images", removeError.message);
+  if (removeError) console.error("[sentate] sweep images", redact(removeError.message));
   return { removed: removed?.length ?? 0 };
 }

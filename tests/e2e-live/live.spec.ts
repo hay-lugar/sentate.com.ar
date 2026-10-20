@@ -114,7 +114,7 @@ test.describe("recorrido completo del dueño", () => {
 
     // Horarios DISTINTOS por día + cierre excepcional.
     await page.goto(`/admin/${slug}/ajustes`);
-    await page.getByLabel("Teléfono del local").fill("11 4000 0000");
+    await page.getByLabel("Teléfono del local").fill("11 0000 0000");
     await page.getByLabel("Dirección", { exact: true }).fill("Calle Falsa 123");
     const day = (name: string) => page.getByRole("listitem", { name: `Horarios del ${name}` });
     for (const d of ["martes", "miércoles", "jueves", "viernes"]) await day(d).getByRole("button", { name: `${d}: cerrado` }).click();

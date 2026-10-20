@@ -18,7 +18,7 @@ async function completeReservation(page: Page) {
   await dialog.getByRole("group", { name: "Elegí el horario" }).locator("button:not([disabled])").first().click();
   await dialog.getByRole("button", { name: "Continuar" }).click();
   await dialog.getByLabel("Nombre").fill("Prueba Demo");
-  await dialog.getByLabel("Teléfono").fill("11 5555 0000");
+  await dialog.getByLabel("Teléfono").fill("11 0000 0000");
   await dialog.getByRole("button", { name: "Enviar solicitud (demo)" }).click();
   return dialog;
 }

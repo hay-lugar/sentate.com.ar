@@ -70,7 +70,7 @@ describe("visitante (anon)", () => {
   test("no inserta reservas directamente", async () => {
     const r = await rest("reservations", {
       method: "POST",
-      body: { tenant_id: BODEGON, starts_at: new Date().toISOString(), service_date: "2030-01-01", guests: 2, customer_name: "X", customer_phone: "1155550000" },
+      body: { tenant_id: BODEGON, starts_at: new Date().toISOString(), service_date: "2030-01-01", guests: 2, customer_name: "X", customer_phone: "1100000000" },
     });
     assert.equal(r.body.code, "42501");
   });
@@ -86,7 +86,7 @@ describe("visitante (anon)", () => {
     const key = randomUUID();
     const payload = {
       p_tenant_id: ESQUINA, p_service_date: nextDate(5), p_time: "01:00", p_guests: 2,
-      p_customer_name: "Prueba API", p_customer_phone: "11 5555 0000", p_notes: "", p_idempotency_key: key,
+      p_customer_name: "Prueba API", p_customer_phone: "11 0000 0000", p_notes: "", p_idempotency_key: key,
     };
     const first = await rest("rpc/request_reservation", { method: "POST", body: payload });
     assert.equal(first.status, 200, JSON.stringify(first.body));
@@ -107,7 +107,7 @@ describe("idempotencia bajo concurrencia", () => {
   test("8 envíos simultáneos con la misma clave crean una sola reserva", async () => {
     const payload = {
       p_tenant_id: BODEGON, p_service_date: nextDate(3), p_time: "21:00", p_guests: 3,
-      p_customer_name: "Doble Click", p_customer_phone: "11 5555 0101", p_notes: "", p_idempotency_key: randomUUID(),
+      p_customer_name: "Doble Click", p_customer_phone: "11 0000 0101", p_notes: "", p_idempotency_key: randomUUID(),
     };
     const results = await Promise.all(Array.from({ length: 8 }, () => rest("rpc/request_reservation", { method: "POST", body: payload })));
     assert.ok(results.every((r) => r.status === 200), JSON.stringify(results.map((r) => r.body)));

@@ -22,7 +22,7 @@ select results_eq($$ select slug from public.tenants where id = tests.tenant_id(
 select is((select count(*)::int from public.tenant_subscriptions), 1, 'vencida: puede ver su suscripción');
 
 select tests.as_anon();
-select throws_ok(format($$ select public.request_reservation(%L, %L, '13:00', 2, 'Ana', '11 5555 1234', '', gen_random_uuid()) $$,
+select throws_ok(format($$ select public.request_reservation(%L, %L, '13:00', 2, 'Ana', '11 0000 1234', '', gen_random_uuid()) $$,
   tests.tenant_id('bodegon-a'), tests.next_service_date(3)), 'P0001', 'tenant_unavailable', 'vencida: no recibe solicitudes');
 select ok(exists (select 1 from public.tenants where slug = 'bodegon-a'),
   'decisión pendiente (valor actual "visible"): la carta sigue pública');

@@ -42,16 +42,16 @@ insert into public.tenants (id, slug, name, tagline, cuisine, price_range, addre
   cover_url, primary_color, primary_fg_color, accent_color, accent_fg_color, is_published)
 values
   ('11111111-1111-4111-8111-111111111111', 'prueba-bodegon', 'El Bodegón', 'Parrilla de barrio desde 1987', 'Parrilla argentina',
-   '$$', 'Av. Corrientes 4120, Almagro', '+54 11 4862-1987', 'America/Argentina/Buenos_Aires',
+   '$$', 'Av. Corrientes 4120, Almagro', '+54 11 0000-0101', 'America/Argentina/Buenos_Aires',
    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1', '#b8461b', '#ffffff', '#f7e6d4', '#6b2a10', true),
   ('22222222-2222-4222-8222-222222222222', 'prueba-esquina', 'La Esquina', 'Burgers, pizzas y tragos hasta tarde', 'Bar & cocina',
-   '$$', 'Thames 1650, Palermo', '+54 11 4833-2040', 'America/Argentina/Buenos_Aires',
+   '$$', 'Thames 1650, Palermo', '+54 11 0000-0102', 'America/Argentina/Buenos_Aires',
    'https://images.unsplash.com/photo-1514933651103-005eec06c04b', '#0f766e', '#ffffff', '#d9f2ec', '#0b4d47', true),
   ('33333333-3333-4333-8333-333333333333', 'prueba-sakura', 'Sakura', 'Nikkei & sushi de autor', 'Japonesa · Nikkei',
-   '$$$', 'Gorriti 5870, Palermo Hollywood', '+54 11 4775-8800', 'America/Argentina/Buenos_Aires',
+   '$$$', 'Gorriti 5870, Palermo Hollywood', '+54 11 0000-0103', 'America/Argentina/Buenos_Aires',
    'https://images.unsplash.com/photo-1579871494447-9811cf80d66c', '#be123c', '#ffffff', '#fde4ea', '#881337', true),
   ('44444444-4444-4444-8444-444444444444', 'prueba-borrador', 'Casa Borrador', 'Todavía sin publicar', 'Cafetería',
-   '$', 'Av. Rivadavia 1000, Almagro', '+54 11 4000-4444', 'America/Argentina/Buenos_Aires',
+   '$', 'Av. Rivadavia 1000, Almagro', '+54 11 0000-0104', 'America/Argentina/Buenos_Aires',
    null, '#0f766e', '#ffffff', '#d9f2ec', '#0b4d47', false);
 
 insert into public.tenant_members (tenant_id, user_id, role)
@@ -117,10 +117,10 @@ select r.tenant_id,
   today + r.day_offset, r.guests, r.name, r.phone, r.notes, r.status::public.reservation_status
 from (select (now() at time zone 'America/Argentina/Buenos_Aires')::date as today) d,
      (values
-       ('11111111-1111-4111-8111-111111111111'::uuid, 0, 0, time '21:30', 4, 'Cliente Ficticio Uno', '+54 11 5550-0001', 'Cumpleaños', 'pending'),
-       ('11111111-1111-4111-8111-111111111111'::uuid, 0, 0, time '13:00', 7, 'Cliente Ficticio Dos', '+54 11 5550-0002', '', 'confirmed'),
-       ('11111111-1111-4111-8111-111111111111'::uuid, 1, 0, time '21:00', 2, 'Cliente Ficticio Tres', '+54 11 5550-0003', 'Sin TACC', 'pending'),
+       ('11111111-1111-4111-8111-111111111111'::uuid, 0, 0, time '21:30', 4, 'Cliente Ficticio Uno', '+54 11 0000-0301', 'Cumpleaños', 'pending'),
+       ('11111111-1111-4111-8111-111111111111'::uuid, 0, 0, time '13:00', 7, 'Cliente Ficticio Dos', '+54 11 0000-0302', '', 'confirmed'),
+       ('11111111-1111-4111-8111-111111111111'::uuid, 1, 0, time '21:00', 2, 'Cliente Ficticio Tres', '+54 11 0000-0303', 'Sin TACC', 'pending'),
        -- 01:00 del turno que abrió hoy → fecha calendario de mañana, fecha de servicio de hoy.
-       ('22222222-2222-4222-8222-222222222222'::uuid, 0, 1, time '01:00', 3, 'Cliente Ficticio Cuatro', '+54 11 5550-0004', '', 'pending'),
-       ('22222222-2222-4222-8222-222222222222'::uuid, 0, 0, time '22:30', 8, 'Cliente Ficticio Cinco', '+54 11 5550-0005', '', 'rejected')
+       ('22222222-2222-4222-8222-222222222222'::uuid, 0, 1, time '01:00', 3, 'Cliente Ficticio Cuatro', '+54 11 0000-0304', '', 'pending'),
+       ('22222222-2222-4222-8222-222222222222'::uuid, 0, 0, time '22:30', 8, 'Cliente Ficticio Cinco', '+54 11 0000-0305', '', 'rejected')
      ) r(tenant_id, day_offset, calendar_shift, t, guests, name, phone, notes, status);

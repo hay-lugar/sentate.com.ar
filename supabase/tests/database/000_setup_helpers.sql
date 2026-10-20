@@ -127,7 +127,7 @@ begin
   v_u := (public.create_tenant('oculto-u', 'Oculto U') ->> 'tenant_id')::uuid;
   perform set_config('request.jwt.claims', '', true);
 
-  update public.tenants set is_published = true, phone = '+54 11 4000-0000' where id in (v_a, v_b);
+  update public.tenants set is_published = true, phone = '+54 11 0000-0000' where id in (v_a, v_b);
 
   for d in 0..6 loop
     insert into public.tenant_shifts (tenant_id, weekday, label, opens_at, closes_at) values
@@ -151,9 +151,9 @@ begin
 
   insert into public.reservations (tenant_id, starts_at, service_date, guests, customer_name, customer_phone, status)
   values
-    (v_a, now() + interval '2 days', (now() + interval '2 days')::date, 4, 'Cliente A1', '+54 11 5555-0001', 'pending'),
-    (v_a, now() + interval '3 days', (now() + interval '3 days')::date, 2, 'Cliente A2', '+54 11 5555-0003', 'confirmed'),
-    (v_b, now() + interval '2 days', (now() + interval '2 days')::date, 3, 'Cliente B1', '+54 11 5555-0002', 'pending');
+    (v_a, now() + interval '2 days', (now() + interval '2 days')::date, 4, 'Cliente A1', '+54 11 0000-0401', 'pending'),
+    (v_a, now() + interval '3 days', (now() + interval '3 days')::date, 2, 'Cliente A2', '+54 11 0000-0403', 'confirmed'),
+    (v_b, now() + interval '2 days', (now() + interval '2 days')::date, 3, 'Cliente B1', '+54 11 0000-0402', 'pending');
 end;
 $$;
 

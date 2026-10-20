@@ -17,7 +17,7 @@ export const TENANT_FIXTURES: TenantRecord[] = [
       cuisine: "Parrilla argentina",
       priceRange: "$$",
       address: "Av. Corrientes 4120, Almagro",
-      phone: "+54 11 4862-1987",
+      phone: "+54 11 0000-0101",
       coverImage: img("1555939594-58d7cb561ad1"),
       theme: {
         primary: "#b8461b",
@@ -247,14 +247,14 @@ export const TENANT_FIXTURES: TenantRecord[] = [
       },
     ],
     reservations: [
-      { id: "r-101", name: "Martina Gómez", phone: "+54 11 5523-8812", guests: 4, dayOffset: 0, time: "21:30", notes: "Cumpleaños, si se puede mesa cerca de la ventana 🎂", status: "pending", receivedMinutesAgo: 6 },
-      { id: "r-102", name: "Lucas Fernández", phone: "+54 11 6031-2277", guests: 2, dayOffset: 0, time: "20:45", status: "pending", receivedMinutesAgo: 18 },
-      { id: "r-103", name: "Familia Rossi", phone: "+54 11 4412-9080", guests: 7, dayOffset: 0, time: "13:00", notes: "Venimos con un cochecito de bebé.", status: "confirmed", receivedMinutesAgo: 340 },
-      { id: "r-104", name: "Sofía Herrera", phone: "+54 11 3398-1144", guests: 3, dayOffset: 0, time: "22:00", status: "confirmed", receivedMinutesAgo: 95 },
-      { id: "r-105", name: "Julián Paz", phone: "+54 11 2201-7765", guests: 2, dayOffset: 1, time: "21:00", notes: "Celíaco, necesitamos opciones sin TACC.", status: "pending", receivedMinutesAgo: 42 },
-      { id: "r-106", name: "Camila Ortiz", phone: "+54 11 5874-3300", guests: 6, dayOffset: 1, time: "21:30", status: "pending", receivedMinutesAgo: 75 },
-      { id: "r-107", name: "Tomás Medina", phone: "+54 11 4120-6655", guests: 2, dayOffset: 2, time: "13:30", status: "pending", receivedMinutesAgo: 130 },
-      { id: "r-108", name: "Valentina Ruiz", phone: "+54 11 6650-1010", guests: 5, dayOffset: 0, time: "14:00", status: "rejected", receivedMinutesAgo: 410 },
+      { id: "r-101", name: "Martina Gómez", phone: "+54 11 0000-0201", guests: 4, dayOffset: 0, time: "21:30", notes: "Cumpleaños, si se puede mesa cerca de la ventana 🎂", status: "pending", receivedMinutesAgo: 6 },
+      { id: "r-102", name: "Lucas Fernández", phone: "+54 11 0000-0202", guests: 2, dayOffset: 0, time: "20:45", status: "pending", receivedMinutesAgo: 18 },
+      { id: "r-103", name: "Familia Rossi", phone: "+54 11 0000-0203", guests: 7, dayOffset: 0, time: "13:00", notes: "Venimos con un cochecito de bebé.", status: "confirmed", receivedMinutesAgo: 340 },
+      { id: "r-104", name: "Sofía Herrera", phone: "+54 11 0000-0204", guests: 3, dayOffset: 0, time: "22:00", status: "confirmed", receivedMinutesAgo: 95 },
+      { id: "r-105", name: "Julián Paz", phone: "+54 11 0000-0205", guests: 2, dayOffset: 1, time: "21:00", notes: "Celíaco, necesitamos opciones sin TACC.", status: "pending", receivedMinutesAgo: 42 },
+      { id: "r-106", name: "Camila Ortiz", phone: "+54 11 0000-0206", guests: 6, dayOffset: 1, time: "21:30", status: "pending", receivedMinutesAgo: 75 },
+      { id: "r-107", name: "Tomás Medina", phone: "+54 11 0000-0207", guests: 2, dayOffset: 2, time: "13:30", status: "pending", receivedMinutesAgo: 130 },
+      { id: "r-108", name: "Valentina Ruiz", phone: "+54 11 0000-0208", guests: 5, dayOffset: 0, time: "14:00", status: "rejected", receivedMinutesAgo: 410 },
     ],
     stats: {
       menuViewsLast7: [312, 288, 401, 376, 455, 620, 702],
@@ -269,7 +269,7 @@ export const TENANT_FIXTURES: TenantRecord[] = [
       cuisine: "Bar & cocina",
       priceRange: "$$",
       address: "Thames 1650, Palermo",
-      phone: "+54 11 4833-2040",
+      phone: "+54 11 0000-0102",
       coverImage: img("1514933651103-005eec06c04b"),
       theme: {
         primary: "#0f766e",
@@ -323,11 +323,11 @@ export const TENANT_FIXTURES: TenantRecord[] = [
       },
     ],
     reservations: [
-      { id: "r-201", name: "Nicolás Vega", phone: "+54 11 4990-1122", guests: 8, dayOffset: 0, time: "22:30", notes: "Despedida de soltero.", status: "pending", receivedMinutesAgo: 12 },
-      { id: "r-202", name: "Agustina Luna", phone: "+54 11 3021-4545", guests: 2, dayOffset: 0, time: "20:00", status: "confirmed", receivedMinutesAgo: 200 },
-      { id: "r-203", name: "Bruno Castro", phone: "+54 11 6677-0909", guests: 4, dayOffset: 1, time: "21:00", status: "pending", receivedMinutesAgo: 55 },
+      { id: "r-201", name: "Nicolás Vega", phone: "+54 11 0000-0209", guests: 8, dayOffset: 0, time: "22:30", notes: "Despedida de soltero.", status: "pending", receivedMinutesAgo: 12 },
+      { id: "r-202", name: "Agustina Luna", phone: "+54 11 0000-0210", guests: 2, dayOffset: 0, time: "20:00", status: "confirmed", receivedMinutesAgo: 200 },
+      { id: "r-203", name: "Bruno Castro", phone: "+54 11 0000-0211", guests: 4, dayOffset: 1, time: "21:00", status: "pending", receivedMinutesAgo: 55 },
       // Turno posterior a medianoche: servicio de hoy, fecha calendario de mañana.
-      { id: "r-204", name: "Delfina Sosa", phone: "+54 11 5120-3344", guests: 3, dayOffset: 0, time: "01:00", notes: "Venimos después del teatro.", status: "pending", receivedMinutesAgo: 25 },
+      { id: "r-204", name: "Delfina Sosa", phone: "+54 11 0000-0212", guests: 3, dayOffset: 0, time: "01:00", notes: "Venimos después del teatro.", status: "pending", receivedMinutesAgo: 25 },
     ],
     stats: {
       menuViewsLast7: [520, 480, 610, 590, 880, 1240, 1102],
@@ -342,7 +342,7 @@ export const TENANT_FIXTURES: TenantRecord[] = [
       cuisine: "Japonesa · Nikkei",
       priceRange: "$$$",
       address: "Gorriti 5870, Palermo Hollywood",
-      phone: "+54 11 4775-8800",
+      phone: "+54 11 0000-0103",
       coverImage: img("1579871494447-9811cf80d66c"),
       theme: {
         primary: "#be123c",
@@ -383,7 +383,7 @@ export const TENANT_FIXTURES: TenantRecord[] = [
       { id: "postres", name: "Postres", dishes: [] },
     ],
     reservations: [
-      { id: "r-301", name: "Kenji Arakaki", phone: "+54 11 5001-3030", guests: 2, dayOffset: 0, time: "21:00", status: "pending", receivedMinutesAgo: 9 },
+      { id: "r-301", name: "Kenji Arakaki", phone: "+54 11 0000-0213", guests: 2, dayOffset: 0, time: "21:00", status: "pending", receivedMinutesAgo: 9 },
     ],
     stats: {
       menuViewsLast7: [140, 168, 155, 190, 240, 330, 298],

@@ -19,7 +19,7 @@ select throws_ok($$ select * from public.reservations $$, '42501', null, 'el vis
 select throws_ok($$ select * from public.tenant_members $$, '42501', null, 'el visitante no puede leer membresías');
 select throws_ok($$ select * from public.tenant_subscriptions $$, '42501', null, 'el visitante no puede leer suscripciones');
 select throws_ok($$ insert into public.reservations (tenant_id, starts_at, service_date, guests, customer_name, customer_phone)
-  values (tests.tenant_id('bodegon-a'), now() + interval '1 day', current_date + 1, 2, 'Spam', '1155550000') $$,
+  values (tests.tenant_id('bodegon-a'), now() + interval '1 day', current_date + 1, 2, 'Spam', '1100000000') $$,
   '42501', null, 'el visitante no puede insertar reservas directamente');
 select throws_ok($$ update public.menu_items set price = 1 $$, '42501', null, 'el visitante no puede editar la carta');
 

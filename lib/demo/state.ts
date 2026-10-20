@@ -16,6 +16,12 @@ export type DemoAction =
   | { type: "hydrate"; profile: TenantProfile; categories: Category[] }
   | { type: "reset"; initial: DemoState }
   | { type: "setReservationStatus"; id: string; status: ReservationStatus }
+  /** Realtime: alta o cambio de una reserva. Ignora versiones iguales o más viejas (dedupe). */
+  | { type: "upsertReservation"; reservation: Reservation }
+  /** Resincronización (p. ej. al reconectar Realtime): reemplaza la lista por la de la base. */
+  | { type: "syncReservations"; reservations: Reservation[] }
+  /** Modo real: la base confirmó un alta; el ID temporal del cliente pasa a ser el real. */
+  | { type: "confirmCreated"; entity: "category" | "dish"; tempId: string; id: string; version?: string }
   | { type: "updateProfile"; profile: TenantProfile }
   | { type: "saveDish"; categoryId: string; dish: DishInput; previousCategoryId?: string }
   | { type: "toggleDish"; categoryId: string; dishId: string }
@@ -47,6 +53,30 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
         ...state,
         reservations: state.reservations.map((r) => (r.id === action.id ? { ...r, status: action.status } : r)),
       };
+
+    case "upsertReservation": {
+      const incoming = action.reservation;
+      const current = state.reservations.find((r) => r.id === incoming.id);
+      if (current) {
+        if (current.version && incoming.version && incoming.version <= current.version) return state;
+        return { ...state, reservations: state.reservations.map((r) => (r.id === incoming.id ? incoming : r)) };
+      }
+      return { ...state, reservations: [...state.reservations, incoming] };
+    }
+
+    case "syncReservations":
+      return { ...state, reservations: action.reservations };
+
+    case "confirmCreated": {
+      const { tempId, id, version } = action;
+      if (action.entity === "category") {
+        return { ...state, categories: state.categories.map((c) => (c.id === tempId ? { ...c, id, version } : c)) };
+      }
+      return {
+        ...state,
+        categories: state.categories.map((c) => ({ ...c, dishes: c.dishes.map((d) => (d.id === tempId ? { ...d, id, version } : d)) })),
+      };
+    }
 
     case "updateProfile":
       return { ...state, profile: action.profile };

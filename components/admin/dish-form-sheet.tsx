@@ -4,6 +4,7 @@ import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { Category, Dish, DishTag } from "@/lib/domain/types";
 import { DISH_TAGS } from "@/lib/domain/types";
+import { useDemo } from "./demo-provider";
 import { MENU_LIMITS, validateDishForm, type DishFormErrors, type DishFormValues } from "@/lib/demo/menu-validation";
 import type { DishInput } from "@/lib/demo/state";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
@@ -41,7 +42,10 @@ type Props = {
 };
 
 export function DishFormSheet({ target, categories, onClose, onSave, onDelete }: Props) {
-  const [values, setValues] = useState<DishFormValues | null>(null);
+  const { resolveId } = useDemo();
+  const [rawValues, setValues] = useState<DishFormValues | null>(null);
+  // Si el plato o su categoría se crearon recién, la base pudo confirmar el ID real con el formulario abierto.
+  const values = rawValues && { ...rawValues, categoryId: resolveId(rawValues.categoryId), id: rawValues.id && resolveId(rawValues.id) };
   const [errors, setErrors] = useState<DishFormErrors>({});
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [lastTarget, setLastTarget] = useState<DishFormTarget>(null);
@@ -70,7 +74,11 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
       document.getElementById(`dish-${first}`)?.focus();
       return;
     }
-    onSave({ categoryId: values.categoryId, previousCategoryId: lastTarget?.categoryId, dish: result.dish });
+    onSave({
+      categoryId: values.categoryId,
+      previousCategoryId: lastTarget ? resolveId(lastTarget.categoryId) : undefined,
+      dish: result.dish,
+    });
   };
 
   const footer = values && (
@@ -210,7 +218,7 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
                 <span className="flex-1 font-semibold">¿Eliminar este plato?</span>
                 <button
                   type="button"
-                  onClick={() => lastTarget && onDelete(lastTarget.categoryId, values.id!)}
+                  onClick={() => lastTarget && onDelete(resolveId(lastTarget.categoryId), values.id!)}
                   className="pressable h-9 rounded-xl bg-rose-700 px-3 font-semibold text-white"
                 >
                   Eliminar

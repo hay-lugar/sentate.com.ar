@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Typecheck, lint, unit, build y E2E demo
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # npm 11: npm 10 falla resolviendo los peers de vitest 4.
+      - run: npx -y npm@11 ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      # Sin variables de Supabase: el build sirve solo las demos (igual que las E2E de demo).
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          CI: "true"
+
+  database:
+    name: Supabase local (pgTAP, Data API, Realtime y E2E live)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.121.0
+      - run: npx -y npm@11 ci
+      # Realtime y Mailpit son necesarios (reservas en vivo y confirmación de email).
+      - run: supabase start -x storage-api,imgproxy,studio,edge-runtime,logflare,vector,supavisor
+      - run: supabase db reset
+      - run: supabase db lint --level warning
+      - run: supabase test db
+      - run: node --test supabase/tests/api/data-api.test.mjs supabase/tests/api/realtime.test.mjs
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:live
+        env:
+          CI: "true"
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-live-results
+          path: test-results
+          retention-days: 7

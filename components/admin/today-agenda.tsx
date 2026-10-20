@@ -14,7 +14,7 @@ export function TodayAgenda() {
   const tz = state.profile.timezone;
   const now = useZonedNow(tz, zonedNow(tz));
   const today = state.reservations
-    .filter((r) => r.dayOffset === 0 && r.status !== "rejected")
+    .filter((r) => r.dayOffset === 0 && r.status !== "rejected" && r.status !== "cancelled")
     .map((r) => ({ r, t: resolveReservationTime(r, state.profile.schedule, now) }))
     .sort((a, b) => a.t.sortKey - b.t.sortKey);
 

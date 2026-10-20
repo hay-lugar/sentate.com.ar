@@ -51,11 +51,14 @@ npm run test:e2e
 # Con un Chromium ya instalado:
 PW_CHROMIUM_PATH=/ruta/a/chrome npm run test:e2e
 
-# E2E contra Supabase LOCAL real (requiere `npx supabase start`; resetea la base local con seed.sql).
-# Build separado en .next-live, puerto 3300. E2E_SKIP_DB_RESET=1 para no resetear.
-npm run test:e2e:live
+# Pruebas con Supabase LOCAL real (ver "Pruebas con Supabase local" más abajo).
 npm run test:db     # pgTAP
+node --test supabase/tests/api/data-api.test.mjs supabase/tests/api/realtime.test.mjs
+npm run test:e2e:live
 ```
+
+CI (`.github/workflows/ci.yml`) corre en cada PR: typecheck, lint, Vitest, build y E2E de demo; y en un
+segundo job levanta Supabase local y corre `db lint`, pgTAP, Data API, Realtime y las E2E live.
 
 Las E2E cubren: 404 de slugs inválidos, foco/contención/Escape/restauración del bottom sheet,
 CSS vars del tenant dentro del portal, reserva simulada y error simulado, aislamiento de cambios
@@ -91,6 +94,8 @@ desmontar el componente se aborta y se limpia el temporizador. No hay envío dob
 
 ## Fechas y horarios
 
+- Cada día de la semana tiene sus propios turnos (hasta 3) y hay **cierres excepcionales** por fecha
+  (feriados, vacaciones); un cierre prevalece sobre el día de la semana.
 - Cada comercio tiene una zona horaria (`profile.timezone`, default `America/Argentina/Buenos_Aires`).
   Estado abierto/cerrado, calendario y validación usan esa zona, no la del servidor ni la del dispositivo.
 - Un horario pertenece a la **fecha de servicio** en que abrió su turno. En un turno 20:00–00:30 que abre
@@ -134,12 +139,34 @@ insuficientes.
   dependencias de desarrollo; no hay versión corregida compatible al momento.
 - El logo subido se guarda como data URL (máx. 200 KB) en `localStorage`.
 
-## Datos reales (Fase 3)
+## Pruebas con Supabase local
+
+Requisitos: Docker y la CLI de Supabase (`npx -y supabase@2.121.0`). Realtime y Mailpit tienen que estar
+levantados (las reservas en vivo y la confirmación de email se prueban de verdad):
+
+```bash
+npx -y supabase@2.121.0 start -x storage-api,imgproxy,studio,edge-runtime,logflare,vector,supavisor
+npx -y supabase@2.121.0 db reset      # migraciones + supabase/seed.sql (datos ficticios)
+```
+
+- `supabase/config.toml` activa la **confirmación de email** (como producción); los emails se leen en
+  Mailpit (`http://127.0.0.1:54324`), y la E2E sigue el enlace real. Redirects permitidos en local:
+  `http://localhost:3000/**` y `http://localhost:3300/**`.
+- Usuarios del seed (contraseña `sentate-dev-only`): `owner.bodegon@example.test` (`/admin/prueba-bodegon`),
+  `owner.esquina@example.test` (`/admin/prueba-esquina`), `owner.sakura@example.test` (prueba vencida),
+  `sin.local@example.test`. Los slugs `prueba-*` no chocan con las demos (`el-bodegon`, `la-esquina`, `sakura`).
+- `npm run test:e2e:live` hace `db reset` antes de correr (salvo `E2E_SKIP_DB_RESET=1`), compila en
+  `.next-live` y sirve en el puerto 3300 con la clave publicable local. Con un Chromium ya instalado:
+  `PW_CHROMIUM_PATH=/ruta/a/chrome`.
+
+## Datos reales (Fase 3 y 3.1)
 
 Si existe un comercio **publicado** en Supabase con el slug pedido, `/[slug]` y `/admin/[slug]` usan datos
 reales (login del dueño, solicitudes de reserva reales, CRUD con RLS). Las demos siguen siendo locales y sus
 slugs están reservados. Variables: `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-(nunca `service_role`). Detalle: [`docs/fase-3-auth-y-datos.md`](docs/fase-3-auth-y-datos.md).
+(nunca `service_role`). Detalle: [`docs/fase-3-auth-y-datos.md`](docs/fase-3-auth-y-datos.md) y
+[`docs/fase-3.1-estabilizacion.md`](docs/fase-3.1-estabilizacion.md) (horarios por día, escrituras
+atómicas con control de versión, estados de error y reservas en vivo).
 
 ## Base de datos (Fase 2)
 

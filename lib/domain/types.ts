@@ -17,12 +17,16 @@ export type Dish = {
   image?: string;
   tags: DishTag[];
   active: boolean;
+  /** Marca de versión de la base (updated_at). Solo en datos reales. */
+  version?: string;
 };
 
 export type Category = {
   id: string;
   name: string;
   dishes: Dish[];
+  /** Marca de versión de la base (updated_at). Solo en datos reales. */
+  version?: string;
 };
 
 /**
@@ -36,10 +40,17 @@ export type Shift = {
   close: WallTime;
 };
 
+/** Cierre excepcional de una fecha de servicio (feriado, vacaciones, evento privado). */
+export type ClosureDay = { date: PlainDate; reason: string };
+
 export type Schedule = {
-  /** Días de servicio abiertos (0 = domingo … 6 = sábado), según la fecha en que abre el turno. */
-  openDays: number[];
-  shifts: Shift[];
+  /**
+   * Turnos por día de servicio: índice 0 = domingo … 6 = sábado (siempre 7 elementos), según el día
+   * en que ABRE el turno. Un día sin turnos está cerrado. Cada día puede tener turnos distintos.
+   */
+  week: Shift[][];
+  /** Fechas de servicio cerradas excepcionalmente (prevalecen sobre `week`). */
+  closures: ClosureDay[];
 };
 
 export type TenantTheme = {
@@ -65,7 +76,8 @@ export type TenantProfile = {
   coverImage?: string;
 };
 
-export type ReservationStatus = "pending" | "confirmed" | "rejected";
+/** `cancelled`: la reserva se canceló después de confirmada (o la solicitud se retiró). */
+export type ReservationStatus = "pending" | "confirmed" | "rejected" | "cancelled";
 
 export type Reservation = {
   id: string;
@@ -78,6 +90,8 @@ export type Reservation = {
   notes?: string;
   status: ReservationStatus;
   receivedMinutesAgo: number;
+  /** Marca de versión de la base (updated_at). Solo en datos reales: deduplica eventos y evita pisar cambios. */
+  version?: string;
 };
 
 export type TenantStats = {
@@ -106,7 +120,13 @@ export type TenantAccess = {
 };
 
 /** Registro de un comercio real leído de Supabase para el panel. */
-export type LiveTenantRecord = TenantRecord & { id: string; isPublished: boolean; access: TenantAccess };
+export type LiveTenantRecord = TenantRecord & {
+  id: string;
+  isPublished: boolean;
+  access: TenantAccess;
+  /** tenants.updated_at: control de concurrencia de Ajustes (perfil + horarios). */
+  settingsVersion: string;
+};
 
 /* ───────────── Contrato público (lo único que llega al comensal) ───────────── */
 

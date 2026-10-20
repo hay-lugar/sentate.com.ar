@@ -12,11 +12,10 @@ import {
   type ValidationContext,
 } from "@/lib/reservation/validation";
 import { weekdayOf, type ZonedNow } from "@/lib/time/zoned";
+import { weeklySchedule } from "@/lib/domain/schedule";
 
-const schedule: Schedule = {
-  openDays: [0, 2, 3, 4, 5, 6], // cerrado lunes
-  shifts: [{ id: "cena", label: "Cena", open: "20:00", close: "00:30" }],
-};
+// Cerrado lunes.
+const schedule: Schedule = weeklySchedule([0, 2, 3, 4, 5, 6], [{ id: "cena", label: "Cena", open: "20:00", close: "00:30" }]);
 const FRI = "2026-10-23";
 const at = (date: string, hhmm: string): ZonedNow => {
   const [h, m] = hhmm.split(":").map(Number);
@@ -56,7 +55,7 @@ describe("validateSlot", () => {
   });
 
   it("acepta la madrugada del servicio de anoche mientras siga vigente", () => {
-    const late: Schedule = { openDays: [5], shifts: [{ id: "n", label: "Noche", open: "20:00", close: "03:00" }] };
+    const late: Schedule = weeklySchedule([5], [{ id: "n", label: "Noche", open: "20:00", close: "03:00" }]);
     const lateCtx = (now: ZonedNow): ValidationContext => ({ schedule: late, now, isFull: () => false });
     const draft = { ...valid, serviceDate: FRI, time: "01:30" }; // sábado 01:30, servicio del viernes
     expect(validateSlot(draft, lateCtx(at("2026-10-24", "00:10")))).toEqual({});

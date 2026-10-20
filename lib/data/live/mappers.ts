@@ -3,6 +3,7 @@
 
 import type {
   Category,
+  ClosureDay,
   Dish,
   DishTag,
   PublicTenant,
@@ -31,10 +32,12 @@ export type TenantRow = {
   accent_color: string;
   accent_fg_color: string;
   is_published: boolean;
+  updated_at: string;
 };
 
-export type ShiftRow = { weekday: number; label: string; opens_at: string; closes_at: string };
-export type CategoryRow = { id: string; name: string; position: number; is_visible: boolean };
+export type ShiftRow = { id: string; weekday: number; label: string; opens_at: string; closes_at: string };
+export type ClosureRow = { service_date: string; reason: string };
+export type CategoryRow = { id: string; name: string; position: number; is_visible: boolean; updated_at?: string };
 export type MenuItemRow = {
   id: string;
   category_id: string;
@@ -45,6 +48,7 @@ export type MenuItemRow = {
   tags: string[];
   is_available: boolean;
   position: number;
+  updated_at?: string;
 };
 export type ReservationRow = {
   id: string;
@@ -54,37 +58,42 @@ export type ReservationRow = {
   customer_name: string;
   customer_phone: string;
   notes: string;
-  status: Reservation["status"] | "cancelled";
+  status: Reservation["status"];
   created_at: string;
+  updated_at: string;
 };
 
 const hhmm = (t: string) => t.slice(0, 5);
 
+// Columnas que se leen (compartidas por server y cliente, p. ej. el realtime del panel).
+export const TENANT_COLUMNS =
+  "id, slug, name, tagline, cuisine, price_range, address, phone, timezone, logo_url, cover_url, primary_color, primary_fg_color, accent_color, accent_fg_color, is_published, updated_at";
+export const SHIFT_COLUMNS = "id, weekday, label, opens_at, closes_at";
+export const CLOSURE_COLUMNS = "service_date, reason";
+export const CATEGORY_COLUMNS = "id, name, position, is_visible, updated_at";
+export const MENU_ITEM_COLUMNS = "id, category_id, name, description, price, image_url, tags, is_available, position, updated_at";
+export const RESERVATION_COLUMNS =
+  "id, starts_at, service_date, guests, customer_name, customer_phone, notes, status, created_at, updated_at";
+
 /**
- * La base guarda un turno por fila y por día. El panel modela "los mismos turnos todos los días
- * abiertos": se toman los turnos del primer día abierto. Si los días difieren, se informa con
- * `uniform: false` (el editor reescribe todos los días al guardar).
+ * La base guarda un turno por fila y por día de la semana en que abre. Se conserva tal cual:
+ * cada día con sus propios turnos (sin colapsar días distintos) y los cierres excepcionales.
  */
-export function rowsToSchedule(rows: ShiftRow[]): Schedule & { uniform: boolean } {
-  const openDays = [...new Set(rows.map((r) => r.weekday))].sort((a, b) => a - b);
-  if (!openDays.length) return { openDays: [], shifts: [], uniform: true };
-  const signature = (day: number) =>
+export function rowsToSchedule(rows: ShiftRow[], closures: ClosureRow[] = []): Schedule {
+  const week = Array.from({ length: 7 }, (_, day) =>
     rows
       .filter((r) => r.weekday === day)
-      .map((r) => `${hhmm(r.opens_at)}-${hhmm(r.closes_at)}`)
-      .sort()
-      .join(",");
-  const first = signature(openDays[0]);
-  const shifts = rows
-    .filter((r) => r.weekday === openDays[0])
-    .sort((a, b) => a.opens_at.localeCompare(b.opens_at))
-    .map((r, i) => ({ id: `turno-${i + 1}`, label: r.label || `Turno ${i + 1}`, open: hhmm(r.opens_at), close: hhmm(r.closes_at) }));
-  return { openDays, shifts, uniform: openDays.every((d) => signature(d) === first) };
+      .sort((a, b) => a.opens_at.localeCompare(b.opens_at))
+      .map((r, i) => ({ id: r.id, label: r.label || `Turno ${i + 1}`, open: hhmm(r.opens_at), close: hhmm(r.closes_at) })),
+  );
+  const closureDays: ClosureDay[] = [...closures]
+    .sort((a, b) => a.service_date.localeCompare(b.service_date))
+    .map((c) => ({ date: c.service_date, reason: c.reason ?? "" }));
+  return { week, closures: closureDays };
 }
 
-export function rowToProfile(t: TenantRow, shifts: ShiftRow[]): TenantProfile {
-  const { openDays, shifts: dayShifts } = rowsToSchedule(shifts);
-  const schedule = { openDays, shifts: dayShifts };
+export function rowToProfile(t: TenantRow, shifts: ShiftRow[], closures: ClosureRow[] = []): TenantProfile {
+  const schedule = rowsToSchedule(shifts, closures);
   return {
     name: t.name,
     tagline: t.tagline,
@@ -117,6 +126,7 @@ export function rowToDish(r: MenuItemRow): Dish {
     image: r.image_url ?? undefined,
     tags: r.tags.filter(isTag),
     active: r.is_available,
+    version: r.updated_at,
   };
 }
 
@@ -126,6 +136,7 @@ export function rowsToCategories(categories: CategoryRow[], items: MenuItemRow[]
     .map((c) => ({
       id: c.id,
       name: c.name,
+      version: c.updated_at,
       dishes: items
         .filter((i) => i.category_id === c.id)
         .sort((a, b) => a.position - b.position || a.name.localeCompare(b.name))
@@ -151,15 +162,21 @@ export function rowToReservation(r: ReservationRow, timeZone: string, now: Zoned
     dayOffset: daysBetween(now.date, r.service_date),
     time: localTime(r.starts_at, timeZone),
     notes: r.notes || undefined,
-    // "cancelled" se muestra como rechazada en el panel actual (estado terminal).
-    status: r.status === "cancelled" ? "rejected" : r.status,
+    status: r.status,
     receivedMinutesAgo: Math.max(0, Math.floor((nowMs - new Date(r.created_at).getTime()) / 60000)),
+    version: r.updated_at,
   };
 }
 
 /** Contrato público para un comercio real (misma lista permitida que las demos + id). */
-export function liveToPublicTenant(t: TenantRow, shifts: ShiftRow[], categories: CategoryRow[], items: MenuItemRow[]): PublicTenant {
-  const profile = rowToProfile(t, shifts);
+export function liveToPublicTenant(
+  t: TenantRow,
+  shifts: ShiftRow[],
+  categories: CategoryRow[],
+  items: MenuItemRow[],
+  closures: ClosureRow[] = [],
+): PublicTenant {
+  const profile = rowToProfile(t, shifts, closures);
   return {
     id: t.id,
     slug: t.slug,

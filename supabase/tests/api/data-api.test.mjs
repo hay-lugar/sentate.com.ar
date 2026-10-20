@@ -54,7 +54,7 @@ describe("visitante (anon)", () => {
   test("lee comercios publicados y carta disponible", async () => {
     const t = await rest("tenants?select=slug&order=slug");
     assert.equal(t.status, 200);
-    assert.deepEqual(t.body.map((r) => r.slug), ["el-bodegon", "la-esquina", "sakura"]);
+    assert.deepEqual(t.body.map((r) => r.slug), ["prueba-bodegon", "prueba-esquina", "prueba-sakura"]);
     const items = await rest(`menu_items?select=name&tenant_id=eq.${BODEGON}`);
     assert.ok(!items.body.some((i) => i.name === "Bondiola braseada"), "plato no disponible oculto");
   });

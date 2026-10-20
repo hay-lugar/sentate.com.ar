@@ -1,38 +1,50 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2, ImagePlus, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ImagePlus, LoaderCircle, RefreshCw } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
-import type { Shift, TenantProfile } from "@/lib/domain/types";
-import { PROFILE_LIMITS, validateProfile, type ProfileErrors } from "@/lib/demo/profile-validation";
+import type { TenantProfile } from "@/lib/domain/types";
+import { PROFILE_LIMITS, validateProfileInfo, validateSchedule, type ProfileErrors } from "@/lib/demo/profile-validation";
 import { readableOn, themeContrastReport, themeStyle } from "@/lib/theme";
-import { fromMinutes, TIMEZONE_OPTIONS } from "@/lib/time/zoned";
+import { TIMEZONE_OPTIONS } from "@/lib/time/zoned";
 import { cn } from "@/lib/format";
 import { FieldError, inputClass } from "@/components/menu/reservation/controls";
 import { TenantLogo } from "@/components/ui/tenant-logo";
 import { useDemo } from "./demo-provider";
+import { ScheduleEditor } from "./schedule-editor";
 
-const DAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-const DAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 const LOGO_TYPES = ["image/png", "image/jpeg", "image/webp"];
+const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 export function SettingsForm() {
-  const { state, dispatch, notify, mode } = useDemo();
+  const { state, saveSettings, notify, mode } = useDemo();
+  const router = useRouter();
   const live = mode === "live";
   const [draft, setDraft] = useState<TenantProfile>(state.profile);
   const [source, setSource] = useState(state.profile);
   const [errors, setErrors] = useState<ProfileErrors>({});
+  const [submitting, setSubmitting] = useState(false);
+  /** Los ajustes cambiaron en otra sesión mientras había cambios sin guardar acá. */
+  const [externalChange, setExternalChange] = useState(false);
   const uid = useId();
 
-  // Si el perfil cambia desde afuera (hidratación o "Restablecer demo"), recarga el formulario.
+  const dirty = !same(draft, state.profile);
+  const scheduleDirty = !same(draft.schedule, state.profile.schedule);
+
+  // Si el perfil cambia desde afuera (hidratación, "Restablecer demo", guardado propio o de otra
+  // sesión): sin cambios locales se recarga el formulario; con cambios, se avisa y NO se pisan.
   if (state.profile !== source) {
     setSource(state.profile);
-    setDraft(state.profile);
-    setErrors({});
+    if (!same(state.profile, source)) {
+      if (!same(draft, source) && !same(draft, state.profile)) setExternalChange(true);
+      else {
+        setDraft(state.profile);
+        setErrors({});
+      }
+    }
   }
 
-  const dirty = JSON.stringify(draft) !== JSON.stringify(state.profile);
   const set = <K extends keyof TenantProfile>(key: K, value: TenantProfile[K]) => setDraft((d) => ({ ...d, [key]: value }));
-  const setShifts = (shifts: Shift[]) => setDraft((d) => ({ ...d, schedule: { ...d.schedule, shifts } }));
   const setColor = (key: "primary" | "accent", hex: string) =>
     setDraft((d) => ({
       ...d,
@@ -54,17 +66,29 @@ export function SettingsForm() {
     reader.readAsDataURL(file);
   };
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     const next = { ...draft, name: draft.name.trim(), tagline: draft.tagline.trim(), cuisine: draft.cuisine.trim(), address: draft.address.trim() };
-    const errs = validateProfile(next);
+    // Los horarios se validan (y se envían) solo si cambiaron: guardar colores no toca turnos.
+    const errs = { ...validateProfileInfo(next), ...(scheduleDirty ? validateSchedule(next.schedule) : {}) };
     setErrors(errs);
     if (Object.keys(errs).length) {
       notify("Revisá los campos marcados", "error");
       return;
     }
-    dispatch({ type: "updateProfile", profile: next });
-    notify(live ? "Guardando ajustes…" : "Ajustes guardados en este navegador", live ? "neutral" : "ok");
+    setDraft(next);
+    setSubmitting(true);
+    const res = await saveSettings(next, scheduleDirty);
+    setSubmitting(false);
+    if (res.ok) setExternalChange(false);
+    else if (res.code === "stale") setExternalChange(true);
+  };
+
+  const discard = () => {
+    setDraft(state.profile);
+    setErrors({});
+    setExternalChange(false);
   };
 
   const contrast = themeContrastReport(draft.theme);
@@ -140,78 +164,15 @@ export function SettingsForm() {
           <p className="mt-1.5 px-1 text-[12px] text-muted">Estado abierto/cerrado y calendario de reservas usan esta zona.</p>
         </div>
 
-        <fieldset className="mt-5" aria-describedby={errors.openDays ? id("days-error") : undefined}>
-          <legend className="mb-2 px-1 text-[13px] font-semibold">Días de apertura</legend>
-          <div className="grid grid-cols-7 gap-1.5">
-            {DAYS.map((d, i) => {
-              const on = draft.schedule.openDays.includes(i);
-              return (
-                <button
-                  key={d}
-                  type="button"
-                  aria-pressed={on}
-                  aria-label={DAY_NAMES[i]}
-                  onClick={() =>
-                    set("schedule", {
-                      ...draft.schedule,
-                      openDays: on ? draft.schedule.openDays.filter((x) => x !== i) : [...draft.schedule.openDays, i].sort(),
-                    })
-                  }
-                  className={cn("pressable h-11 rounded-xl text-[12px] font-semibold ring-1", on ? "bg-brand text-brand-fg ring-brand" : "bg-surface ring-line")}
-                >
-                  {d}
-                </button>
-              );
-            })}
-          </div>
-          <FieldError id={id("days-error")}>{errors.openDays}</FieldError>
-        </fieldset>
-
-        <fieldset className="mt-5">
-          <legend className="mb-2 px-1 text-[13px] font-semibold">Turnos</legend>
-          <p className="mb-3 px-1 text-[12px] text-muted">
-            Si un turno cierra después de medianoche (ej. 20:00–00:30), esos horarios pertenecen al día en que abrió.
-          </p>
-          <ul className="space-y-2">
-            {draft.schedule.shifts.map((s, i) => (
-              <li key={s.id} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-end gap-2 rounded-2xl bg-background p-2 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
-                <div className="col-span-3 sm:col-span-1">
-                  <label htmlFor={id(`shift-${i}-label`)} className="mb-1 block px-1 text-[11px] font-semibold text-muted">
-                    Nombre del turno
-                  </label>
-                  <input
-                    id={id(`shift-${i}-label`)}
-                    value={s.label}
-                    onChange={(e) => setShifts(draft.schedule.shifts.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))}
-                    className={cn(inputClass, "h-11 bg-surface")}
-                  />
-                </div>
-                <TimeInput id={id(`shift-${i}-open`)} label="Abre" value={s.open} onChange={(v) => setShifts(draft.schedule.shifts.map((x, j) => (j === i ? { ...x, open: v } : x)))} />
-                <TimeInput id={id(`shift-${i}-close`)} label="Cierra" value={s.close} onChange={(v) => setShifts(draft.schedule.shifts.map((x, j) => (j === i ? { ...x, close: v } : x)))} />
-                <button
-                  type="button"
-                  aria-label={`Quitar turno ${s.label || i + 1}`}
-                  onClick={() => setShifts(draft.schedule.shifts.filter((_, j) => j !== i))}
-                  className="pressable grid size-11 place-items-center rounded-xl text-muted hover:bg-rose-50 hover:text-rose-700"
-                >
-                  <Trash2 className="size-4" aria-hidden />
-                </button>
-              </li>
-            ))}
-          </ul>
-          {draft.schedule.shifts.length < PROFILE_LIMITS.maxShifts && (
-            <button
-              type="button"
-              onClick={() =>
-                setShifts([...draft.schedule.shifts, { id: `turno-${Date.now()}`, label: "Nuevo turno", open: "12:00", close: "15:00" }])
-              }
-              className="pressable mt-2 inline-flex h-10 items-center gap-1.5 rounded-xl px-3 text-[13px] font-semibold text-brand hover:bg-brand-soft"
-            >
-              <Plus className="size-4" aria-hidden /> Agregar turno
-            </button>
-          )}
-          <FieldError id={id("shifts-error")}>{errors.shifts}</FieldError>
-        </fieldset>
+        <div className="mt-5">
+          <ScheduleEditor
+            idPrefix={id("schedule")}
+            schedule={draft.schedule}
+            timeZone={draft.timezone}
+            errors={errors}
+            onChange={(schedule) => set("schedule", schedule)}
+          />
+        </div>
       </Card>
 
       {/* Identidad visual */}
@@ -242,24 +203,47 @@ export function SettingsForm() {
         </div>
       </Card>
 
+      {externalChange && (
+        <div role="alert" className="flex flex-col gap-3 rounded-[1.75rem] bg-amber-50 p-4 text-amber-950 ring-1 ring-amber-200 sm:flex-row sm:items-center lg:col-span-2">
+          <AlertTriangle className="size-5 shrink-0" aria-hidden />
+          <p className="min-w-0 flex-1 text-[14px]">
+            Los ajustes se modificaron en otra pestaña o dispositivo. Para no pisar esos cambios, descartá los tuyos y volvé a editar.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              discard();
+              router.refresh();
+            }}
+            className="pressable inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-amber-900 px-4 text-[14px] font-semibold text-white"
+          >
+            <RefreshCw className="size-4" aria-hidden /> Ver la versión actual
+          </button>
+        </div>
+      )}
+
       {/* Barra de guardado: solo con cambios pendientes, para no tapar campos en mobile */}
-      {dirty && (
+      {(dirty || submitting) && (
         <div className="fixed inset-x-0 bottom-24 z-30 flex justify-center px-4 lg:bottom-6 lg:left-auto lg:right-8">
           <div className="flex items-center gap-3 rounded-2xl bg-surface p-2 pl-4 shadow-lift ring-1 ring-line/70">
             <span className="text-[13px] font-medium text-muted" role="status">
-              Cambios sin guardar
+              {submitting ? "Guardando…" : "Cambios sin guardar"}
             </span>
             <button
               type="button"
-              onClick={() => {
-                setDraft(state.profile);
-                setErrors({});
-              }}
+              disabled={submitting}
+              onClick={discard}
               className="pressable h-11 rounded-xl px-3 text-[14px] font-semibold disabled:opacity-40"
             >
               Descartar
             </button>
-            <button type="submit" className="pressable h-11 rounded-xl bg-brand px-4 text-[14px] font-semibold text-brand-fg shadow-brand">
+            <button
+              type="submit"
+              disabled={submitting}
+              aria-busy={submitting}
+              className="pressable inline-flex h-11 items-center gap-2 rounded-xl bg-brand px-4 text-[14px] font-semibold text-brand-fg shadow-brand disabled:opacity-70"
+            >
+              {submitting && <LoaderCircle className="size-4 animate-spin" aria-hidden />}
               Guardar
             </button>
           </div>
@@ -311,32 +295,6 @@ function TextField({
         className={inputClass}
       />
       <FieldError id={`${id}-error`}>{error}</FieldError>
-    </div>
-  );
-}
-
-// Selector HH:MM explícito (24 h, cada 15'): evita que el input nativo cambie de formato según el locale.
-const TIME_OPTIONS = Array.from({ length: 96 }, (_, i) => fromMinutes(i * 15));
-
-function TimeInput({ id, label, value, onChange }: { id: string; label: string; value: string; onChange: (v: string) => void }) {
-  const options = TIME_OPTIONS.includes(value) ? TIME_OPTIONS : [value, ...TIME_OPTIONS];
-  return (
-    <div className="min-w-0">
-      <label htmlFor={id} className="mb-1 block px-1 text-[11px] font-semibold text-muted">
-        {label}
-      </label>
-      <select
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={cn(inputClass, "h-11 w-full min-w-0 bg-surface px-3 tabular-nums sm:w-[6.5rem]")}
-      >
-        {options.map((t) => (
-          <option key={t} value={t}>
-            {t}
-          </option>
-        ))}
-      </select>
     </div>
   );
 }

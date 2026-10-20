@@ -1,5 +1,7 @@
 // Consultas a Supabase en el servidor, siempre con la clave publicable y la sesión del usuario:
 // la autorización la decide RLS. Nunca service_role.
+//
+// Cada lectura devuelve un LiveResult: un error de consulta NUNCA se convierte en datos vacíos.
 
 import { cookies } from "next/headers";
 import type { LiveTenantRecord, PublicTenant } from "@/lib/domain/types";
@@ -7,19 +9,34 @@ import { addDays, zonedNow } from "@/lib/time/zoned";
 import { createClient } from "@/utils/supabase/server";
 import { isSupabaseConfigured } from "@/utils/supabase/env";
 import {
+  CATEGORY_COLUMNS,
+  CLOSURE_COLUMNS,
   liveToPublicTenant,
+  MENU_ITEM_COLUMNS,
+  RESERVATION_COLUMNS,
   rowToProfile,
   rowToReservation,
   rowsToCategories,
+  SHIFT_COLUMNS,
+  TENANT_COLUMNS,
   type CategoryRow,
+  type ClosureRow,
   type MenuItemRow,
   type ReservationRow,
   type ShiftRow,
   type TenantRow,
 } from "./mappers";
+import type { LiveResult } from "./result";
 
-const TENANT_COLUMNS =
-  "id, slug, name, tagline, cuisine, price_range, address, phone, timezone, logo_url, cover_url, primary_color, primary_fg_color, accent_color, accent_fg_color, is_published";
+type QueryError = { code?: string; message: string } | null;
+
+const fail = (where: string, error: QueryError): LiveResult<never> => {
+  console.error(`[sentate] ${where}`, error?.code, error?.message);
+  return { status: "error", reason: where };
+};
+
+/** Fecha local de hoy menos un día: desde ayer (turnos de madrugada) en adelante. */
+export const reservationsSince = (timeZone: string) => addDays(zonedNow(timeZone).date, -1);
 
 export async function supabaseServer() {
   return createClient(await cookies());
@@ -35,8 +52,8 @@ export async function getCurrentUser() {
 }
 
 /** Carta pública de un comercio real publicado (RLS: solo lo visible al público). */
-export async function getLivePublicTenant(slug: string): Promise<PublicTenant | null> {
-  if (!isSupabaseConfigured()) return null;
+export async function getLivePublicTenant(slug: string): Promise<LiveResult<PublicTenant>> {
+  if (!isSupabaseConfigured()) return { status: "not_found" };
   const supabase = await supabaseServer();
   const { data: tenant, error } = await supabase
     .from("tenants")
@@ -44,100 +61,98 @@ export async function getLivePublicTenant(slug: string): Promise<PublicTenant | 
     .eq("slug", slug)
     .eq("is_published", true)
     .maybeSingle<TenantRow>();
-  if (error) {
-    console.error("[sentate] getLivePublicTenant", error.message);
-    return null;
-  }
-  if (!tenant) return null;
+  if (error) return fail("public tenant", error);
+  if (!tenant) return { status: "not_found" };
 
-  const [shifts, categories, items] = await Promise.all([
-    supabase.from("tenant_shifts").select("weekday, label, opens_at, closes_at").eq("tenant_id", tenant.id),
-    supabase.from("categories").select("id, name, position, is_visible").eq("tenant_id", tenant.id).eq("is_visible", true),
-    supabase
-      .from("menu_items")
-      .select("id, category_id, name, description, price, image_url, tags, is_available, position")
-      .eq("tenant_id", tenant.id)
-      .eq("is_available", true),
+  const [shifts, closures, categories, items] = await Promise.all([
+    supabase.from("tenant_shifts").select(SHIFT_COLUMNS).eq("tenant_id", tenant.id),
+    supabase.from("tenant_closures").select(CLOSURE_COLUMNS).eq("tenant_id", tenant.id).gte("service_date", reservationsSince(tenant.timezone)),
+    supabase.from("categories").select(CATEGORY_COLUMNS).eq("tenant_id", tenant.id).eq("is_visible", true),
+    supabase.from("menu_items").select(MENU_ITEM_COLUMNS).eq("tenant_id", tenant.id).eq("is_available", true),
   ]);
-  return liveToPublicTenant(
-    tenant,
-    (shifts.data ?? []) as ShiftRow[],
-    (categories.data ?? []) as CategoryRow[],
-    (items.data ?? []) as MenuItemRow[],
-  );
-}
-
-/** ¿Existe un comercio real publicado con ese slug? (para decidir login vs. demo sin sesión) */
-export async function livePublicTenantExists(slug: string) {
-  if (!isSupabaseConfigured()) return false;
-  const supabase = await supabaseServer();
-  const { data } = await supabase.from("tenants").select("id").eq("slug", slug).eq("is_published", true).maybeSingle();
-  return !!data;
+  const failed = [shifts, closures, categories, items].find((r) => r.error);
+  if (failed) return fail("public menu", failed.error);
+  return {
+    status: "ok",
+    data: liveToPublicTenant(
+      tenant,
+      shifts.data as ShiftRow[],
+      categories.data as CategoryRow[],
+      items.data as MenuItemRow[],
+      closures.data as ClosureRow[],
+    ),
+  };
 }
 
 /** Comercios del usuario (para redirigir tras el login). */
-export async function getMyTenantSlugs(): Promise<string[]> {
+export async function getMyTenantSlugs(): Promise<LiveResult<string[]>> {
   const supabase = await supabaseServer();
-  const { data: memberships } = await supabase.from("tenant_members").select("tenant_id");
-  const ids = (memberships ?? []).map((m) => m.tenant_id as string);
-  if (!ids.length) return [];
-  const { data } = await supabase.from("tenants").select("slug, created_at").in("id", ids).order("created_at");
-  return (data ?? []).map((t) => t.slug as string);
+  const { data: memberships, error } = await supabase.from("tenant_members").select("tenant_id");
+  if (error) return fail("memberships", error);
+  const ids = memberships.map((m) => m.tenant_id as string);
+  if (!ids.length) return { status: "ok", data: [] };
+  const { data, error: tenantsError } = await supabase.from("tenants").select("slug, created_at").in("id", ids).order("created_at");
+  if (tenantsError) return fail("my tenants", tenantsError);
+  return { status: "ok", data: data.map((t) => t.slug as string) };
 }
 
 /**
  * Registro del panel para un comercio del que el usuario es miembro.
- * null si no existe o el usuario no es miembro (RLS no lo deja ver).
+ * not_found: no existe o RLS no lo deja ver · forbidden: lo ve (publicado) pero no es miembro.
  */
-export async function getLiveTenantRecord(slug: string): Promise<LiveTenantRecord | null> {
+export async function getLiveTenantRecord(slug: string): Promise<LiveResult<LiveTenantRecord>> {
   const supabase = await supabaseServer();
   const { data: tenant, error: tenantError } = await supabase
     .from("tenants")
     .select(TENANT_COLUMNS)
     .eq("slug", slug)
     .maybeSingle<TenantRow>();
-  if (tenantError) console.error("[sentate] getLiveTenantRecord tenant", tenantError.code, tenantError.message);
-  if (!tenant) return null;
+  if (tenantError) return fail("tenant", tenantError);
+  if (!tenant) return { status: "not_found" };
 
   const { data: access, error: accessError } = await supabase.rpc("get_tenant_access", { p_tenant_id: tenant.id });
-  if (accessError) console.error("[sentate] get_tenant_access", accessError.code, accessError.message);
-  const accessInfo = access as { is_member: boolean; can_operate: boolean } | null;
-  if (!accessInfo?.is_member) return null;
+  if (accessError) return fail("get_tenant_access", accessError);
+  const accessInfo = access as { is_member: boolean; can_operate: boolean };
+  if (!accessInfo.is_member) return { status: "forbidden" };
 
   const now = zonedNow(tenant.timezone);
-  const [sub, shifts, categories, items, reservations] = await Promise.all([
+  const [sub, shifts, closures, categories, items, reservations] = await Promise.all([
     supabase.from("tenant_subscriptions").select("status, trial_ends_at").eq("tenant_id", tenant.id).maybeSingle(),
-    supabase.from("tenant_shifts").select("weekday, label, opens_at, closes_at").eq("tenant_id", tenant.id),
-    supabase.from("categories").select("id, name, position, is_visible").eq("tenant_id", tenant.id),
-    supabase
-      .from("menu_items")
-      .select("id, category_id, name, description, price, image_url, tags, is_available, position")
-      .eq("tenant_id", tenant.id),
-    // Desde ayer (turnos de madrugada) en adelante; RLS devuelve [] si la prueba venció.
+    supabase.from("tenant_shifts").select(SHIFT_COLUMNS).eq("tenant_id", tenant.id),
+    supabase.from("tenant_closures").select(CLOSURE_COLUMNS).eq("tenant_id", tenant.id).gte("service_date", now.date),
+    supabase.from("categories").select(CATEGORY_COLUMNS).eq("tenant_id", tenant.id),
+    supabase.from("menu_items").select(MENU_ITEM_COLUMNS).eq("tenant_id", tenant.id),
+    // RLS devuelve [] si la prueba venció (el panel muestra AccessExpired en ese caso).
     supabase
       .from("reservations")
-      .select("id, starts_at, service_date, guests, customer_name, customer_phone, notes, status, created_at")
+      .select(RESERVATION_COLUMNS)
       .eq("tenant_id", tenant.id)
       .gte("service_date", addDays(now.date, -1))
       .order("starts_at")
       .limit(300),
   ]);
+  const failed = [sub, shifts, closures, categories, items, reservations].find((r) => r.error);
+  if (failed) return fail("panel data", failed.error);
 
   const nowMs = Date.now();
   const trialEndsAt = (sub.data?.trial_ends_at as string | undefined) ?? new Date(nowMs).toISOString();
   return {
-    id: tenant.id,
-    isPublished: tenant.is_published,
-    slug: tenant.slug,
-    profile: rowToProfile(tenant, (shifts.data ?? []) as ShiftRow[]),
-    categories: rowsToCategories((categories.data ?? []) as CategoryRow[], (items.data ?? []) as MenuItemRow[]),
-    reservations: ((reservations.data ?? []) as ReservationRow[]).map((r) => rowToReservation(r, tenant.timezone, now, nowMs)),
-    stats: null,
-    access: {
-      subscriptionStatus: (sub.data?.status ?? "trialing") as LiveTenantRecord["access"]["subscriptionStatus"],
-      trialEndsAt,
-      trialDaysLeft: Math.max(0, Math.ceil((new Date(trialEndsAt).getTime() - nowMs) / 86_400_000)),
-      canOperate: accessInfo.can_operate,
+    status: "ok",
+    data: {
+      id: tenant.id,
+      isPublished: tenant.is_published,
+      settingsVersion: tenant.updated_at,
+      slug: tenant.slug,
+      profile: rowToProfile(tenant, shifts.data as ShiftRow[], closures.data as ClosureRow[]),
+      categories: rowsToCategories(categories.data as CategoryRow[], items.data as MenuItemRow[]),
+      reservations: (reservations.data as ReservationRow[]).map((r) => rowToReservation(r, tenant.timezone, now, nowMs)),
+      stats: null,
+      access: {
+        subscriptionStatus: (sub.data?.status ?? "trialing") as LiveTenantRecord["access"]["subscriptionStatus"],
+        trialEndsAt,
+        trialDaysLeft: Math.max(0, Math.ceil((new Date(trialEndsAt).getTime() - nowMs) / 86_400_000)),
+        canOperate: accessInfo.can_operate,
+      },
     },
   };
 }

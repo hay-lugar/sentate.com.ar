@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, Clock3, MapPin, Phone, Share2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { PublicTenant } from "@/lib/domain/types";
-import type { OpenState } from "@/lib/domain/schedule";
+import { describeWeek, type OpenState } from "@/lib/domain/schedule";
 import { DemoBadge } from "@/components/ui/demo-badge";
 import { TenantLogo } from "@/components/ui/tenant-logo";
 import { OpenStatusPill, StatusDot } from "./open-status";
@@ -39,7 +39,7 @@ export function RestaurantHeader({
     } catch {}
   };
 
-  const shiftsLabel = tenant.schedule.shifts.map((s) => `${s.open}–${s.close}`).join(" · ");
+  const weekLines = describeWeek(tenant.schedule);
 
   return (
     <header>
@@ -102,11 +102,18 @@ export function RestaurantHeader({
               </span>
             </a>
           </div>
-          {shiftsLabel && (
-            <p className="mt-3 flex items-center gap-1.5 px-1 text-[12px] text-muted">
-              <Clock3 className="size-3.5" aria-hidden />
-              Horarios: {shiftsLabel}
-            </p>
+          {weekLines.length > 0 && (
+            <div className="mt-3 flex items-start gap-1.5 px-1 text-[12px] text-muted">
+              <Clock3 className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+              <div>
+                <span className="sr-only">Horarios: </span>
+                <ul aria-label="Horarios">
+                  {weekLines.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           )}
         </motion.div>
       </div>

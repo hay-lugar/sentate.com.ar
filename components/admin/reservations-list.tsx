@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarDays, Check, Clock3, Inbox, MessageSquare, Phone, Users, X } from "lucide-react";
+import { Ban, CalendarDays, Check, Clock3, Inbox, MessageSquare, Phone, Radio, Users, WifiOff, X } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { Reservation, ReservationStatus } from "@/lib/domain/types";
@@ -17,6 +17,7 @@ const FILTERS: { id: Filter; label: string }[] = [
   { id: "pending", label: "Solicitudes" },
   { id: "confirmed", label: "Confirmadas" },
   { id: "rejected", label: "Rechazadas" },
+  { id: "cancelled", label: "Canceladas" },
   { id: "all", label: "Todas" },
 ];
 
@@ -29,14 +30,14 @@ export function ReservationsList({
   limit?: number;
   seeAllHref?: string;
 }) {
-  const { state, mode, setReservationStatus: setStatus } = useDemo();
+  const { state, mode, realtime, setReservationStatus: setStatus } = useDemo();
   const { reservations } = state;
   const tz = state.profile.timezone;
   const now = useZonedNow(tz, zonedNow(tz));
   const [filter, setFilter] = useState<Filter>("pending");
 
   const counts = useMemo(() => {
-    const c: Record<Filter, number> = { pending: 0, confirmed: 0, rejected: 0, all: reservations.length };
+    const c: Record<Filter, number> = { pending: 0, confirmed: 0, rejected: 0, cancelled: 0, all: reservations.length };
     reservations.forEach((r) => c[r.status]++);
     return c;
   }, [reservations]);
@@ -59,6 +60,7 @@ export function ReservationsList({
         <div>
           <h2 className="text-xl font-bold">{title}</h2>
           <p className="text-[12px] text-muted">{mode === "demo" ? "Ejemplos ficticios · pendiente ≠ confirmada" : "Una solicitud pendiente todavía no es una reserva confirmada"}</p>
+          {realtime && <LiveIndicator status={realtime} />}
         </div>
         <div className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto rounded-2xl bg-background p-1 sm:ml-auto">
           {FILTERS.map((f) => (
@@ -221,17 +223,39 @@ function ReservationRow({
   );
 }
 
+const BADGES = {
+  confirmed: { label: "Reserva confirmada", className: "bg-emerald-50 text-emerald-800", Icon: Check },
+  rejected: { label: "Solicitud rechazada", className: "bg-rose-50 text-rose-700", Icon: X },
+  cancelled: { label: "Cancelada", className: "bg-ink/5 text-muted", Icon: Ban },
+} as const;
+
 function StatusBadge({ status }: { status: Exclude<ReservationStatus, "pending"> }) {
-  const ok = status === "confirmed";
+  const { label, className, Icon } = BADGES[status];
   return (
-    <span
-      className={cn(
-        "inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-[13px] font-semibold",
-        ok ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-600",
-      )}
-    >
-      {ok ? <Check className="size-4" strokeWidth={2.75} /> : <X className="size-4" strokeWidth={2.75} />}
-      {ok ? "Reserva confirmada" : "Solicitud rechazada"}
+    <span className={cn("inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-[13px] font-semibold", className)}>
+      <Icon className="size-4" strokeWidth={2.75} aria-hidden />
+      {label}
     </span>
+  );
+}
+
+/** Estado de la conexión en vivo: las solicitudes nuevas aparecen solas mientras está "En vivo". */
+function LiveIndicator({ status }: { status: "connecting" | "live" | "offline" }) {
+  return (
+    <p role="status" className="mt-1 inline-flex items-center gap-1.5 text-[12px] font-semibold">
+      {status === "live" ? (
+        <>
+          <Radio className="size-3.5 text-emerald-700" aria-hidden />
+          <span className="text-emerald-800">En vivo</span>
+        </>
+      ) : status === "connecting" ? (
+        <span className="text-muted">Conectando…</span>
+      ) : (
+        <>
+          <WifiOff className="size-3.5 text-amber-800" aria-hidden />
+          <span className="text-amber-900">Sin conexión en vivo · reintentando</span>
+        </>
+      )}
+    </p>
   );
 }

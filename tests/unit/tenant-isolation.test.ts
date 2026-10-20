@@ -60,7 +60,7 @@ describe("contrato público", () => {
 
 describe("almacenamiento de demo aislado por tenant", () => {
   it("usa claves versionadas distintas por tenant", () => {
-    expect(demoStorageKey("el-bodegon")).toBe("sentate:demo:v1:el-bodegon");
+    expect(demoStorageKey("el-bodegon")).toBe("sentate:demo:v2:el-bodegon");
     expect(demoStorageKey("sakura")).not.toBe(demoStorageKey("el-bodegon"));
   });
 

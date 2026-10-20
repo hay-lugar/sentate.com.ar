@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { liveToPublicTenant, localTime, rowToReservation, rowsToCategories, rowsToSchedule, type TenantRow } from "@/lib/data/live/mappers";
+import { liveToPublicTenant, localTime, rowToProfile, rowToReservation, rowsToCategories, rowsToSchedule, type TenantRow } from "@/lib/data/live/mappers";
+import { toSettingsMutation } from "@/lib/admin/to-live-mutation";
+import { liveMutation } from "@/lib/admin/live-mutations";
 import { reservationErrorInfo } from "@/lib/reservation/errors";
 import { safeNext } from "@/lib/auth/redirects";
 
@@ -11,7 +13,7 @@ const tenant: TenantRow = {
   cuisine: "Bar",
   price_range: "$$",
   address: "Calle 1",
-  phone: "",
+  phone: "+54 11 4000-0000",
   timezone: "America/Argentina/Buenos_Aires",
   logo_url: null,
   cover_url: null,
@@ -20,30 +22,77 @@ const tenant: TenantRow = {
   accent_color: "#d9f2ec",
   accent_fg_color: "#0b4d47",
   is_published: true,
+  updated_at: "2026-10-20T12:00:00.000000+00:00",
 };
 
-describe("rowsToSchedule", () => {
-  it("agrupa filas por día en openDays + turnos", () => {
-    const rows = [1, 2].flatMap((d) => [
-      { weekday: d, label: "Cena", opens_at: "20:00:00", closes_at: "00:30:00" },
-      { weekday: d, label: "Almuerzo", opens_at: "12:00:00", closes_at: "16:00:00" },
-    ]);
-    const s = rowsToSchedule(rows);
-    expect(s.openDays).toEqual([1, 2]);
-    expect(s.shifts.map((x) => `${x.label} ${x.open}-${x.close}`)).toEqual(["Almuerzo 12:00-16:00", "Cena 20:00-00:30"]);
-    expect(s.uniform).toBe(true);
+describe("rowsToSchedule (sin pérdida)", () => {
+  const row = (id: string, weekday: number, label: string, open: string, close: string) => ({
+    id,
+    weekday,
+    label,
+    opens_at: `${open}:00`,
+    closes_at: `${close}:00`,
   });
 
-  it("detecta horarios distintos por día", () => {
+  it("conserva turnos DISTINTOS por día, ordenados, con su id real", () => {
     const s = rowsToSchedule([
-      { weekday: 1, label: "A", opens_at: "12:00:00", closes_at: "16:00:00" },
-      { weekday: 2, label: "A", opens_at: "13:00:00", closes_at: "16:00:00" },
+      row("b", 2, "Cena", "20:00", "00:30"),
+      row("a", 2, "Almuerzo", "12:00", "16:00"),
+      row("c", 0, "Almuerzo", "12:00", "16:30"),
+      row("d", 6, "Trasnoche", "22:00", "04:00"),
     ]);
-    expect(s.uniform).toBe(false);
+    expect(s.week).toHaveLength(7);
+    expect(s.week[0].map((x) => `${x.id} ${x.label} ${x.open}-${x.close}`)).toEqual(["c Almuerzo 12:00-16:30"]);
+    expect(s.week[1]).toEqual([]);
+    expect(s.week[2].map((x) => `${x.label} ${x.open}-${x.close}`)).toEqual(["Almuerzo 12:00-16:00", "Cena 20:00-00:30"]);
+    expect(s.week[6].map((x) => `${x.label} ${x.open}-${x.close}`)).toEqual(["Trasnoche 22:00-04:00"]);
   });
 
-  it("sin filas: sin días ni turnos", () => {
-    expect(rowsToSchedule([])).toEqual({ openDays: [], shifts: [], uniform: true });
+  it("incluye cierres excepcionales ordenados", () => {
+    const s = rowsToSchedule([], [
+      { service_date: "2026-12-31", reason: "" },
+      { service_date: "2026-12-25", reason: "Navidad" },
+    ]);
+    expect(s.closures).toEqual([
+      { date: "2026-12-25", reason: "Navidad" },
+      { date: "2026-12-31", reason: "" },
+    ]);
+  });
+
+  it("lectura → edición → payload: cada día sobrevive intacto (no se colapsa al primer día)", () => {
+    const rows = [row("a", 1, "Almuerzo", "12:00", "15:00"), row("b", 5, "Cena", "20:00", "01:00"), row("c", 5, "Almuerzo", "12:00", "15:30")];
+    const profile = rowToProfile(tenant, rows, [{ service_date: "2026-12-25", reason: "Navidad" }]);
+    // El dueño solo cambia el turno del lunes.
+    const edited = {
+      ...profile,
+      schedule: { ...profile.schedule, week: profile.schedule.week.map((d, i) => (i === 1 ? [{ ...d[0], close: "15:30" }] : d)) },
+    };
+    const m = toSettingsMutation(edited, true, tenant.updated_at);
+    expect(m.type === "saveSettings" && m.schedule?.week).toEqual([
+      [],
+      [{ label: "Almuerzo", open: "12:00", close: "15:30" }],
+      [],
+      [],
+      [],
+      [
+        { label: "Almuerzo", open: "12:00", close: "15:30" },
+        { label: "Cena", open: "20:00", close: "01:00" },
+      ],
+      [],
+    ]);
+    expect(m.type === "saveSettings" && m.schedule?.closures).toEqual([{ date: "2026-12-25", reason: "Navidad" }]);
+    // Y el payload es válido para la Server Action.
+    expect(liveMutation.safeParse(m).success).toBe(true);
+  });
+
+  it("guardar solo datos/colores no envía horarios", () => {
+    const profile = rowToProfile(tenant, [row("a", 1, "Almuerzo", "12:00", "15:00")]);
+    const m = toSettingsMutation({ ...profile, theme: { ...profile.theme, primary: "#000000" } }, false, tenant.updated_at);
+    expect(m.type === "saveSettings" && m.schedule).toBeNull();
+  });
+
+  it("sin filas: 7 días cerrados", () => {
+    expect(rowsToSchedule([])).toEqual({ week: [[], [], [], [], [], [], []], closures: [] });
   });
 });
 
@@ -99,12 +148,34 @@ describe("reservas", () => {
         notes: "",
         status: "pending",
         created_at: "2026-10-23T20:00:00Z",
+        updated_at: "2026-10-23T20:00:00Z",
       },
       "America/Argentina/Buenos_Aires",
       { date: "2026-10-23", minutes: 21 * 60, weekday: 5 },
       Date.parse("2026-10-24T00:30:00Z"),
     );
-    expect(r).toMatchObject({ dayOffset: 0, time: "01:00", receivedMinutesAgo: 270, notes: undefined });
+    expect(r).toMatchObject({ dayOffset: 0, time: "01:00", receivedMinutesAgo: 270, notes: undefined, version: "2026-10-23T20:00:00Z" });
+  });
+
+  it("cancelled se conserva como Cancelada (no se mezcla con rechazada)", () => {
+    const r = rowToReservation(
+      {
+        id: "r2",
+        starts_at: "2026-10-24T00:00:00Z",
+        service_date: "2026-10-23",
+        guests: 2,
+        customer_name: "Ana",
+        customer_phone: "1155550000",
+        notes: "",
+        status: "cancelled",
+        created_at: "2026-10-23T20:00:00Z",
+        updated_at: "2026-10-23T21:00:00Z",
+      },
+      "America/Argentina/Buenos_Aires",
+      { date: "2026-10-23", minutes: 21 * 60, weekday: 5 },
+      Date.parse("2026-10-24T00:30:00Z"),
+    );
+    expect(r.status).toBe("cancelled");
   });
 });
 

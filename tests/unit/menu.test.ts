@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { weeklySchedule } from "@/lib/domain/schedule";
 import { getTenantRecord } from "@/lib/data/tenants";
 import { demoReducer, type DemoState } from "@/lib/demo/state";
 import { validateCategoryName, validateDishForm, type DishFormValues } from "@/lib/demo/menu-validation";
-import { validateProfile, validateShifts } from "@/lib/demo/profile-validation";
+import { validateProfile, validateSchedule, validateShifts } from "@/lib/demo/profile-validation";
 import { parsePrice } from "@/lib/format";
 
 const base = (): DemoState => {
@@ -89,13 +90,19 @@ describe("reducer de carta", () => {
 });
 
 describe("Ajustes", () => {
-  it("detecta turnos superpuestos, incluso cruzando medianoche", () => {
+  it("detecta turnos superpuestos, incluso cruzando medianoche (misma regla que la base)", () => {
     expect(
       validateShifts([
-        { id: "a", label: "Cena", open: "20:00", close: "01:00" },
-        { id: "b", label: "Trasnoche", open: "00:30", close: "03:00" },
+        { id: "a", label: "Cena", open: "20:00", close: "23:00" },
+        { id: "b", label: "Tarde", open: "22:30", close: "23:30" },
       ]),
     ).toMatch(/superponen/);
+    const cena = { id: "a", label: "Cena", open: "20:00", close: "01:00" };
+    const trasnoche = { id: "b", label: "Trasnoche", open: "00:30", close: "03:00" };
+    // Mismo día: la trasnoche de las 00:30 es ANTES de la cena de ese día → no se pisan.
+    expect(validateShifts([cena, trasnoche])).toBeNull();
+    // Días consecutivos: la cena del jueves (hasta 01:00) pisa la trasnoche del viernes (00:30).
+    expect(Object.values(validateSchedule(weeklySchedule([4, 5], [cena, trasnoche]))).join(" ")).toMatch(/se superpone/);
     expect(
       validateShifts([
         { id: "a", label: "Almuerzo", open: "12:00", close: "16:00" },

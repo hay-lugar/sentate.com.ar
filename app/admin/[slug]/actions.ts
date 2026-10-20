@@ -1,189 +1,254 @@
 "use server";
 
 import { cookies } from "next/headers";
-import type { DemoAction } from "@/lib/demo/state";
-import { validateProfile } from "@/lib/demo/profile-validation";
-import { MENU_LIMITS } from "@/lib/demo/menu-validation";
+import { liveMutation, type MutationErrorCode, type MutationResult } from "@/lib/admin/live-mutations";
+import { validateProfileInfo, validateSchedule } from "@/lib/demo/profile-validation";
 import { createClient } from "@/utils/supabase/server";
+import { z } from "zod";
 
-export type MutationResult = { ok: true } | { ok: false; message: string };
+export type { MutationResult } from "@/lib/admin/live-mutations";
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+type PgError = { code?: string; message?: string } | null;
 
-/** Errores de Postgres/PostgREST → mensaje para el dueño. */
-function describe(error: { code?: string; message?: string } | null): string {
+const fail = (code: MutationErrorCode, message: string): MutationResult => ({ ok: false, code, message });
+
+const MESSAGES = {
+  stale: "Esto cambió en otra pestaña o dispositivo. Actualizamos los datos: revisalos y volvé a intentar.",
+  forbidden: "No tenés permiso para este cambio o tu período de prueba terminó.",
+  session: "Tu sesión venció. Volvé a ingresar para guardar.",
+} as const;
+
+/** Errores de Postgres/PostgREST → código estable + mensaje para el dueño. */
+function describe(error: PgError): MutationResult {
   switch (error?.code) {
     case "42501":
-      return "No tenés permiso para este cambio o tu período de prueba terminó.";
+      return fail("forbidden", MESSAGES.forbidden);
+    case "PGRST301":
+    case "PGRST303":
+      return fail("session", MESSAGES.session);
     case "23505":
-      return error.message === "slug_taken" ? "Esa dirección ya está en uso." : "Ya existe un elemento con ese nombre.";
+      return fail("conflict", error.message === "slug_taken" ? "Esa dirección ya está en uso." : "Ya existe un elemento con ese nombre.");
     case "23503":
-      return "La categoría elegida no existe.";
+      return fail("conflict", "La categoría elegida ya no existe. Actualizá la página.");
     case "23514":
-      return error.message === "invalid_status_transition"
-        ? "Ese cambio de estado no está permitido."
-        : "Algún dato no es válido. Revisá el formulario.";
+      if (error.message === "invalid_status_transition") return fail("stale", "Esta solicitud ya fue respondida en otra sesión.");
+      if (error.message === "shift_too_long") return fail("invalid", "Un turno dura más de 16 horas.");
+      return fail("invalid", "Algún dato no es válido. Revisá el formulario.");
     case "23P01":
-      return "Hay turnos que se superponen.";
+      return fail("invalid", "Hay turnos que se superponen (revisá también los que cruzan la medianoche).");
     case "22023":
-      return "La zona horaria no es válida.";
+      return fail("invalid", "La zona horaria no es válida.");
+    case "P0001":
+      if (error.message === "stale_write") return fail("stale", MESSAGES.stale);
+      if (error.message === "invalid_schedule") return fail("invalid", "El horario no es válido.");
+      return fail("invalid", "Algún dato no es válido. Revisá el formulario.");
     default:
-      return "No se pudo guardar. Probá de nuevo.";
+      console.error("[sentate] mutation", error?.code, error?.message);
+      return fail("error", "No se pudo guardar. Probá de nuevo.");
   }
 }
 
+/**
+ * Con RLS, un UPDATE/DELETE sin permiso o con una versión vieja afecta 0 filas sin error.
+ * Se distingue releyendo la fila: si sigue visible para el dueño, cambió (stale); si no, sin permiso.
+ */
+async function zeroRows(
+  supabase: ReturnType<typeof createClient>,
+  table: "menu_items" | "categories" | "reservations",
+  id: string,
+  tenantId: string,
+): Promise<MutationResult> {
+  const { data, error } = await supabase.from(table).select("id").eq("id", id).eq("tenant_id", tenantId).maybeSingle();
+  if (error) return describe(error);
+  return data ? fail("stale", MESSAGES.stale) : fail("forbidden", MESSAGES.forbidden);
+}
+
 /** Publicar o despublicar el menú (columna editable por el dueño; RLS exige can_operate). */
-export async function setPublishedAction(tenantId: string, published: boolean): Promise<MutationResult> {
-  if (!UUID.test(tenantId)) return { ok: false, message: "Comercio inválido." };
+export async function setPublishedAction(tenantId: unknown, published: unknown): Promise<MutationResult> {
+  const parsed = z.object({ tenantId: z.uuid(), published: z.boolean() }).safeParse({ tenantId, published });
+  if (!parsed.success) return fail("invalid", "Solicitud inválida.");
   const supabase = createClient(await cookies());
-  const { data, error } = await supabase.from("tenants").update({ is_published: published }).eq("id", tenantId).select("id");
-  if (error) return { ok: false, message: describe(error) };
-  return data?.length ? { ok: true } : { ok: false, message: describe({ code: "42501" }) };
+  const { data: claims } = await supabase.auth.getClaims();
+  if (!claims?.claims?.sub) return fail("session", MESSAGES.session);
+  const { data, error } = await supabase
+    .from("tenants")
+    .update({ is_published: parsed.data.published })
+    .eq("id", parsed.data.tenantId)
+    .select("id, updated_at");
+  if (error) return describe(error);
+  return data.length ? { ok: true, version: data[0].updated_at as string } : fail("forbidden", MESSAGES.forbidden);
 }
 
 /**
  * Aplica en Supabase una acción del panel. La autorización la decide RLS con la sesión del
- * usuario (can_operate): el tenantId del cliente solo identifica la fila, no concede acceso.
- * Nunca usa service_role.
+ * usuario (can_operate): el tenantId del cliente solo identifica filas, no concede acceso.
+ * Nunca usa service_role. Cada escritura lleva la versión que el panel vio (concurrencia optimista).
  */
-export async function mutateTenantAction(tenantId: string, action: DemoAction): Promise<MutationResult> {
-  if (!UUID.test(tenantId)) return { ok: false, message: "Comercio inválido." };
+export async function mutateTenantAction(tenantId: unknown, input: unknown): Promise<MutationResult> {
+  const tenant = z.uuid().safeParse(tenantId);
+  const parsed = liveMutation.safeParse(input);
+  if (!tenant.success || !parsed.success) return fail("invalid", "Solicitud inválida. Actualizá la página.");
+  const t = tenant.data;
+  const m = parsed.data;
+
   const supabase = createClient(await cookies());
   const { data: claims } = await supabase.auth.getClaims();
-  if (!claims?.claims?.sub) return { ok: false, message: "Tu sesión venció. Volvé a ingresar." };
+  if (!claims?.claims?.sub) return fail("session", MESSAGES.session);
 
-  // Cuenta filas afectadas: con RLS, "0 filas" significa sin permiso (no lanza error).
-  const expectOne = (res: { error: { code?: string; message?: string } | null; data: unknown[] | null }): MutationResult =>
-    res.error ? { ok: false, message: describe(res.error) } : res.data?.length ? { ok: true } : { ok: false, message: describe({ code: "42501" }) };
-
-  switch (action.type) {
+  switch (m.type) {
     case "setReservationStatus": {
-      if (!["confirmed", "rejected"].includes(action.status)) return { ok: false, message: "Estado inválido." };
-      return expectOne(
-        await supabase.from("reservations").update({ status: action.status }).eq("id", action.id).eq("tenant_id", tenantId).select("id"),
-      );
+      const { data, error } = await supabase
+        .from("reservations")
+        .update({ status: m.status })
+        .eq("id", m.id)
+        .eq("tenant_id", t)
+        .eq("status", m.expectedStatus)
+        .select("id, updated_at");
+      if (error) return describe(error);
+      if (!data.length) {
+        const r = await zeroRows(supabase, "reservations", m.id, t);
+        return !r.ok && r.code === "stale" ? fail("stale", "Esta solicitud ya fue respondida en otra sesión.") : r;
+      }
+      return { ok: true, version: data[0].updated_at as string };
     }
 
-    case "updateProfile": {
-      const p = action.profile;
-      const errors = validateProfile(p);
-      if (Object.keys(errors).length) return { ok: false, message: Object.values(errors)[0]! };
-      if (p.logoUrl && !p.logoUrl.startsWith("https://")) {
-        return { ok: false, message: "La subida de logos todavía no está disponible en cuentas reales." };
+    case "saveSettings": {
+      // Mismas reglas que el formulario (la base vuelve a validar superposición y duración).
+      const errors = validateProfileInfo({ ...m.profile, logoUrl: m.profile.logoUrl ?? undefined });
+      if (m.schedule) {
+        const week = m.schedule.week.map((day, d) => day.map((s, i) => ({ id: `d${d}-${i}`, ...s })));
+        Object.assign(errors, validateSchedule({ week, closures: m.schedule.closures }));
       }
-      const res = await supabase
-        .from("tenants")
-        .update({
-          name: p.name.trim(),
-          tagline: p.tagline.trim(),
-          cuisine: p.cuisine.trim(),
+      const first = Object.values(errors)[0];
+      if (first) return fail("invalid", first);
+
+      const p = m.profile;
+      const { data, error } = await supabase.rpc("save_tenant_settings", {
+        p_tenant_id: t,
+        p_expected_version: m.expectedVersion,
+        p_profile: {
+          name: p.name,
+          tagline: p.tagline,
+          cuisine: p.cuisine,
           price_range: p.priceRange,
-          address: p.address.trim(),
-          phone: p.phone.trim(),
+          address: p.address,
+          phone: p.phone,
           timezone: p.timezone,
-          logo_url: p.logoUrl ?? null,
+          logo_url: p.logoUrl ?? "",
           primary_color: p.theme.primary.toLowerCase(),
           primary_fg_color: p.theme.primaryForeground.toLowerCase(),
           accent_color: p.theme.accent.toLowerCase(),
           accent_fg_color: p.theme.accentForeground.toLowerCase(),
-        })
-        .eq("id", tenantId)
-        .select("id");
-      const updated = expectOne(res);
-      if (!updated.ok) return updated;
-      const { error } = await supabase.rpc("replace_tenant_schedule", {
-        p_tenant_id: tenantId,
-        p_open_days: p.schedule.openDays,
-        p_shifts: p.schedule.shifts.map((s) => ({ label: s.label.trim(), open: s.open, close: s.close })),
+        },
+        p_schedule: m.schedule,
       });
-      return error ? { ok: false, message: `Datos guardados, pero no los horarios: ${describe(error)}` } : { ok: true };
+      if (error) return describe(error);
+      return { ok: true, version: (data as { version: string }).version };
     }
 
     case "saveDish": {
-      const d = action.dish;
-      if (d.name.trim().length < MENU_LIMITS.dishNameMin || d.name.trim().length > MENU_LIMITS.dishNameMax)
-        return { ok: false, message: "Revisá el nombre del plato." };
-      if (!Number.isSafeInteger(d.price) || d.price < MENU_LIMITS.priceMin || d.price > MENU_LIMITS.priceMax)
-        return { ok: false, message: "Revisá el precio." };
+      const d = m.dish;
       const row = {
-        category_id: action.categoryId,
-        name: d.name.trim(),
-        description: d.description.trim(),
+        category_id: m.categoryId,
+        name: d.name,
+        description: d.description,
         price: d.price,
-        image_url: d.image || null,
+        image_url: d.image,
         tags: d.tags,
         is_available: d.active,
       };
-      if (d.id && UUID.test(d.id)) {
-        return expectOne(await supabase.from("menu_items").update(row).eq("id", d.id).eq("tenant_id", tenantId).select("id"));
+      if (d.id) {
+        if (!m.expectedVersion) return fail("invalid", "Solicitud inválida. Actualizá la página.");
+        const { data, error } = await supabase
+          .from("menu_items")
+          .update(row)
+          .eq("id", d.id)
+          .eq("tenant_id", t)
+          .eq("updated_at", m.expectedVersion)
+          .select("id, updated_at");
+        if (error) return describe(error);
+        return data.length ? { ok: true, version: data[0].updated_at as string } : zeroRows(supabase, "menu_items", d.id, t);
       }
-      const { count } = await supabase
+      const { count, error: countError } = await supabase
         .from("menu_items")
         .select("id", { count: "exact", head: true })
-        .eq("tenant_id", tenantId)
-        .eq("category_id", action.categoryId);
-      return expectOne(
-        await supabase.from("menu_items").insert({ ...row, tenant_id: tenantId, position: count ?? 0 }).select("id"),
-      );
-    }
-
-    case "toggleDish": {
-      const { data: current } = await supabase
+        .eq("tenant_id", t)
+        .eq("category_id", m.categoryId);
+      if (countError) return describe(countError);
+      const { data, error } = await supabase
         .from("menu_items")
-        .select("is_available")
-        .eq("id", action.dishId)
-        .eq("tenant_id", tenantId)
-        .maybeSingle();
-      if (!current) return { ok: false, message: describe({ code: "42501" }) };
-      return expectOne(
-        await supabase
-          .from("menu_items")
-          .update({ is_available: !current.is_available })
-          .eq("id", action.dishId)
-          .eq("tenant_id", tenantId)
-          .select("id"),
-      );
+        .insert({ ...row, tenant_id: t, position: count ?? 0 })
+        .select("id, updated_at");
+      if (error) return describe(error);
+      return data.length ? { ok: true, id: data[0].id as string, version: data[0].updated_at as string } : fail("forbidden", MESSAGES.forbidden);
     }
 
-    case "deleteDish":
-      return expectOne(await supabase.from("menu_items").delete().eq("id", action.dishId).eq("tenant_id", tenantId).select("id"));
+    case "setDishActive": {
+      const { data, error } = await supabase
+        .from("menu_items")
+        .update({ is_available: m.active })
+        .eq("id", m.dishId)
+        .eq("tenant_id", t)
+        .eq("updated_at", m.expectedVersion)
+        .select("id, updated_at");
+      if (error) return describe(error);
+      return data.length ? { ok: true, version: data[0].updated_at as string } : zeroRows(supabase, "menu_items", m.dishId, t);
+    }
+
+    case "deleteDish": {
+      const { data, error } = await supabase
+        .from("menu_items")
+        .delete()
+        .eq("id", m.dishId)
+        .eq("tenant_id", t)
+        .eq("updated_at", m.expectedVersion)
+        .select("id");
+      if (error) return describe(error);
+      return data.length ? { ok: true } : zeroRows(supabase, "menu_items", m.dishId, t);
+    }
 
     case "addCategory": {
-      const { count } = await supabase.from("categories").select("id", { count: "exact", head: true }).eq("tenant_id", tenantId);
-      return expectOne(
-        await supabase
-          .from("categories")
-          .insert({ tenant_id: tenantId, name: action.name.trim(), position: count ?? 0 })
-          .select("id"),
-      );
+      const { count, error: countError } = await supabase.from("categories").select("id", { count: "exact", head: true }).eq("tenant_id", t);
+      if (countError) return describe(countError);
+      const { data, error } = await supabase
+        .from("categories")
+        .insert({ tenant_id: t, name: m.name, position: count ?? 0 })
+        .select("id, updated_at");
+      if (error) return describe(error);
+      return data.length ? { ok: true, id: data[0].id as string, version: data[0].updated_at as string } : fail("forbidden", MESSAGES.forbidden);
     }
 
-    case "renameCategory":
-      return expectOne(
-        await supabase.from("categories").update({ name: action.name.trim() }).eq("id", action.categoryId).eq("tenant_id", tenantId).select("id"),
-      );
-
-    case "moveCategory": {
-      const { data: rows, error } = await supabase.from("categories").select("id").eq("tenant_id", tenantId).order("position").order("name");
-      if (error || !rows) return { ok: false, message: describe(error) };
-      const ids = rows.map((r) => r.id as string);
-      const i = ids.indexOf(action.categoryId);
-      const j = i + action.direction;
-      if (i < 0 || j < 0 || j >= ids.length) return { ok: true };
-      [ids[i], ids[j]] = [ids[j], ids[i]];
-      // Renumera todas para normalizar posiciones (pocas filas por comercio).
-      const results = await Promise.all(
-        ids.map((id, position) => supabase.from("categories").update({ position }).eq("id", id).eq("tenant_id", tenantId).select("id")),
-      );
-      const failed = results.find((r) => r.error || !r.data?.length);
-      return failed ? { ok: false, message: describe(failed.error ?? { code: "42501" }) } : { ok: true };
+    case "renameCategory": {
+      const { data, error } = await supabase
+        .from("categories")
+        .update({ name: m.name })
+        .eq("id", m.categoryId)
+        .eq("tenant_id", t)
+        .eq("updated_at", m.expectedVersion)
+        .select("id, updated_at");
+      if (error) return describe(error);
+      return data.length ? { ok: true, version: data[0].updated_at as string } : zeroRows(supabase, "categories", m.categoryId, t);
     }
 
-    case "deleteCategory":
-      return expectOne(await supabase.from("categories").delete().eq("id", action.categoryId).eq("tenant_id", tenantId).select("id"));
+    case "reorderCategories": {
+      const { error } = await supabase.rpc("reorder_categories", { p_tenant_id: t, p_ordered_ids: m.orderedIds });
+      return error ? describe(error) : { ok: true };
+    }
 
-    case "hydrate":
-    case "reset":
-      return { ok: true };
+    case "deleteCategory": {
+      const { data, error } = await supabase
+        .from("categories")
+        .delete()
+        .eq("id", m.categoryId)
+        .eq("tenant_id", t)
+        .eq("updated_at", m.expectedVersion)
+        .select("id");
+      if (error) {
+        // FK restrict: la categoría todavía tiene platos.
+        if (error.code === "23503") return fail("conflict", "La categoría tiene platos. Movelos o borralos primero.");
+        return describe(error);
+      }
+      return data.length ? { ok: true } : zeroRows(supabase, "categories", m.categoryId, t);
+    }
   }
 }

@@ -37,36 +37,36 @@ $$;
 insert into public.tenants (id, slug, name, tagline, cuisine, price_range, address, phone, timezone,
   cover_url, primary_color, primary_fg_color, accent_color, accent_fg_color, is_published)
 values
-  ('11111111-1111-4111-8111-111111111111', 'el-bodegon', 'El Bodegón', 'Parrilla de barrio desde 1987', 'Parrilla argentina',
+  ('11111111-1111-4111-8111-111111111111', 'prueba-bodegon', 'El Bodegón', 'Parrilla de barrio desde 1987', 'Parrilla argentina',
    '$$', 'Av. Corrientes 4120, Almagro', '+54 11 4862-1987', 'America/Argentina/Buenos_Aires',
    'https://images.unsplash.com/photo-1555939594-58d7cb561ad1', '#b8461b', '#ffffff', '#f7e6d4', '#6b2a10', true),
-  ('22222222-2222-4222-8222-222222222222', 'la-esquina', 'La Esquina', 'Burgers, pizzas y tragos hasta tarde', 'Bar & cocina',
+  ('22222222-2222-4222-8222-222222222222', 'prueba-esquina', 'La Esquina', 'Burgers, pizzas y tragos hasta tarde', 'Bar & cocina',
    '$$', 'Thames 1650, Palermo', '+54 11 4833-2040', 'America/Argentina/Buenos_Aires',
    'https://images.unsplash.com/photo-1514933651103-005eec06c04b', '#0f766e', '#ffffff', '#d9f2ec', '#0b4d47', true),
-  ('33333333-3333-4333-8333-333333333333', 'sakura', 'Sakura', 'Nikkei & sushi de autor', 'Japonesa · Nikkei',
+  ('33333333-3333-4333-8333-333333333333', 'prueba-sakura', 'Sakura', 'Nikkei & sushi de autor', 'Japonesa · Nikkei',
    '$$$', 'Gorriti 5870, Palermo Hollywood', '+54 11 4775-8800', 'America/Argentina/Buenos_Aires',
    'https://images.unsplash.com/photo-1579871494447-9811cf80d66c', '#be123c', '#ffffff', '#fde4ea', '#881337', true);
 
 insert into public.tenant_members (tenant_id, user_id, role)
 select t.id, u.id, 'owner'
-from (values ('el-bodegon', 'owner.bodegon@example.test'),
-             ('la-esquina', 'owner.esquina@example.test'),
-             ('sakura', 'owner.sakura@example.test')) m(slug, email)
+from (values ('prueba-bodegon', 'owner.bodegon@example.test'),
+             ('prueba-esquina', 'owner.esquina@example.test'),
+             ('prueba-sakura', 'owner.sakura@example.test')) m(slug, email)
 join public.tenants t on t.slug = m.slug
 join auth.users u on u.email = m.email;
 
 insert into public.tenant_subscriptions (tenant_id, status, trial_started_at, trial_ends_at)
 select id, 'trialing',
-  case when slug = 'sakura' then now() - interval '40 days' else now() - interval '3 days' end,
-  case when slug = 'sakura' then now() - interval '10 days' else now() + interval '27 days' end
+  case when slug = 'prueba-sakura' then now() - interval '40 days' else now() - interval '3 days' end,
+  case when slug = 'prueba-sakura' then now() - interval '10 days' else now() + interval '27 days' end
 from public.tenants;
 
--- Horarios: El Bodegón (cerrado lunes) almuerzo + cena hasta 00:30; La Esquina 18–03 todos los días; Sakura 19:30–00:00 (cerrado domingo).
+-- Horarios: El Bodegón (cerrado lunes; domingo solo almuerzo) almuerzo + cena hasta 00:30; La Esquina 18–03 todos los días; Sakura 19:30–00:00 (cerrado domingo).
 insert into public.tenant_shifts (tenant_id, weekday, label, opens_at, closes_at)
 select '11111111-1111-4111-8111-111111111111'::uuid, d, s.label, s.o, s.c
 from generate_series(0, 6) d,
      (values ('Almuerzo', time '12:00', time '16:00'), ('Cena', time '20:00', time '00:30')) s(label, o, c)
-where d <> 1
+where d <> 1 and not (d = 0 and s.label = 'Cena')
 union all
 select '22222222-2222-4222-8222-222222222222'::uuid, d, 'Noche', time '18:00', time '03:00' from generate_series(0, 6) d
 union all

@@ -25,8 +25,9 @@ export function toPublicTenant(slug: string, profile: TenantProfile, categories:
     phone: profile.phone,
     timezone: profile.timezone,
     schedule: {
-      openDays: [...profile.schedule.openDays],
-      shifts: profile.schedule.shifts.map((s) => ({ id: s.id, label: s.label, open: s.open, close: s.close })),
+      week: profile.schedule.week.map((day) => day.map((s) => ({ id: s.id, label: s.label, open: s.open, close: s.close }))),
+      // El motivo del cierre es visible para el comensal ("Feriado"), por eso se incluye.
+      closures: profile.schedule.closures.map((c) => ({ date: c.date, reason: c.reason })),
     },
     theme: { ...profile.theme },
     logoUrl: profile.logoUrl,

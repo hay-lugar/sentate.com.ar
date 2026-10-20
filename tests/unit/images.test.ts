@@ -174,7 +174,7 @@ describe("contrato de mutaciones con imágenes", () => {
     cuisine: "Cocina",
     priceRange: "$$",
     address: "Calle 123",
-    phone: "11 5555 5555",
+    phone: "11 0000 5555",
     timezone: "America/Argentina/Buenos_Aires",
     theme: { primary: "#b8461b", primaryForeground: "#ffffff", accent: "#f7e6d4", accentForeground: "#6b2a10" },
   };

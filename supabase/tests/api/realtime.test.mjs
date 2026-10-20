@@ -75,7 +75,7 @@ describe("Realtime de reservas", () => {
       p_time: "21:00",
       p_guests: 2,
       p_customer_name: "Realtime Test",
-      p_customer_phone: "11 4000 1234",
+      p_customer_phone: "11 0000 1234",
       p_notes: "",
       p_idempotency_key: randomUUID(),
     });

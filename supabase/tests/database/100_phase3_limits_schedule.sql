@@ -33,11 +33,11 @@ from (select set_config('request.jwt.claims', json_build_object('sub', tests.uid
 create temp table ctx as select tests.tenant_id('esquina-b') t, tests.next_service_date(3) d;
 grant select on ctx to anon;
 select tests.as_anon();
-select public.request_reservation((select t from ctx), (select d from ctx), h::time, 2, 'Repetido', '11 4444 0000', '', gen_random_uuid())
+select public.request_reservation((select t from ctx), (select d from ctx), h::time, 2, 'Repetido', '11 0000 4444', '', gen_random_uuid())
 from unnest(array['19:00', '19:30', '20:00']) h;
-select throws_ok(format($$ select public.request_reservation(%L, %L, '20:30', 2, 'Repetido', '11-4444-0000', '', gen_random_uuid()) $$,
+select throws_ok(format($$ select public.request_reservation(%L, %L, '20:30', 2, 'Repetido', '11-0000-4444', '', gen_random_uuid()) $$,
   (select t from ctx), (select d from ctx)), 'P0001', 'too_many_pending', 'máx. 3 solicitudes pendientes por teléfono');
-select lives_ok(format($$ select public.request_reservation(%L, %L, '20:30', 2, 'Otra persona', '11 4444 9999', '', gen_random_uuid()) $$,
+select lives_ok(format($$ select public.request_reservation(%L, %L, '20:30', 2, 'Otra persona', '11 0000 9999', '', gen_random_uuid()) $$,
   (select t from ctx), (select d from ctx)), 'otro teléfono puede pedir');
 
 select tests.as_postgres();
@@ -45,7 +45,7 @@ insert into public.reservations (tenant_id, starts_at, service_date, guests, cus
 select (select t from ctx), now() + interval '3 days', current_date + 3, 2, 'Flood', '1100000000', gen_random_uuid(), 'x'
 from generate_series(1, 30);
 select tests.as_anon();
-select throws_ok(format($$ select public.request_reservation(%L, %L, '21:00', 2, 'Nueva', '11 3333 0000', '', gen_random_uuid()) $$,
+select throws_ok(format($$ select public.request_reservation(%L, %L, '21:00', 2, 'Nueva', '11 0000 3333', '', gen_random_uuid()) $$,
   (select t from ctx), (select d from ctx)), 'P0001', 'rate_limited', 'máx. 30 solicitudes por comercio cada 10 minutos');
 
 select * from finish();

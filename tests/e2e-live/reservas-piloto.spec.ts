@@ -58,7 +58,7 @@ test.describe("lo que ve el comensal", () => {
     await expect(dialog.getByText(/no hay una pantalla para seguir el estado/)).toBeVisible();
 
     // Y puede llamar al local si no tiene novedades (el teléfono público de la carta).
-    await expect(dialog.getByRole("link", { name: "+54 11 4862-1987" })).toHaveAttribute("href", "tel:+541148621987");
+    await expect(dialog.getByRole("link", { name: "+54 11 0000-0101" })).toHaveAttribute("href", "tel:+541100000101");
 
     // Nada que afirme un envío o una confirmación que no ocurrió.
     await expect(dialog).not.toContainText(/te enviamos|te mandamos|te enviaremos|reserva confirmada|mesa reservada|confirmamos tu/i);
@@ -88,7 +88,7 @@ test.describe("panel del dueño: estados y contacto manual", () => {
       confirmed: { name: `Ana Confirmada ${stamp}`, phone: uniquePhone() },
       rejected: { name: `Beto Rechazado ${stamp}`, phone: uniquePhone() },
       pending: { name: `Carla Pendiente ${stamp}`, phone: uniquePhone() },
-      ambiguous: { name: `Darío Ambiguo ${stamp}`, phone: "11 15 5555 5555" }, // con el 15 de los celulares: no se adivina
+      ambiguous: { name: `Darío Ambiguo ${stamp}`, phone: "11 15 0000 0000" }, // con el 15 de los celulares: no se adivina
     };
     for (const w of Object.values(who)) await sent(await submitRequest(page, "prueba-bodegon", w));
 

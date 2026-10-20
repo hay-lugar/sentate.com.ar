@@ -17,7 +17,7 @@ select throws_ok($$ update public.reservations set customer_phone = '1100000000'
   'el dueño no reescribe datos del comensal');
 select throws_ok($$ update public.reservations set starts_at = now() $$, '42501', null, 'ni el horario');
 select throws_ok($$ insert into public.reservations (tenant_id, starts_at, service_date, guests, customer_name, customer_phone)
-  values (tests.tenant_id('bodegon-a'), now(), current_date, 2, 'Directa', '1155550000') $$, '42501', null,
+  values (tests.tenant_id('bodegon-a'), now(), current_date, 2, 'Directa', '1100000000') $$, '42501', null,
   'tampoco inserta reservas directamente (Fase 3: alta manual por función)');
 
 select * from finish();

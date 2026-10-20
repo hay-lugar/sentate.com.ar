@@ -4,7 +4,7 @@ import { SignupForm } from "@/components/auth/signup-form";
 import { getCurrentUser } from "@/lib/data/live/queries";
 import { trialLongLabel } from "@/lib/config/plan";
 
-export const metadata: Metadata = { title: "Crear cuenta" };
+export const metadata: Metadata = { title: "Crear cuenta", robots: { index: false } };
 
 export default async function RegistroPage() {
   if (await getCurrentUser()) redirect("/registro/local");

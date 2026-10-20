@@ -22,7 +22,7 @@ const at = (date: string, hhmm: string): ZonedNow => {
   return { date, minutes: h * 60 + m, weekday: weekdayOf(date) };
 };
 const ctx = (now: ZonedNow, full = false): ValidationContext => ({ schedule, now, isFull: () => full });
-const valid: ReservationDraft = { guests: 4, serviceDate: FRI, time: "21:30", name: "Ana Pérez", phone: "11 5555-1234", notes: "" };
+const valid: ReservationDraft = { guests: 4, serviceDate: FRI, time: "21:30", name: "Ana Pérez", phone: "11 0000-1234", notes: "" };
 
 describe("validateGuests", () => {
   it.each([0, 9, 2.5, Number.NaN])("rechaza %s", (n) => expect(validateGuests(n).guests).toBeDefined());

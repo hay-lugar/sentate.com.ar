@@ -9,7 +9,7 @@ grant select on ctx to anon;
 
 select tests.as_anon();
 create temp table late as
-select public.request_reservation((select t from ctx), (select fri from ctx), '01:00', 2, 'Noctámbulo', '1155550101', '',
+select public.request_reservation((select t from ctx), (select fri from ctx), '01:00', 2, 'Noctámbulo', '1100000101', '',
   gen_random_uuid()) as res;
 
 select is((select (res ->> 'service_date')::date from late), (select fri from ctx),
@@ -18,9 +18,9 @@ select is((select ((res ->> 'starts_at')::timestamptz at time zone 'America/Arge
   (select (fri + 1) + time '01:00' from ctx), 'el instante es el sábado 01:00 hora de Argentina');
 select is((select (res ->> 'starts_at')::timestamptz from late),
   (select ((fri + 1) + time '04:00') at time zone 'UTC' from ctx), 'equivale a las 04:00 UTC (UTC-3, sin horario de verano)');
-select throws_ok(format($$ select public.request_reservation(%L, %L, '01:30', 2, 'Tarde', '1155550101', '', gen_random_uuid()) $$,
+select throws_ok(format($$ select public.request_reservation(%L, %L, '01:30', 2, 'Tarde', '1100000101', '', gen_random_uuid()) $$,
   (select t from ctx), (select fri from ctx)), 'P0001', 'outside_opening_hours', 'última mesa 1 h antes del cierre (02:00)');
-select lives_ok(format($$ select public.request_reservation(%L, %L, '23:30', 2, 'Antes', '1155550101', '', gen_random_uuid()) $$,
+select lives_ok(format($$ select public.request_reservation(%L, %L, '23:30', 2, 'Antes', '1100000101', '', gen_random_uuid()) $$,
   (select t from ctx), (select fri from ctx)), '23:30 sigue en la misma fecha calendario');
 
 select tests.as_postgres();

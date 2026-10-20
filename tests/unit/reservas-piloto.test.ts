@@ -6,22 +6,22 @@ import { reservationErrorInfo } from "@/lib/reservation/errors";
 
 describe("whatsappTarget: solo arma el enlace cuando el número es inequívoco", () => {
   it.each([
-    ["+54 9 11 5555-5555", "5491155555555", false],
-    ["+5491155555555", "5491155555555", false],
+    ["+54 9 11 0000-0000", "5491100000000", false],
+    ["+5491100000000", "5491100000000", false],
     ["+598 99 123 456", "59899123456", false],
-    ["0054 9 11 5555 5555", "5491155555555", false],
-    ["+54 11 5555 5555", "541155555555", false], // el "+" manda: no se le agrega nada
-    ["5491155555555", "5491155555555", false],
-    ["54 11 5555 5555", "5491155555555", false], // 54 sin "+": se agrega el 9 de celulares
+    ["0054 9 11 0000 0000", "5491100000000", false],
+    ["+54 11 0000 0000", "541100000000", false], // el "+" manda: no se le agrega nada
+    ["5491100000000", "5491100000000", false],
+    ["54 11 0000 0000", "5491100000000", false], // 54 sin "+": se agrega el 9 de celulares
   ])("%s → %s (país asumido: %s)", (raw, digits, assumed) => {
     expect(whatsappTarget(raw)).toMatchObject({ digits, assumedCountry: assumed });
   });
 
   it.each([
-    ["11 5555-5555", "5491155555555"],
-    ["(011) 5555-5555", "5491155555555"],
-    ["011 55555555", "5491155555555"],
-    ["351 555 5555", "5493515555555"],
+    ["11 0000-0000", "5491100000000"],
+    ["(011) 0000-0000", "5491100000000"],
+    ["011 00000000", "5491100000000"],
+    ["351 555 0000", "5493515550000"],
   ])("número local de Argentina %s → asume +54 9 y lo avisa", (raw, digits) => {
     const t = whatsappTarget(raw);
     expect(t).toMatchObject({ digits, assumedCountry: true });
@@ -29,12 +29,12 @@ describe("whatsappTarget: solo arma el enlace cuando el número es inequívoco",
   });
 
   it.each([
-    "11 15 5555 5555", // con el 15 de los celulares: no se adivina dónde termina el área
-    "5555-5555", // sin área
+    "11 15 0000 0000", // con el 15 de los celulares: no se adivina dónde termina el área
+    "0123-4567", // sin área
     "598 99 123 456", // otro país sin "+"
     "1234567", // muy corto
     "12345678901234567", // muy largo
-    "0 11 5555 5555 0",
+    "0 11 0000 0000 0",
     "abc",
     "",
   ])("sin enlace para un número ambiguo o inválido: %s", (raw) => {
@@ -42,12 +42,12 @@ describe("whatsappTarget: solo arma el enlace cuando el número es inequívoco",
   });
 
   it("whatsappLink usa wa.me con el número internacional y el texto codificado", () => {
-    const t = whatsappTarget("+54 9 11 5555-5555")!;
-    expect(whatsappLink(t, "Hola & chau ñ")).toBe("https://wa.me/5491155555555?text=Hola%20%26%20chau%20%C3%B1");
+    const t = whatsappTarget("+54 9 11 0000-0000")!;
+    expect(whatsappLink(t, "Hola & chau ñ")).toBe("https://wa.me/5491100000000?text=Hola%20%26%20chau%20%C3%B1");
   });
 
   it("telLink deja solo dígitos y +", () => {
-    expect(telLink("+54 (11) 5555-5555")).toBe("tel:+541155555555");
+    expect(telLink("+54 (11) 0000-0000")).toBe("tel:+541100000000");
   });
 });
 
@@ -234,16 +234,16 @@ describe("mensajes del formulario público para los códigos nuevos", () => {
 
 describe("redact: lo que no debe quedar en los logs", () => {
   it.each([
-    ["error con +54 9 11 5555-5555 y más", "[número]"],
+    ["error con +54 9 11 0000-0000 y más", "[número]"],
     ["fallo para maria.perez@example.com", "[email]"],
-    ["Failing row contains (11 4000 0000)", "[número]"],
+    ["Failing row contains (11 0000 0000)", "[número]"],
     ["token eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.abcdefghijk", "[token]"],
     ["clave sb_secret_AbCdEf123456", "[clave]"],
     [`hash ${"a".repeat(64)}`, "[hex]"],
   ])("%s", (input, marker) => {
     const out = redact(input);
     expect(out).toContain(marker);
-    expect(out).not.toMatch(/5555|maria\.perez|11 4000|eyJhbGci|AbCdEf|a{32}/);
+    expect(out).not.toMatch(/0000|maria\.perez|11 0000|eyJhbGci|AbCdEf|a{32}/);
   });
 
   it("deja pasar un mensaje técnico común y recorta los largos", () => {

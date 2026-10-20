@@ -45,11 +45,15 @@ insert into storage.objects (bucket_id, name) values
 select tests.authenticate_as('owner_a@test.local');
 select is((select count(*)::int from storage.objects where name like tests.tenant_id('esquina-b')::text || '/%'), 0,
   'A no ve las imágenes privadas de B');
-select is_empty(format($q$ delete from storage.objects where name = %L returning 1 $q$, tests.img('esquina-b', 'dish', 2)),
-  'A no puede borrar imágenes de B');
-select lives_ok(format($q$ delete from storage.objects where name = %L $q$, tests.img('bodegon-a', 'dish', 1)),
-  'A puede borrar sus imágenes');
-select is((select count(*)::int from storage.objects where name = tests.img('bodegon-a', 'dish', 1)), 0, 'la imagen de A se borró');
+-- Storage prohíbe DELETE directo por SQL (trigger storage.protect_delete): el borrado cruzado se prueba por la API en
+-- tests/e2e-live/storage-imagenes.spec.ts. Acá se comprueba el predicado que usan las políticas de insert y delete.
+select ok(not private.can_operate(private.image_tenant_id(tests.img('esquina-b', 'dish', 2))),
+  'A no cumple la condición de escritura ni de borrado sobre la carpeta de B');
+select ok(private.can_operate(private.image_tenant_id(tests.img('bodegon-a', 'dish', 1))),
+  'A sí la cumple sobre su propia carpeta');
+select is((select roles::text from pg_policies where schemaname = 'storage' and tablename = 'objects'
+    and policyname = 'tenant_images_delete_operator' and cmd = 'DELETE'),
+  '{authenticated}', 'la política de borrado existe y es solo para usuarios autenticados');
 
 -- ─────────── una columna no puede apuntar a imágenes ajenas ───────────
 select throws_ok(format($q$ update public.tenants set logo_url = %L where id = tests.tenant_id('bodegon-a') $q$,

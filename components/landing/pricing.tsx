@@ -46,7 +46,7 @@ export function Pricing() {
             ))}
           </ul>
           <Link
-            href="#empezar"
+            href="/registro"
             className="pressable mt-8 flex h-14 items-center justify-center gap-2 rounded-2xl bg-ink font-semibold text-white shadow-lift hover:bg-ink/90"
           >
             Empezar prueba gratis <ArrowRight className="size-[18px]" aria-hidden />

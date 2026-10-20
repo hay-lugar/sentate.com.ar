@@ -23,5 +23,7 @@ export default defineConfig({
     port: PORT,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
+    // Origen público de la app (QR y enlaces de email). Un dominio real: la sección de QR se prueba como en el piloto.
+    env: { APP_URL: "https://sentate.com.ar" },
   },
 });

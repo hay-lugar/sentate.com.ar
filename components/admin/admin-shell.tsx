@@ -13,6 +13,7 @@ import {
   PanelLeftOpen,
   Settings,
   UtensilsCrossed,
+  QrCode,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
@@ -57,6 +58,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
     { href: base, label: "Inicio", icon: LayoutDashboard },
     { href: `${base}/reservas`, label: "Reservas", icon: CalendarDays, badge: pending },
     { href: `${base}/menu`, label: "Menú", icon: UtensilsCrossed },
+    { href: `${base}/qr`, label: "QR", icon: QrCode },
     { href: `${base}/ajustes`, label: "Ajustes", icon: Settings },
   ];
   const isActive = (href: string) => (href === base ? pathname === base : pathname.startsWith(href));
@@ -68,7 +70,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         initial={false}
         animate={{ width: collapsed ? 92 : 280 }}
         transition={{ type: "spring", stiffness: 380, damping: 38 }}
-        className="sticky top-0 hidden h-dvh shrink-0 flex-col p-3 lg:flex"
+        className="sticky top-0 hidden h-dvh shrink-0 flex-col p-3 lg:flex print:hidden!"
       >
         <div className="flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-surface p-3 shadow-soft ring-1 ring-line/70">
           <div className="flex h-12 items-center justify-between pl-2">
@@ -144,7 +146,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       </motion.aside>
 
       {/* ── Top bar mobile ── */}
-      <header className="sticky top-0 z-30 flex h-16 items-center gap-3 bg-background/85 px-4 backdrop-blur-xl lg:hidden">
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-3 bg-background/85 px-4 backdrop-blur-xl lg:hidden print:hidden!">
         <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className="size-10 rounded-xl text-[14px] shadow-brand" />
         <div className="min-w-0 leading-tight">
           <p className="truncate font-display font-bold">{tenant.name}</p>
@@ -175,13 +177,13 @@ export function AdminShell({ children }: { children: ReactNode }) {
         )}
       </header>
 
-      <main className="min-w-0 flex-1 px-4 pt-2 pb-36 sm:px-6 lg:px-8 lg:py-8">
-        {mode === "demo" ? <DemoBanner /> : <TrialBanner />}
+      <main className="min-w-0 flex-1 px-4 pt-2 pb-36 sm:px-6 lg:px-8 lg:py-8 print:p-0">
+        <div className="print:hidden">{mode === "demo" ? <DemoBanner /> : <TrialBanner />}</div>
         {children}
       </main>
 
       {/* ── Bottom nav mobile ── */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe lg:hidden print:hidden!">
         <div className="mx-auto flex max-w-md items-center justify-around rounded-[1.6rem] bg-surface/90 p-1.5 shadow-lift ring-1 ring-line/70 backdrop-blur-xl">
           {items.map((item) => {
             const active = isActive(item.href);

@@ -113,7 +113,7 @@ test.describe("panel del dueño: estados y contacto manual", () => {
     expect(text).not.toMatch(/confirmada|te esperamos/i);
     await expect(link).toHaveAttribute("target", "_blank");
     expect(await link.getAttribute("rel")).toContain("noopener");
-    await expect(pending.getByText(/^\+54 9 11 \d+ · asumimos Argentina$/)).toBeVisible(); // el dueño ve a qué número escribe
+    await expect(pending.getByText(/^\+54 9 \d{10} · asumimos Argentina$/)).toBeVisible(); // el dueño ve a qué número escribe
     await expect(pending.getByRole("link", { name: /^Llamar/ })).toHaveAttribute("href", /^tel:\d+$/);
 
     // NÚMERO AMBIGUO: sin enlace de WhatsApp (no se adivina), pero sí el teléfono y Llamar.

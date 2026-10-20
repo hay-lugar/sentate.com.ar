@@ -143,7 +143,7 @@ test.describe("navegación por teclado del panel", () => {
       Array.from(document.querySelectorAll("button, a[href], input, select, textarea"))
         .filter((el) => (el as HTMLElement).offsetParent !== null)
         .filter((el) => {
-          const name = (el.getAttribute("aria-label") ?? "") + (el.textContent ?? "").trim() + (el.getAttribute("title") ?? "");
+          const name = (el.getAttribute("aria-label") ?? "") + (el.textContent ?? "").trim() + (el.getAttribute("title") ?? "") + (el.querySelector("img[alt]")?.getAttribute("alt") ?? "");
           const labelled = el.id && document.querySelector(`label[for="${el.id}"]`);
           return !name && !labelled && !el.getAttribute("aria-labelledby");
         })

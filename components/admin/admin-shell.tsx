@@ -78,7 +78,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
               {!collapsed && (
                 <motion.div key="logo" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <Link href="/">
-                    <Logo className="text-lg" />
+                    <Logo className="h-9" />
                   </Link>
                 </motion.div>
               )}

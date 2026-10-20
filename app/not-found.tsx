@@ -6,7 +6,7 @@ export default function NotFound() {
   return (
     <main className="grid min-h-dvh place-items-center px-6">
       <div className="max-w-sm text-center">
-        <Logo className="mb-10 justify-center" />
+        <Logo className="mx-auto mb-10" />
         <p className="font-display text-7xl font-bold text-brand">404</p>
         <h1 className="mt-3 text-2xl font-bold">Esta mesa no existe</h1>
         <p className="mt-2 text-muted">El local que buscás no está en Sentate (todavía).</p>

@@ -79,7 +79,7 @@ export function Hero({ phone, examples }: { phone: ReactNode; examples: TenantSu
             className="mt-9 flex flex-col gap-3 sm:flex-row"
           >
             <Link
-              href="#empezar"
+              href="/registro"
               className="pressable group inline-flex h-15 items-center justify-center gap-2 rounded-2xl bg-ink px-7 text-[16px] font-semibold text-white shadow-lift hover:bg-ink/90"
             >
               Probar {trialLabel}

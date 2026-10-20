@@ -20,12 +20,12 @@ export function AuthField({ label, htmlFor, hint, children }: { label: string; h
   );
 }
 
-export function SubmitButton({ children, pendingLabel }: { children: ReactNode; pendingLabel: string }) {
+export function SubmitButton({ children, pendingLabel, disabled }: { children: ReactNode; pendingLabel: string; disabled?: boolean }) {
   const { pending } = useFormStatus();
   return (
     <button
       type="submit"
-      disabled={pending}
+      disabled={pending || disabled}
       aria-busy={pending}
       className="pressable flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand font-display text-[16px] font-bold text-brand-fg shadow-brand disabled:opacity-70"
     >

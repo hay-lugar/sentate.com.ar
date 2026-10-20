@@ -6,6 +6,7 @@
 --   owner.esquina@example.test  → La Esquina (publicado, prueba vigente, turno hasta las 03:00)
 --   owner.sakura@example.test   → Sakura     (publicado, PRUEBA VENCIDA con estado 'trialing')
 --   sin.local@example.test      → usuario sin comercio
+--   recuperacion@example.test   → usuario sin comercio; lo usa la prueba de recuperación de contraseña
 
 do $$
 declare
@@ -13,7 +14,8 @@ declare
     {"email": "owner.bodegon@example.test"},
     {"email": "owner.esquina@example.test"},
     {"email": "owner.sakura@example.test"},
-    {"email": "sin.local@example.test"}
+    {"email": "sin.local@example.test"},
+    {"email": "recuperacion@example.test"}
   ]';
   u jsonb;
   v_id uuid;

@@ -1,10 +1,13 @@
 "use server";
 
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { isSupabaseConfigured } from "@/utils/supabase/env";
 import { safeNext } from "@/lib/auth/redirects";
+import { authCallbackUrl } from "@/lib/auth/app-url";
+import { RECOVERY_NEUTRAL_MESSAGE, RECOVERY_NEW_PASSWORD_PATH, RECOVERY_PATH } from "@/lib/auth/recovery";
+import { passwordProblem } from "@/lib/auth/password";
 
 export type FormState = { error?: string; info?: string; fields?: Record<string, string> };
 
@@ -15,6 +18,7 @@ function authMessage(message: string | undefined) {
   if (m.includes("invalid login credentials")) return "Email o contraseña incorrectos.";
   if (m.includes("email not confirmed")) return "Tenés que confirmar tu email antes de ingresar. Revisá tu bandeja.";
   if (m.includes("already registered") || m.includes("already been registered")) return "Ya existe una cuenta con ese email. Ingresá.";
+  if (m.includes("same_password") || m.includes("different from the old")) return "La contraseña nueva tiene que ser distinta de la anterior.";
   if (m.includes("password")) return "La contraseña no cumple los requisitos (mínimo 8 caracteres).";
   if (m.includes("rate limit") || m.includes("too many")) return "Demasiados intentos. Esperá unos minutos.";
   return "No pudimos completar la operación. Probá de nuevo.";
@@ -42,22 +46,66 @@ export async function signUpAction(_prev: FormState, form: FormData): Promise<Fo
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   const password = String(form.get("password") ?? "");
   if (!EMAIL_RE.test(email)) return { error: "Ingresá un email válido.", fields: { email } };
-  if (password.length < 8) return { error: "La contraseña debe tener al menos 8 caracteres.", fields: { email } };
+  const problem = passwordProblem(password);
+  if (problem) return { error: problem, fields: { email } };
 
-  const h = await headers();
-  const origin = h.get("origin") ?? `https://${h.get("host")}`;
+  let emailRedirectTo: string;
+  try {
+    emailRedirectTo = authCallbackUrl("/registro/local");
+  } catch {
+    return { error: "La aplicación no está configurada para enviar emails. Avisale al equipo." };
+  }
   const client = await supabase();
-  const { data, error } = await client.auth.signUp({
-    email,
-    password,
-    options: { emailRedirectTo: `${origin}/auth/callback?next=/registro/local` },
-  });
+  const { data, error } = await client.auth.signUp({ email, password, options: { emailRedirectTo } });
   if (error) return { error: authMessage(error.message), fields: { email } };
   // Con confirmación de email activada no hay sesión todavía.
   if (!data.session) {
     return { info: `Te enviamos un email a ${email}. Abrí el enlace para confirmar tu cuenta y seguir con el alta de tu local.` };
   }
   redirect("/registro/local");
+}
+
+/**
+ * Pide el email de recuperación. La respuesta es la misma exista o no la cuenta.
+ * Solo se distingue el formato del email (dato que el usuario ya conoce) y la limitación de envíos.
+ */
+export async function requestPasswordResetAction(_prev: FormState, form: FormData): Promise<FormState> {
+  if (!isSupabaseConfigured()) return { error: "La autenticación no está configurada." };
+  const email = String(form.get("email") ?? "").trim().toLowerCase();
+  if (!EMAIL_RE.test(email)) return { error: "Ingresá un email válido.", fields: { email } };
+
+  let redirectTo: string;
+  try {
+    redirectTo = authCallbackUrl(RECOVERY_NEW_PASSWORD_PATH);
+  } catch {
+    return { error: "No pudimos enviar el enlace. Probá más tarde.", fields: { email } };
+  }
+
+  const client = await supabase();
+  const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo });
+  if (error && (error.message.toLowerCase().includes("rate limit") || error.message.toLowerCase().includes("too many"))) {
+    return { error: "Ya pediste un enlace hace poco. Esperá unos minutos antes de pedir otro.", fields: { email } };
+  }
+  // Otros errores también reciben la respuesta neutral: no deben revelar si la cuenta existe.
+  return { info: RECOVERY_NEUTRAL_MESSAGE, fields: { email } };
+}
+
+/** Fija la contraseña nueva. Requiere la sesión que dejó el enlace de recuperación ya canjeado. */
+export async function setNewPasswordAction(_prev: FormState, form: FormData): Promise<FormState> {
+  if (!isSupabaseConfigured()) return { error: "La autenticación no está configurada." };
+  const password = String(form.get("password") ?? "");
+  const confirm = String(form.get("confirm") ?? "");
+  const problem = passwordProblem(password, confirm);
+  if (problem) return { error: problem };
+
+  const client = await supabase();
+  // getUser verifica la sesión contra el servidor de Auth (getClaims solo valida el JWT localmente).
+  const { data: userData } = await client.auth.getUser();
+  if (!userData.user) redirect(`${RECOVERY_PATH}?error=enlace`);
+
+  const { error } = await client.auth.updateUser({ password });
+  if (error) return { error: authMessage(error.message) };
+  redirect("/admin");
 }
 
 export async function createLocalAction(_prev: FormState, form: FormData): Promise<FormState> {

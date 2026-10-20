@@ -39,9 +39,14 @@ export function Navbar() {
           ))}
         </div>
         <div className="ml-auto flex items-center gap-2">
-
           <Link
-            href="#empezar"
+            href="/login"
+            className="pressable inline-flex h-11 items-center rounded-2xl px-4 text-[14px] font-semibold text-muted hover:bg-ink/5 hover:text-foreground"
+          >
+            Ingresar
+          </Link>
+          <Link
+            href="/registro"
             className="pressable inline-flex h-11 items-center gap-1.5 rounded-2xl bg-ink px-4 text-[14px] font-semibold text-white shadow-lift hover:bg-ink/90"
           >
             Probar gratis <ArrowUpRight className="size-4" aria-hidden />

@@ -16,6 +16,11 @@ export function LoginForm({ next, initialError }: { next?: string; initialError?
       <AuthField label="Contraseña" htmlFor="password">
         <input id="password" name="password" type="password" autoComplete="current-password" required className={authInputClass} />
       </AuthField>
+      <p className="-mt-2 text-right text-[13px]">
+        <Link href="/recuperar" className="font-semibold text-brand underline-offset-4 hover:underline">
+          Olvidé mi contraseña
+        </Link>
+      </p>
       <FormMessage error={state.error} info={state.info} />
       <SubmitButton pendingLabel="Ingresando…">Ingresar</SubmitButton>
       <p className="text-center text-[14px] text-muted">

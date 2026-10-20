@@ -30,6 +30,8 @@ export default defineConfig({
       NEXT_DIST_DIR: ".next-live",
       NEXT_PUBLIC_SUPABASE_URL: SUPABASE_URL,
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: SUPABASE_KEY,
+      // Enlaces de email (alta y recuperación) apuntan al puerto del servidor de prueba.
+      APP_URL: `http://localhost:${PORT}`,
     },
   },
 });

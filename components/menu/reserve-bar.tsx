@@ -23,7 +23,7 @@ export function ReserveBar({ onReserve }: { onReserve: () => void }) {
         <CalendarCheck className="size-6 shrink-0" strokeWidth={2.25} aria-hidden />
         <span className="flex-1 leading-tight">
           <span className="block font-display text-[17px] font-bold">Reservar mesa</span>
-          <span className="block text-[12px] font-medium opacity-90">Pedí tu mesa · el local la confirma</span>
+          <span className="block text-[12px] font-medium opacity-90">Solicitá tu mesa · el local la revisa</span>
         </span>
         <span aria-hidden className="grid size-10 place-items-center rounded-2xl bg-white/20 transition-transform duration-300 group-hover:translate-x-0.5">
           <ArrowRight className="size-5" strokeWidth={2.5} />

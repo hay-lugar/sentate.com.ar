@@ -1,9 +1,11 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { isSupabaseConfigured } from "@/utils/supabase/env";
 import { z } from "zod";
+import { checkIpBudget } from "@/lib/abuse/rate-limit";
+import { redact } from "@/lib/log/redact";
 
 export type ReservationRequestInput = {
   tenantId: string;
@@ -44,6 +46,20 @@ export async function requestReservationAction(input: ReservationRequestInput | 
   const req = parsed.data;
 
   const supabase = createClient(await cookies());
+
+  // Cupo por conexión (IP), compartido entre instancias en la base. Va ANTES de la RPC de negocio. La IP no se guarda
+  // ni se loguea: a la base solo llega un HMAC. Si no está bien configurado, falla cerrado (ver lib/abuse/rate-limit.ts).
+  const requestHeaders = await headers();
+  const gate = await checkIpBudget({
+    header: (name) => requestHeaders.get(name),
+    consume: async (key) => {
+      const { data, error } = await supabase.rpc("consume_reservation_ip_budget", { p_key: key });
+      return { data, error };
+    },
+    log: (message) => console.error(message),
+  });
+  if (!gate.ok) return { ok: false, code: gate.code };
+
   const { data, error } = await supabase.rpc("request_reservation", {
     p_tenant_id: req.tenantId,
     p_service_date: req.serviceDate,
@@ -56,7 +72,7 @@ export async function requestReservationAction(input: ReservationRequestInput | 
   });
   if (error) {
     // Errores de negocio: P0001 con código estable en message. El resto se reporta como genérico.
-    if (error.code !== "P0001") console.error("[sentate] request_reservation", error.code, error.message);
+    if (error.code !== "P0001") console.error("[sentate] request_reservation", error.code, redact(error.message));
     return { ok: false, code: error.code === "P0001" ? error.message : "unexpected" };
   }
   const res = data as { reservation_id: string; service_date: string; starts_at: string; replayed: boolean };

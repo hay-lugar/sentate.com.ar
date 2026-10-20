@@ -24,7 +24,10 @@ export function DetailsStep({ draft, errors, update, onEdit, live = false }: Pro
       {live ? (
         <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-background p-3 text-[12px] leading-snug text-muted ring-1 ring-line/70">
           <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
-          <span>Tu nombre y teléfono se comparten solo con este local para gestionar la solicitud.</span>
+          <span>
+            Tu nombre y teléfono se comparten solo con este local para gestionar la solicitud. El local te responde por su cuenta (teléfono o WhatsApp):
+            Sentate no envía mensajes automáticos.
+          </span>
         </div>
       ) : (
         <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-amber-50 p-3 text-[12px] leading-snug text-amber-900">

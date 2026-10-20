@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import type { LiveTenantRecord, PublicTenant } from "@/lib/domain/types";
 import { addDays, zonedNow } from "@/lib/time/zoned";
 import { resolveImageRef, signImagePaths } from "@/lib/images/sign";
+import { redact } from "@/lib/log/redact";
 import { createClient } from "@/utils/supabase/server";
 import { isSupabaseConfigured } from "@/utils/supabase/env";
 import {
@@ -32,7 +33,7 @@ import type { LiveResult } from "./result";
 type QueryError = { code?: string; message: string } | null;
 
 const fail = (where: string, error: QueryError): LiveResult<never> => {
-  console.error(`[sentate] ${where}`, error?.code, error?.message);
+  console.error(`[sentate] ${where}`, error?.code, redact(error?.message));
   return { status: "error", reason: where };
 };
 

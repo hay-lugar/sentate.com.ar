@@ -15,6 +15,8 @@ type Props = {
   tenant: PublicTenant;
   now: ZonedNow;
   guests: number;
+  /** Solo demo: marca horarios como "completos" de forma ficticia. */
+  fakeAvailability: boolean;
   serviceDate: PlainDate | null;
   time: WallTime | null;
   onDate: (d: PlainDate) => void;
@@ -24,7 +26,7 @@ type Props = {
 
 type SlotState = "free" | "past" | "full";
 
-export function DateTimeStep({ tenant, now, guests, serviceDate, time, onDate, onTime, errors }: Props) {
+export function DateTimeStep({ tenant, now, guests, fakeAvailability, serviceDate, time, onDate, onTime, errors }: Props) {
   const days = useMemo(
     () => bookableDays(tenant.schedule, now, RESERVATION_LIMITS.windowDays, RESERVATION_LIMITS.leadMinutes),
     [tenant.schedule, now],
@@ -32,7 +34,7 @@ export function DateTimeStep({ tenant, now, guests, serviceDate, time, onDate, o
 
   const slots = useMemo(() => (serviceDate ? slotsForServiceDate(tenant.schedule, serviceDate) : []), [tenant.schedule, serviceDate]);
   const stateOf = (slot: Slot): SlotState =>
-    isSlotPast(slot, now, RESERVATION_LIMITS.leadMinutes) ? "past" : isSlotFullMock(tenant.slug, slot, guests) ? "full" : "free";
+    isSlotPast(slot, now, RESERVATION_LIMITS.leadMinutes) ? "past" : fakeAvailability && isSlotFullMock(tenant.slug, slot, guests) ? "full" : "free";
 
   const groups = tenant.schedule.shifts
     .map((shift) => ({ shift, items: slots.filter((s) => s.shiftId === shift.id) }))
@@ -119,7 +121,10 @@ export function DateTimeStep({ tenant, now, guests, serviceDate, time, onDate, o
       )}
       <FieldError id="err-time">{errors.time}</FieldError>
       <p className="mt-4 text-[12px] text-muted">
-        Disponibilidad ficticia de la demo. Horarios del local ({tenant.timezone === "America/Argentina/Buenos_Aires" ? "hora de Argentina" : tenant.timezone}).
+        {fakeAvailability
+          ? "Disponibilidad ficticia de la demo."
+          : "Es una solicitud: el local la confirma según su disponibilidad."}{" "}
+        Horarios del local ({tenant.timezone === "America/Argentina/Buenos_Aires" ? "hora de Argentina" : tenant.timezone}).
       </p>
     </div>
   );

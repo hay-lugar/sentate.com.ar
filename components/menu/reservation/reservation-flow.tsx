@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useMemo } from "react";
 import { ArrowLeft, LoaderCircle } from "lucide-react";
 import type { PublicTenant } from "@/lib/domain/types";
 import { zonedNow } from "@/lib/time/zoned";
@@ -12,11 +13,25 @@ import { DetailsStep } from "./details-step";
 import { GuestsStep } from "./guests-step";
 import { FailedView, SubmittedView } from "./result-view";
 import { STEP_COUNT, useReservationRequest } from "./use-reservation-request";
+import { demoSubmitter, liveSubmitter } from "./submitters";
+import type { TenantSource } from "@/lib/data/resolve";
 
 const TITLES = ["¿Cuántos son?", "¿Cuándo vienen?", "Tus datos"];
 
-export function ReservationFlow({ tenant, open, onClose }: { tenant: PublicTenant; open: boolean; onClose: () => void }) {
-  const r = useReservationRequest(tenant, open);
+export function ReservationFlow({
+  tenant,
+  source,
+  open,
+  onClose,
+}: {
+  tenant: PublicTenant;
+  source: TenantSource;
+  open: boolean;
+  onClose: () => void;
+}) {
+  const live = source === "live" && !!tenant.id;
+  const submitter = useMemo(() => (live ? liveSubmitter(tenant.id!) : demoSubmitter), [live, tenant.id]);
+  const r = useReservationRequest(tenant, open, { submitter, fakeAvailability: !live });
   // "Ahora" para pintar horarios (se refresca cada 30 s); el envío revalida contra la hora real.
   const now = useZonedNow(tenant.timezone, zonedNow(tenant.timezone));
   const submitting = r.phase === "submitting";
@@ -78,7 +93,7 @@ export function ReservationFlow({ tenant, open, onClose }: { tenant: PublicTenan
               <LoaderCircle className="size-5 animate-spin" aria-hidden /> Enviando solicitud…
             </>
           ) : r.isLastStep ? (
-            "Enviar solicitud (demo)"
+            live ? "Enviar solicitud" : "Enviar solicitud (demo)"
           ) : (
             "Continuar"
           )}
@@ -89,9 +104,9 @@ export function ReservationFlow({ tenant, open, onClose }: { tenant: PublicTenan
   return (
     <BottomSheet open={open} onClose={onClose} label="Pedir una mesa" header={header} footer={footer}>
       {r.phase === "submitted" && r.summary ? (
-        <SubmittedView tenantName={tenant.name} summary={r.summary} onClose={onClose} />
+        <SubmittedView tenantName={tenant.name} summary={r.summary} live={live} onClose={onClose} />
       ) : r.phase === "failed" ? (
-        <FailedView onRetry={r.submit} onBack={r.backToForm} retrying={submitting} />
+        <FailedView message={r.failure} onRetry={r.submit} onBack={r.backToForm} retrying={submitting} />
       ) : (
         <div className="relative overflow-x-hidden" aria-busy={submitting}>
           <AnimatePresence mode="popLayout" initial={false} custom={r.direction}>
@@ -119,6 +134,7 @@ export function ReservationFlow({ tenant, open, onClose }: { tenant: PublicTenan
                   tenant={tenant}
                   now={now}
                   guests={r.draft.guests}
+                  fakeAvailability={!live}
                   serviceDate={r.draft.serviceDate}
                   time={r.draft.time}
                   onDate={(d) => r.update("serviceDate", d)}
@@ -126,7 +142,7 @@ export function ReservationFlow({ tenant, open, onClose }: { tenant: PublicTenan
                   errors={r.errors}
                 />
               )}
-              {r.step === 2 && <DetailsStep draft={r.draft} errors={r.errors} update={r.update} onEdit={r.goTo} />}
+              {r.step === 2 && <DetailsStep draft={r.draft} errors={r.errors} update={r.update} onEdit={r.goTo} live={live} />}
             </motion.fieldset>
           </AnimatePresence>
         </div>

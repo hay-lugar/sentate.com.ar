@@ -16,7 +16,8 @@ const DAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "vierne
 const LOGO_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
 export function SettingsForm() {
-  const { state, dispatch, notify } = useDemo();
+  const { state, dispatch, notify, mode } = useDemo();
+  const live = mode === "live";
   const [draft, setDraft] = useState<TenantProfile>(state.profile);
   const [source, setSource] = useState(state.profile);
   const [errors, setErrors] = useState<ProfileErrors>({});
@@ -63,7 +64,7 @@ export function SettingsForm() {
       return;
     }
     dispatch({ type: "updateProfile", profile: next });
-    notify("Ajustes guardados en este navegador");
+    notify(live ? "Guardando ajustes…" : "Ajustes guardados en este navegador", live ? "neutral" : "ok");
   };
 
   const contrast = themeContrastReport(draft.theme);
@@ -76,11 +77,13 @@ export function SettingsForm() {
         <div className="mb-4 flex items-center gap-4">
           <TenantLogo name={draft.name || "?"} logoUrl={draft.logoUrl} className="size-16 rounded-2xl text-xl ring-1 ring-line" />
           <div className="flex flex-wrap gap-2">
+            {!live && (
             <label className="pressable inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-background px-3 text-[13px] font-semibold ring-1 ring-line focus-within:ring-2 focus-within:ring-brand">
               <ImagePlus className="size-4" aria-hidden />
               {draft.logoUrl ? "Cambiar logo" : "Subir logo"}
               <input type="file" accept={LOGO_TYPES.join(",")} className="sr-only" onChange={(e) => onLogo(e.target.files?.[0])} />
             </label>
+            )}
             {draft.logoUrl && (
               <button type="button" onClick={() => set("logoUrl", undefined)} className="pressable h-10 rounded-xl px-3 text-[13px] font-semibold text-rose-700 hover:bg-rose-50">
                 Quitar logo
@@ -88,7 +91,11 @@ export function SettingsForm() {
             )}
           </div>
         </div>
-        <p className="-mt-2 mb-4 text-[12px] text-muted">Opcional. PNG, JPG o WebP hasta 200 KB. Sin logo se muestran las iniciales.</p>
+        <p className="-mt-2 mb-4 text-[12px] text-muted">
+          {live
+            ? "La subida de logos llega en la próxima versión. Mientras tanto se muestran las iniciales."
+            : "Opcional. PNG, JPG o WebP hasta 200 KB. Sin logo se muestran las iniciales."}
+        </p>
         <FieldError id={id("logo-error")}>{errors.logo}</FieldError>
 
         <div className="space-y-3">

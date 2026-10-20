@@ -13,10 +13,12 @@ import { OpenStatusPill, StatusDot } from "./open-status";
 export function RestaurantHeader({
   tenant,
   status,
+  demo,
   localEdits,
 }: {
   tenant: PublicTenant;
   status: OpenState;
+  demo: boolean;
   localEdits: boolean;
 }) {
   const [copied, setCopied] = useState(false);
@@ -47,7 +49,7 @@ export function RestaurantHeader({
         )}
         <div className="absolute inset-0 bg-linear-to-b from-ink/50 via-ink/5 to-ink/30" />
         <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-4 pt-[max(env(safe-area-inset-top),1rem)]">
-          <DemoBadge label={localEdits ? "Demo · con tus cambios" : "Demo · local de ejemplo"} />
+          {demo ? <DemoBadge label={localEdits ? "Demo · con tus cambios" : "Demo · local de ejemplo"} /> : <span />}
           <button
             type="button"
             aria-label={copied ? "Enlace copiado" : "Compartir"}

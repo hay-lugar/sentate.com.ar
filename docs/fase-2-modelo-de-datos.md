@@ -276,3 +276,5 @@ npx supabase db lint --local -s public,private     # plpgsql_check
     deny-all y esquema no expuesto) y 7 índices sin uso (base vacía).
 - **Pendiente:** las pruebas pgTAP crean usuarios y datos, así que se corren en local o en un branch
   de staging, no en producción.
+
+- **Fase 3 (migración 07):** ver [`fase-3-auth-y-datos.md` §6](fase-3-auth-y-datos.md#6-aplicación-remota-de-la-migración-07).

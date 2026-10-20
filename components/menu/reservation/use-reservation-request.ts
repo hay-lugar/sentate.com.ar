@@ -15,7 +15,7 @@ import {
   type ReservationDraft,
   type ValidationContext,
 } from "@/lib/reservation/validation";
-import { simulateRequest } from "@/lib/demo/simulate";
+import type { Submitter } from "./submitters";
 import { zonedNow } from "@/lib/time/zoned";
 
 export type Phase = "form" | "submitting" | "submitted" | "failed";
@@ -30,13 +30,23 @@ export type SubmittedSummary = { guests: number; slot: Slot; firstName: string }
  * cancelable, protección contra doble envío y limpieza de temporizadores.
  * Los datos ingresados viven solo en memoria y se descartan al cerrar.
  */
-export function useReservationRequest(tenant: PublicTenant, open: boolean) {
+export type ReservationRequestOptions = {
+  submitter: Submitter;
+  /** Demo: disponibilidad ficticia. Comercio real: no se inventan cupos (todo es solicitud). */
+  fakeAvailability: boolean;
+};
+
+export function useReservationRequest(tenant: PublicTenant, open: boolean, { submitter, fakeAvailability }: ReservationRequestOptions) {
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [draft, setDraft] = useState<ReservationDraft>(EMPTY_DRAFT);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [phase, setPhase] = useState<Phase>("form");
   const [summary, setSummary] = useState<SubmittedSummary | null>(null);
+  const [failure, setFailure] = useState<string | null>(null);
+  // Clave de idempotencia estable mientras el contenido no cambie: un reintento del mismo
+  // envío no duplica; si el usuario edita algo, es una solicitud nueva.
+  const idempotency = useRef<{ payload: string; key: string } | null>(null);
 
   const inFlight = useRef<AbortController | null>(null);
   const resetTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -45,9 +55,9 @@ export function useReservationRequest(tenant: PublicTenant, open: boolean) {
     (): ValidationContext => ({
       schedule: tenant.schedule,
       now: zonedNow(tenant.timezone),
-      isFull: (slot, guests) => isSlotFullMock(tenant.slug, slot, guests),
+      isFull: (slot, guests) => fakeAvailability && isSlotFullMock(tenant.slug, slot, guests),
     }),
-    [tenant],
+    [tenant, fakeAvailability],
   );
 
   // Al cerrar: cancela el envío en curso y descarta los datos tras la animación de salida.
@@ -64,6 +74,8 @@ export function useReservationRequest(tenant: PublicTenant, open: boolean) {
       setErrors({});
       setPhase("form");
       setSummary(null);
+      setFailure(null);
+      idempotency.current = null;
     }, 350);
     return () => clearTimeout(resetTimer.current);
   }, [open]);
@@ -114,15 +126,29 @@ export function useReservationRequest(tenant: PublicTenant, open: boolean) {
     const controller = new AbortController();
     inFlight.current = controller;
     setPhase("submitting");
+    const payload = JSON.stringify(draft);
+    if (idempotency.current?.payload !== payload) idempotency.current = { payload, key: crypto.randomUUID() };
     try {
-      await simulateRequest(controller.signal);
+      const res = await submitter(draft, idempotency.current.key, controller.signal);
       if (controller.signal.aborted) return;
-      setSummary({ guests: draft.guests, slot, firstName: draft.name.trim().split(/\s+/)[0] });
-      // Los datos de contacto no se conservan: solo el resumen sin teléfono ni comentarios.
-      setDraft(EMPTY_DRAFT);
-      setPhase("submitted");
+      if (res.ok) {
+        setSummary({ guests: draft.guests, slot, firstName: draft.name.trim().split(/\s+/)[0] });
+        // Los datos de contacto no se conservan: solo el resumen sin teléfono ni comentarios.
+        setDraft(EMPTY_DRAFT);
+        idempotency.current = null;
+        setPhase("submitted");
+      } else if (res.field) {
+        // Error de un dato puntual (p. ej. el horario se ocupó o pasó): volver a ese paso.
+        setErrors({ [res.field]: res.message });
+        goTo(stepForErrors({ [res.field]: res.message }));
+        setPhase("form");
+      } else {
+        setFailure(res.message);
+        setPhase("failed");
+      }
     } catch {
       if (controller.signal.aborted) return;
+      setFailure("No pudimos enviar la solicitud. Revisá tu conexión e intentá de nuevo.");
       setPhase("failed");
     } finally {
       if (inFlight.current === controller) inFlight.current = null;
@@ -136,6 +162,7 @@ export function useReservationRequest(tenant: PublicTenant, open: boolean) {
     errors,
     phase,
     summary,
+    failure,
     update,
     goTo,
     next,

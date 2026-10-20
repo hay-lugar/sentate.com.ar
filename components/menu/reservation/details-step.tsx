@@ -12,25 +12,34 @@ type Props = {
   errors: FieldErrors;
   update: <K extends keyof ReservationDraft>(key: K, value: ReservationDraft[K]) => void;
   onEdit: (step: number) => void;
+  /** Comercio real: los datos se envían al local. */
+  live?: boolean;
 };
 
-export function DetailsStep({ draft, errors, update, onEdit }: Props) {
+export function DetailsStep({ draft, errors, update, onEdit, live = false }: Props) {
   return (
     <div>
       <Summary guests={draft.guests} serviceDate={draft.serviceDate} time={draft.time} onEdit={onEdit} />
 
-      <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-amber-50 p-3 text-[12px] leading-snug text-amber-900">
-        <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
-        <span>
-          <b className="font-semibold">Modo demo:</b> no se guarda ni se envía nada. Podés usar datos inventados.
-        </span>
-      </div>
+      {live ? (
+        <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-background p-3 text-[12px] leading-snug text-muted ring-1 ring-line/70">
+          <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
+          <span>Tu nombre y teléfono se comparten solo con este local para gestionar la solicitud.</span>
+        </div>
+      ) : (
+        <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-amber-50 p-3 text-[12px] leading-snug text-amber-900">
+          <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
+          <span>
+            <b className="font-semibold">Modo demo:</b> no se guarda ni se envía nada. Podés usar datos inventados.
+          </span>
+        </div>
+      )}
 
       <div className="mt-4 space-y-3">
         <Field label="Nombre" htmlFor="res-name" error={errors.name} errorId="err-name">
           <input
             id="res-name"
-            autoComplete="off"
+            autoComplete={live ? "name" : "off"}
             enterKeyHint="next"
             maxLength={RESERVATION_LIMITS.nameMax + 10}
             value={draft.name}
@@ -46,7 +55,7 @@ export function DetailsStep({ draft, errors, update, onEdit }: Props) {
             id="res-phone"
             type="tel"
             inputMode="tel"
-            autoComplete="off"
+            autoComplete={live ? "tel" : "off"}
             enterKeyHint="next"
             value={draft.phone}
             onChange={(e) => update("phone", e.target.value)}

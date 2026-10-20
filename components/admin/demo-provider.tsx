@@ -11,9 +11,12 @@ import {
   useReducer,
   useRef,
   useState,
+  useTransition,
   type ReactNode,
 } from "react";
-import type { ReservationStatus, TenantRecord, TenantStats } from "@/lib/domain/types";
+import { useRouter } from "next/navigation";
+import type { ReservationStatus, TenantAccess, TenantRecord, TenantStats } from "@/lib/domain/types";
+import { mutateTenantAction } from "@/app/admin/[slug]/actions";
 import { demoReducer, type DemoAction, type DemoState } from "@/lib/demo/state";
 import { clearDemo, loadDemo, saveDemo } from "@/lib/demo/storage";
 
@@ -22,9 +25,16 @@ type Toast = { id: number; message: string; tone: "ok" | "neutral" | "error"; un
 /** "local": hay cambios guardados en este navegador; "fixture": datos de ejemplo originales. */
 export type StorageStatus = "fixture" | "local" | "unavailable";
 
+/** Comercio real: los cambios se guardan en Supabase con la sesión del dueño. */
+export type LiveInfo = { tenantId: string; isPublished: boolean; access: TenantAccess; email: string };
+
 type Ctx = {
+  mode: "demo" | "live";
+  live: LiveInfo | null;
+  /** Hay un guardado en curso (modo real). */
+  saving: boolean;
   state: DemoState;
-  stats: TenantStats;
+  stats: TenantStats | null;
   hydrated: boolean;
   storage: StorageStatus;
   dispatch: (action: DemoAction) => void;
@@ -53,9 +63,27 @@ const toInitialState = (record: TenantRecord): DemoState => ({
  * cambiar de tenant reinicie todo. Perfil y carta se guardan en localStorage
  * (aislado y versionado por tenant); las reservas solo viven en memoria.
  */
-export function AdminDemoProvider({ record, children }: { record: TenantRecord; children: ReactNode }) {
+export function AdminDemoProvider({
+  record,
+  live = null,
+  children,
+}: {
+  record: TenantRecord;
+  live?: LiveInfo | null;
+  children: ReactNode;
+}) {
+  const router = useRouter();
+  const [saving, startSaving] = useTransition();
   const initial = useMemo(() => toInitialState(record), [record]);
   const [state, rawDispatch] = useReducer(demoReducer, initial);
+
+  // Modo real: cuando el server devuelve datos nuevos (router.refresh), se reemplaza el estado
+  // optimista por la verdad de la base (IDs reales, posiciones, etc.).
+  const firstRecord = useRef(initial);
+  useEffect(() => {
+    if (!live || firstRecord.current === initial) return;
+    rawDispatch({ type: "reset", initial });
+  }, [live, initial]);
   const [hydrated, setHydrated] = useState(false);
   const [storage, setStorage] = useState<StorageStatus>("fixture");
   const [toast, setToast] = useState<Toast | null>(null);
@@ -64,22 +92,26 @@ export function AdminDemoProvider({ record, children }: { record: TenantRecord; 
 
   // 1) Hidratar desde localStorage una vez, después del primer render (evita mismatch SSR).
   useEffect(() => {
+    if (live) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- modo real: no hay nada que hidratar
+      setHydrated(true);
+      return;
+    }
     const stored = loadDemo(record.slug);
     if (stored) {
       rawDispatch({ type: "hydrate", profile: stored.profile, categories: stored.categories });
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincroniza con un sistema externo (localStorage) una sola vez
       setStorage("local");
     }
     setHydrated(true);
-  }, [record.slug]);
+  }, [record.slug, live]);
 
   // 2) Persistir perfil y carta tras cada cambio del usuario (nunca reservas).
   useEffect(() => {
-    if (!hydrated || !dirty.current) return;
+    if (live || !hydrated || !dirty.current) return;
     dirty.current = false;
     const ok = saveDemo(state.slug, { profile: state.profile, categories: state.categories });
     setStorage(ok ? "local" : "unavailable");
-  }, [hydrated, state.slug, state.profile, state.categories]);
+  }, [live, hydrated, state.slug, state.profile, state.categories]);
 
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
@@ -90,10 +122,30 @@ export function AdminDemoProvider({ record, children }: { record: TenantRecord; 
     toastTimer.current = setTimeout(() => setToast((cur) => (cur?.id === id ? null : cur)), 4500);
   }, []);
 
-  const dispatch = useCallback((action: DemoAction) => {
-    if (action.type !== "setReservationStatus") dirty.current = true;
-    rawDispatch(action);
-  }, []);
+  // Modo real: aplica optimista, guarda con la Server Action y re-sincroniza desde el server.
+  const persistLive = useCallback(
+    (action: DemoAction) => {
+      if (!live) return;
+      startSaving(async () => {
+        const res = await mutateTenantAction(live.tenantId, action).catch(() => ({
+          ok: false as const,
+          message: "Sin conexión. No se guardó el cambio.",
+        }));
+        if (!res.ok) showToast({ tone: "error", message: res.message });
+        router.refresh();
+      });
+    },
+    [live, router, showToast],
+  );
+
+  const dispatch = useCallback(
+    (action: DemoAction) => {
+      if (action.type !== "setReservationStatus") dirty.current = true;
+      rawDispatch(action);
+      persistLive(action);
+    },
+    [persistLive],
+  );
 
   const latest = useRef(state);
   useEffect(() => {
@@ -107,6 +159,15 @@ export function AdminDemoProvider({ record, children }: { record: TenantRecord; 
       const previous = target.status;
       const name = target.name.split(" ")[0];
       rawDispatch({ type: "setReservationStatus", id, status });
+      if (live) {
+        // En la base, confirmed → pending no es una transición válida: sin "Deshacer".
+        persistLive({ type: "setReservationStatus", id, status });
+        showToast({
+          tone: status === "confirmed" ? "ok" : "neutral",
+          message: status === "confirmed" ? `Reserva de ${name} confirmada` : `Solicitud de ${name} rechazada`,
+        });
+        return;
+      }
       showToast({
         tone: status === "confirmed" ? "ok" : "neutral",
         message: status === "confirmed" ? `Reserva de ${name} confirmada (demo)` : `Solicitud de ${name} rechazada (demo)`,
@@ -116,7 +177,7 @@ export function AdminDemoProvider({ record, children }: { record: TenantRecord; 
         },
       });
     },
-    [showToast],
+    [showToast, live, persistLive],
   );
 
   const resetDemo = useCallback(() => {
@@ -129,8 +190,20 @@ export function AdminDemoProvider({ record, children }: { record: TenantRecord; 
   const notify = useCallback((message: string, tone: Toast["tone"] = "ok") => showToast({ message, tone }), [showToast]);
 
   const value = useMemo(
-    () => ({ state, stats: record.stats, hydrated, storage, dispatch, setReservationStatus, notify, resetDemo }),
-    [state, record.stats, hydrated, storage, dispatch, setReservationStatus, notify, resetDemo],
+    () => ({
+      mode: (live ? "live" : "demo") as Ctx["mode"],
+      live,
+      saving,
+      state,
+      stats: record.stats,
+      hydrated,
+      storage,
+      dispatch,
+      setReservationStatus,
+      notify,
+      resetDemo,
+    }),
+    [live, saving, state, record.stats, hydrated, storage, dispatch, setReservationStatus, notify, resetDemo],
   );
 
   return (

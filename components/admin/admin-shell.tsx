@@ -7,6 +7,7 @@ import {
   Bell,
   CalendarDays,
   ExternalLink,
+  LogOut,
   LayoutDashboard,
   PanelLeftClose,
   PanelLeftOpen,
@@ -21,6 +22,8 @@ import { ThemeScope } from "@/components/ui/theme-scope";
 import { cn } from "@/lib/format";
 import { useDemo } from "./demo-provider";
 import { DemoBanner } from "./demo-banner";
+import { TrialBanner } from "./trial-banner";
+import { signOutAction } from "@/app/(auth)/actions";
 
 type NavItem = { href: string; label: string; icon: LucideIcon; badge?: number };
 
@@ -28,7 +31,7 @@ const STORAGE_KEY = "sentate:sidebar-collapsed";
 
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { state } = useDemo();
+  const { state, mode, live } = useDemo();
   const { reservations } = state;
   const tenant = { slug: state.slug, name: state.profile.name, cuisine: state.profile.cuisine, logoUrl: state.profile.logoUrl };
   const pending = reservations.filter((r) => r.status === "pending").length;
@@ -121,6 +124,21 @@ export function AdminShell({ children }: { children: ReactNode }) {
               <ExternalLink className="size-[18px] shrink-0" aria-hidden />
               {collapsed ? <span className="sr-only">Ver menú público (nueva pestaña)</span> : "Ver menú público"}
             </Link>
+            {live && (
+              <form action={signOutAction}>
+                <button
+                  type="submit"
+                  title={`Cerrar sesión (${live.email})`}
+                  className={cn(
+                    "pressable flex h-12 w-full items-center gap-3 rounded-2xl px-3.5 text-[14px] font-semibold text-muted hover:bg-background hover:text-foreground",
+                    collapsed && "justify-center px-0",
+                  )}
+                >
+                  <LogOut className="size-[18px] shrink-0" aria-hidden />
+                  {collapsed ? <span className="sr-only">Cerrar sesión</span> : "Cerrar sesión"}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </motion.aside>
@@ -130,7 +148,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className="size-10 rounded-xl text-[14px] shadow-brand" />
         <div className="min-w-0 leading-tight">
           <p className="truncate font-display font-bold">{tenant.name}</p>
-          <p className="text-[12px] text-muted">Panel · demo</p>
+          <p className="text-[12px] text-muted">{mode === "demo" ? "Panel · demo" : "Panel"}</p>
         </div>
         <Link
           href={`${base}/reservas`}
@@ -144,10 +162,21 @@ export function AdminShell({ children }: { children: ReactNode }) {
             </span>
           )}
         </Link>
+        {live && (
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              aria-label="Cerrar sesión"
+              className="pressable grid size-11 place-items-center rounded-2xl bg-surface shadow-soft ring-1 ring-line/70"
+            >
+              <LogOut className="size-5" aria-hidden />
+            </button>
+          </form>
+        )}
       </header>
 
       <main className="min-w-0 flex-1 px-4 pt-2 pb-36 sm:px-6 lg:px-8 lg:py-8">
-        <DemoBanner />
+        {mode === "demo" ? <DemoBanner /> : <TrialBanner />}
         {children}
       </main>
 

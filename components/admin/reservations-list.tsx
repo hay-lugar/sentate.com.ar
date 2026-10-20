@@ -29,7 +29,7 @@ export function ReservationsList({
   limit?: number;
   seeAllHref?: string;
 }) {
-  const { state, setReservationStatus: setStatus } = useDemo();
+  const { state, mode, setReservationStatus: setStatus } = useDemo();
   const { reservations } = state;
   const tz = state.profile.timezone;
   const now = useZonedNow(tz, zonedNow(tz));
@@ -58,7 +58,7 @@ export function ReservationsList({
       <div className="flex flex-col gap-3 px-3 pt-3 pb-4 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-xl font-bold">{title}</h2>
-          <p className="text-[12px] text-muted">Ejemplos ficticios · pendiente ≠ confirmada</p>
+          <p className="text-[12px] text-muted">{mode === "demo" ? "Ejemplos ficticios · pendiente ≠ confirmada" : "Una solicitud pendiente todavía no es una reserva confirmada"}</p>
         </div>
         <div className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto rounded-2xl bg-background p-1 sm:ml-auto">
           {FILTERS.map((f) => (

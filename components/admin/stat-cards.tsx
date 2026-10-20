@@ -67,7 +67,7 @@ export function StatCards() {
         className="sm:col-span-2 xl:col-span-1"
         aside={<Sparkline data={views} />}
         footer={
-          <span className={cn("inline-flex items-center gap-1 font-semibold", trend >= 0 ? "text-emerald-600" : "text-rose-600")}>
+          <span className={cn("inline-flex items-center gap-1 font-semibold", trend >= 0 ? "text-emerald-700" : "text-rose-700")}>
             {trend >= 0 ? <TrendingUp className="size-4" aria-hidden /> : <TrendingDown className="size-4" aria-hidden />}
             {trend >= 0 ? "+" : ""}
             {trend}% <span className="font-normal text-muted">vs. semana anterior (dato ficticio)</span>
@@ -134,15 +134,15 @@ function StatCard({
           >
             <Icon className="size-5" aria-hidden />
           </span>
-          <p className={cn("mt-4 text-[13px] font-medium", highlight ? "opacity-90" : "text-muted")}>{label}</p>
+          <p className={cn("mt-4 text-[13px] font-medium", !highlight && "text-muted")}>{label}</p>
           <p className="mt-0.5 font-display text-[2.6rem] leading-none font-bold tracking-tight tabular-nums">
             {value}
-            {suffix && <span className={cn("ml-1 text-xl font-semibold", highlight ? "opacity-60" : "text-muted")}>{suffix}</span>}
+            {suffix && <span className={cn("ml-1 text-xl font-semibold", !highlight && "text-muted")}>{suffix}</span>}
           </p>
         </div>
         {aside}
       </div>
-      <div className={cn("relative mt-4 text-[13px]", highlight ? "opacity-90" : "text-muted")}>{footer}</div>
+      <div className={cn("relative mt-4 text-[13px]", !highlight && "text-muted")}>{footer}</div>
     </motion.div>
   );
 }

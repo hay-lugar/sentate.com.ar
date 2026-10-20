@@ -60,6 +60,8 @@ async function confirmationLink(email: string): Promise<string> {
 }
 
 async function expectAccessible(page: Page) {
+  // reducedMotion no detiene las animaciones de opacidad (framer-motion): axe debe medir el estado final.
+  await page.waitForFunction(() => document.getAnimations().every((a) => a.playState === "finished" || a.playState === "idle"));
   const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
   const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
   expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`)).toEqual([]);
@@ -323,7 +325,7 @@ test.describe("acceso", () => {
 });
 
 test.describe("accesibilidad y mobile", () => {
-  // Sin animaciones de entrada: axe mide el contraste final, no un fotograma a mitad de transición.
+  // axe mide el contraste final: expectAccessible espera a que terminen las animaciones de entrada.
   test.use({ contextOptions: { reducedMotion: "reduce" } });
   for (const path of ["", "/reservas", "/menu", "/ajustes"]) {
     test(`panel${path || " (inicio)"}: sin violaciones serias de a11y`, async ({ page }) => {

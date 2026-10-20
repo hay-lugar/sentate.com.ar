@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────────────────────
+   Tokens base de Sentate.
+   --brand / --brand-fg / --accent / --accent-fg son los slots
+   dinámicos: cada tenant los sobreescribe con `themeStyle()` en
+   un wrapper, y todo lo que cuelga de él hereda la paleta.
+   ────────────────────────────────────────────────────────────── */
+:root {
+  --background: #fbf8f4;
+  --surface: #ffffff;
+  --foreground: #17130f;
+  --muted: #7a7168;
+  --line: #ece6de;
+
+  --brand: #ff5a1f;
+  --brand-fg: #ffffff;
+  --accent: #ffe9dc;
+  --accent-fg: #8a2c06;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-ink: #17130f;
+
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  /* Tinte suave del brand para fondos/estados, derivado en runtime */
+  --color-brand-soft: color-mix(in oklch, var(--brand) 12%, white);
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-4xl: 2rem;
+  --radius-5xl: 2.5rem;
+
+  --shadow-soft: 0 1px 2px rgb(23 19 15 / 0.04), 0 8px 24px -8px rgb(23 19 15 / 0.1);
+  --shadow-lift: 0 2px 6px rgb(23 19 15 / 0.05), 0 24px 48px -16px rgb(23 19 15 / 0.22);
+  --shadow-float: 0 -1px 0 rgb(23 19 15 / 0.03), 0 -12px 40px -12px rgb(23 19 15 / 0.18);
+  --shadow-brand: 0 14px 30px -10px color-mix(in oklch, var(--brand) 70%, transparent);
+
+  --ease-spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --animate-pulse-dot: pulse-dot 2s var(--ease-spring) infinite;
+  @keyframes pulse-dot {
+    0% { box-shadow: 0 0 0 0 color-mix(in oklch, currentColor 55%, transparent); }
+    70% { box-shadow: 0 0 0 7px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--brand) 25%, white);
+  }
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+/* Botón que "se hunde" al tocar — base de toda la UI táctil */
+@utility pressable {
+  transition-property: transform, box-shadow, background-color, color, opacity;
+  transition-duration: 180ms;
+  transition-timing-function: var(--ease-spring);
+  &:active { transform: scale(0.96); }
+}
+
+@utility pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+}
+
+@utility grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
+}
+
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}

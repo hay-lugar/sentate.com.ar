@@ -1,91 +1,37 @@
-// Mock data de la Fase 1. Sin DB: todo vive acá hasta que entre Supabase.
+// FIXTURES de la demo: locales, cartas, reservas y métricas FICTICIAS.
+// Los nombres de clientes y teléfonos son inventados. No importar desde
+// componentes: usar las consultas de `lib/data/tenants.ts`.
 
-export type DishTag = "popular" | "veggie" | "picante" | "sin-tacc" | "nuevo";
-
-export type Dish = {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image?: string;
-  tags?: DishTag[];
-  active: boolean;
-};
-
-export type Category = {
-  id: string;
-  name: string;
-  dishes: Dish[];
-};
-
-export type ReservationStatus = "pending" | "confirmed" | "rejected";
-
-export type Reservation = {
-  id: string;
-  name: string;
-  phone: string;
-  guests: number;
-  /** Días desde hoy (0 = hoy). Se resuelve a fecha real en runtime. */
-  dayOffset: number;
-  time: string;
-  notes?: string;
-  status: ReservationStatus;
-  /** Minutos desde que entró la solicitud */
-  receivedMinutesAgo: number;
-};
-
-export type TenantTheme = {
-  primary: string;
-  primaryForeground: string;
-  accent: string;
-  accentForeground: string;
-};
-
-export type Tenant = {
-  slug: string;
-  name: string;
-  tagline: string;
-  cuisine: string;
-  priceRange: "$" | "$$" | "$$$";
-  address: string;
-  phone: string;
-  rating: number;
-  reviews: number;
-  /** Formato 24h. Si close < open, el turno cruza la medianoche. */
-  hours: { open: string; close: string };
-  /** 0 = domingo … 6 = sábado */
-  closedDays: number[];
-  coverImage: string;
-  theme: TenantTheme;
-  categories: Category[];
-  reservations: Reservation[];
-  stats: {
-    menuViewsLast7: number[];
-    menuViewsPrev7Total: number;
-  };
-};
+import type { TenantRecord } from "@/lib/domain/types";
+import { DEFAULT_TIMEZONE } from "@/lib/time/zoned";
 
 const img = (id: string) => `https://images.unsplash.com/photo-${id}`;
 
-export const tenants: Tenant[] = [
+export const TENANT_FIXTURES: TenantRecord[] = [
   {
     slug: "el-bodegon",
-    name: "El Bodegón",
-    tagline: "Parrilla de barrio desde 1987",
-    cuisine: "Parrilla argentina",
-    priceRange: "$$",
-    address: "Av. Corrientes 4120, Almagro",
-    phone: "+54 11 4862-1987",
-    rating: 4.7,
-    reviews: 1284,
-    hours: { open: "12:00", close: "00:30" },
-    closedDays: [1],
-    coverImage: img("1555939594-58d7cb561ad1"),
-    theme: {
-      primary: "#b8461b",
-      primaryForeground: "#ffffff",
-      accent: "#f7e6d4",
-      accentForeground: "#6b2a10",
+    profile: {
+      name: "El Bodegón",
+      tagline: "Parrilla de barrio desde 1987",
+      cuisine: "Parrilla argentina",
+      priceRange: "$$",
+      address: "Av. Corrientes 4120, Almagro",
+      phone: "+54 11 4862-1987",
+      coverImage: img("1555939594-58d7cb561ad1"),
+      theme: {
+        primary: "#b8461b",
+        primaryForeground: "#ffffff",
+        accent: "#f7e6d4",
+        accentForeground: "#6b2a10",
+      },
+      timezone: DEFAULT_TIMEZONE,
+      schedule: {
+        openDays: [0, 2, 3, 4, 5, 6],
+        shifts: [
+          { id: "almuerzo", label: "Almuerzo", open: "12:00", close: "16:00" },
+          { id: "cena", label: "Cena", open: "20:00", close: "00:30" },
+        ],
+      },
     },
     categories: [
       {
@@ -105,6 +51,7 @@ export const tenants: Tenant[] = [
             name: "Empanadas de carne cortada a cuchillo",
             description: "Masa casera, horno de barro. Porción de 3 con salsa criolla.",
             price: 7200,
+            tags: [],
             active: true,
           },
           {
@@ -113,6 +60,7 @@ export const tenants: Tenant[] = [
             description: "En salsa de tomate lenta, con pan de campo tostado para mojar.",
             price: 10500,
             image: img("1529042410759-befb1204b468"),
+            tags: [],
             active: true,
           },
           {
@@ -154,6 +102,7 @@ export const tenants: Tenant[] = [
             description: "Cocción lenta a leña de quebracho, 4 horas. Se deshace solo.",
             price: 21500,
             image: img("1529692236671-f1f6cf9683ba"),
+            tags: [],
             active: true,
           },
           {
@@ -171,6 +120,7 @@ export const tenants: Tenant[] = [
             description: "Con manzanas caramelizadas, mostaza antigua y verdes.",
             price: 19900,
             image: img("1432139555190-58524dae6a55"),
+            tags: [],
             active: false,
           },
         ],
@@ -185,6 +135,7 @@ export const tenants: Tenant[] = [
             description: "Pasta al huevo amasada a mano, ragú de osobuco y parmesano.",
             price: 15800,
             image: img("1551183053-bf91a1d81141"),
+            tags: [],
             active: true,
           },
           {
@@ -225,6 +176,7 @@ export const tenants: Tenant[] = [
             description: "Mascarpone, café de especialidad y cacao amargo.",
             price: 7900,
             image: img("1571877227200-a0d98ea607e9"),
+            tags: [],
             active: true,
           },
           {
@@ -233,6 +185,7 @@ export const tenants: Tenant[] = [
             description: "Chocolate 70%, nueces y bocha de helado de crema americana.",
             price: 7400,
             image: img("1606313564200-e75d5e30476c"),
+            tags: [],
             active: true,
           },
           {
@@ -256,6 +209,7 @@ export const tenants: Tenant[] = [
             description: "Valle de Uco, Mendoza. Botella disponible a $24.000.",
             price: 6200,
             image: img("1437418747212-8d9709afab22"),
+            tags: [],
             active: true,
           },
           {
@@ -264,6 +218,7 @@ export const tenants: Tenant[] = [
             description: "Rubia, roja o IPA de cervecería artesanal local.",
             price: 4800,
             image: img("1535958636474-b021ee887b13"),
+            tags: [],
             active: true,
           },
           {
@@ -279,6 +234,7 @@ export const tenants: Tenant[] = [
             name: "Agua con o sin gas",
             description: "500 ml.",
             price: 2500,
+            tags: [],
             active: true,
           },
         ],
@@ -301,22 +257,25 @@ export const tenants: Tenant[] = [
   },
   {
     slug: "la-esquina",
-    name: "La Esquina",
-    tagline: "Burgers, pizzas y tragos hasta tarde",
-    cuisine: "Bar & cocina",
-    priceRange: "$$",
-    address: "Thames 1650, Palermo",
-    phone: "+54 11 4833-2040",
-    rating: 4.5,
-    reviews: 862,
-    hours: { open: "18:00", close: "03:00" },
-    closedDays: [],
-    coverImage: img("1514933651103-005eec06c04b"),
-    theme: {
-      primary: "#0f766e",
-      primaryForeground: "#ffffff",
-      accent: "#d9f2ec",
-      accentForeground: "#0b4d47",
+    profile: {
+      name: "La Esquina",
+      tagline: "Burgers, pizzas y tragos hasta tarde",
+      cuisine: "Bar & cocina",
+      priceRange: "$$",
+      address: "Thames 1650, Palermo",
+      phone: "+54 11 4833-2040",
+      coverImage: img("1514933651103-005eec06c04b"),
+      theme: {
+        primary: "#0f766e",
+        primaryForeground: "#ffffff",
+        accent: "#d9f2ec",
+        accentForeground: "#0b4d47",
+      },
+      timezone: DEFAULT_TIMEZONE,
+      schedule: {
+        openDays: [0, 1, 2, 3, 4, 5, 6],
+        shifts: [{ id: "noche", label: "Noche", open: "18:00", close: "03:00" }],
+      },
     },
     categories: [
       {
@@ -324,7 +283,7 @@ export const tenants: Tenant[] = [
         name: "Para compartir",
         dishes: [
           { id: "fritas", name: "Fritas cheddar & bacon", description: "Cheddar fundido, bacon crocante y verdeo.", price: 8900, image: img("1573080496219-bb080dd4f877"), tags: ["popular"], active: true },
-          { id: "tostado", name: "Tostado de jamón crudo", description: "Pan de masa madre, crudo, rúcula y queso tybo.", price: 7600, image: img("1528735602780-2552fd46c7af"), active: true },
+          { id: "tostado", name: "Tostado de jamón crudo", description: "Pan de masa madre, crudo, rúcula y queso tybo.", price: 7600, image: img("1528735602780-2552fd46c7af"), tags: [], active: true },
         ],
       },
       {
@@ -332,7 +291,7 @@ export const tenants: Tenant[] = [
         name: "Burgers",
         dishes: [
           { id: "doble-smash", name: "Doble smash", description: "Dos medallones smasheados, cheddar, pickles y salsa de la casa.", price: 13900, image: img("1607013251379-e6eecfffe234"), tags: ["popular"], active: true },
-          { id: "clasica", name: "Clásica", description: "Medallón 180g, lechuga, tomate, cebolla morada y alioli.", price: 11900, image: img("1586190848861-99aa4a171e90"), active: true },
+          { id: "clasica", name: "Clásica", description: "Medallón 180g, lechuga, tomate, cebolla morada y alioli.", price: 11900, image: img("1586190848861-99aa4a171e90"), tags: [], active: true },
         ],
       },
       {
@@ -347,16 +306,16 @@ export const tenants: Tenant[] = [
         id: "tragos",
         name: "Tragos",
         dishes: [
-          { id: "old-fashioned", name: "Old Fashioned", description: "Bourbon, bitter de angostura y naranja.", price: 8200, image: img("1470337458703-46ad1756a187"), active: true },
+          { id: "old-fashioned", name: "Old Fashioned", description: "Bourbon, bitter de angostura y naranja.", price: 8200, image: img("1470337458703-46ad1756a187"), tags: [], active: true },
           { id: "mojito", name: "Mojito de maracuyá", description: "Ron blanco, maracuyá, menta y lima.", price: 7400, image: img("1551024709-8f23befc6f87"), tags: ["popular"], active: true },
-          { id: "negroni", name: "Negroni de la casa", description: "Gin, Campari y vermut rosso infusionado.", price: 7900, image: img("1514362545857-3bc16c4c7d1b"), active: true },
+          { id: "negroni", name: "Negroni de la casa", description: "Gin, Campari y vermut rosso infusionado.", price: 7900, image: img("1514362545857-3bc16c4c7d1b"), tags: [], active: true },
         ],
       },
       {
         id: "postres",
         name: "Postres",
         dishes: [
-          { id: "shake", name: "Freakshake de Oreo", description: "Helado, Oreo, crema y salsa de chocolate.", price: 6900, image: img("1563805042-7684c019e1cb"), active: true },
+          { id: "shake", name: "Freakshake de Oreo", description: "Helado, Oreo, crema y salsa de chocolate.", price: 6900, image: img("1563805042-7684c019e1cb"), tags: [], active: true },
         ],
       },
     ],
@@ -364,6 +323,8 @@ export const tenants: Tenant[] = [
       { id: "r-201", name: "Nicolás Vega", phone: "+54 11 4990-1122", guests: 8, dayOffset: 0, time: "22:30", notes: "Despedida de soltero.", status: "pending", receivedMinutesAgo: 12 },
       { id: "r-202", name: "Agustina Luna", phone: "+54 11 3021-4545", guests: 2, dayOffset: 0, time: "20:00", status: "confirmed", receivedMinutesAgo: 200 },
       { id: "r-203", name: "Bruno Castro", phone: "+54 11 6677-0909", guests: 4, dayOffset: 1, time: "21:00", status: "pending", receivedMinutesAgo: 55 },
+      // Turno posterior a medianoche: servicio de hoy, fecha calendario de mañana.
+      { id: "r-204", name: "Delfina Sosa", phone: "+54 11 5120-3344", guests: 3, dayOffset: 0, time: "01:00", notes: "Venimos después del teatro.", status: "pending", receivedMinutesAgo: 25 },
     ],
     stats: {
       menuViewsLast7: [520, 480, 610, 590, 880, 1240, 1102],
@@ -372,22 +333,25 @@ export const tenants: Tenant[] = [
   },
   {
     slug: "sakura",
-    name: "Sakura",
-    tagline: "Nikkei & sushi de autor",
-    cuisine: "Japonesa · Nikkei",
-    priceRange: "$$$",
-    address: "Gorriti 5870, Palermo Hollywood",
-    phone: "+54 11 4775-8800",
-    rating: 4.8,
-    reviews: 540,
-    hours: { open: "19:30", close: "00:00" },
-    closedDays: [0],
-    coverImage: img("1579871494447-9811cf80d66c"),
-    theme: {
-      primary: "#be123c",
-      primaryForeground: "#ffffff",
-      accent: "#fde4ea",
-      accentForeground: "#881337",
+    profile: {
+      name: "Sakura",
+      tagline: "Nikkei & sushi de autor",
+      cuisine: "Japonesa · Nikkei",
+      priceRange: "$$$",
+      address: "Gorriti 5870, Palermo Hollywood",
+      phone: "+54 11 4775-8800",
+      coverImage: img("1579871494447-9811cf80d66c"),
+      theme: {
+        primary: "#be123c",
+        primaryForeground: "#ffffff",
+        accent: "#fde4ea",
+        accentForeground: "#881337",
+      },
+      timezone: DEFAULT_TIMEZONE,
+      schedule: {
+        openDays: [1, 2, 3, 4, 5, 6],
+        shifts: [{ id: "cena", label: "Cena", open: "19:30", close: "00:00" }],
+      },
     },
     categories: [
       {
@@ -395,7 +359,7 @@ export const tenants: Tenant[] = [
         name: "Rolls",
         dishes: [
           { id: "philadelphia", name: "Philadelphia roll", description: "Salmón, queso crema y palta. 10 piezas.", price: 15800, image: img("1579871494447-9811cf80d66c"), tags: ["popular"], active: true },
-          { id: "combinado", name: "Barco Sakura (30 piezas)", description: "Selección del chef: rolls, niguiris y sashimi.", price: 42000, image: img("1553621042-f6e147245754"), active: true },
+          { id: "combinado", name: "Barco Sakura (30 piezas)", description: "Selección del chef: rolls, niguiris y sashimi.", price: 42000, image: img("1553621042-f6e147245754"), tags: [], active: true },
         ],
       },
       {
@@ -406,6 +370,17 @@ export const tenants: Tenant[] = [
           { id: "veggie-bowl", name: "Bowl verde", description: "Mix de hojas, tofu grillado y aderezo de miso.", price: 11900, image: img("1540189549336-e6e99c3679fe"), tags: ["veggie"], active: true },
         ],
       },
+      {
+        id: "especiales",
+        name: "Especiales del chef",
+        dishes: [
+          // Caso de texto largo sin imagen.
+          { id: "omakase", name: "Omakase de temporada con selección de pescados de estación y tamago casero", description: "Diez pasos definidos por el chef según la pesca del día. Consultá restricciones alimentarias antes de pedir: algunas preparaciones llevan salsa de soja con trigo, sésamo y mariscos crudos.", price: 68000, tags: ["nuevo"], active: true },
+          // Caso de imagen que no carga: la UI debe mostrar el fallback.
+          { id: "gyozas", name: "Gyozas de cerdo", description: "Seis piezas a la plancha con salsa ponzu.", price: 9800, image: img("0000000000000-000000000000"), tags: [], active: true },
+        ],
+      },
+      { id: "postres", name: "Postres", dishes: [] },
     ],
     reservations: [
       { id: "r-301", name: "Kenji Arakaki", phone: "+54 11 5001-3030", guests: 2, dayOffset: 0, time: "21:00", status: "pending", receivedMinutesAgo: 9 },
@@ -416,7 +391,3 @@ export const tenants: Tenant[] = [
     },
   },
 ];
-
-export function getTenant(slug: string): Tenant | undefined {
-  return tenants.find((t) => t.slug === slug);
-}

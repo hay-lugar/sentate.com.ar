@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/format";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -29,8 +29,9 @@ export function Navbar() {
         <div className="hidden items-center gap-1 text-[14px] font-medium text-muted md:flex">
           {[
             ["Cómo funciona", "#como-funciona"],
+            ["Precio", "#precio"],
             ["Demo", "/el-bodegon"],
-            ["Panel", "/admin/el-bodegon"],
+            ["Panel demo", "/admin/el-bodegon"],
           ].map(([label, href]) => (
             <Link key={href} href={href} className="rounded-full px-3.5 py-2 transition-colors hover:bg-ink/5 hover:text-foreground">
               {label}
@@ -38,14 +39,12 @@ export function Navbar() {
           ))}
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <Link href="/admin/el-bodegon" className="hidden rounded-full px-4 py-2 text-[14px] font-semibold sm:block">
-            Ingresar
-          </Link>
+
           <Link
             href="#empezar"
             className="pressable inline-flex h-11 items-center gap-1.5 rounded-2xl bg-ink px-4 text-[14px] font-semibold text-white shadow-lift hover:bg-ink/90"
           >
-            Probar gratis <ArrowUpRight className="size-4" />
+            Probar gratis <ArrowUpRight className="size-4" aria-hidden />
           </Link>
         </div>
       </nav>

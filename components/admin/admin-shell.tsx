@@ -16,21 +16,27 @@ import {
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Logo } from "@/components/ui/logo";
-import { cn, initials } from "@/lib/utils";
-import { useReservations } from "./reservations-provider";
+import { TenantLogo } from "@/components/ui/tenant-logo";
+import { ThemeScope } from "@/components/ui/theme-scope";
+import { cn } from "@/lib/format";
+import { useDemo } from "./demo-provider";
+import { DemoBanner } from "./demo-banner";
 
 type NavItem = { href: string; label: string; icon: LucideIcon; badge?: number };
 
 const STORAGE_KEY = "sentate:sidebar-collapsed";
 
-export function AdminShell({ tenant, children }: { tenant: { slug: string; name: string; cuisine: string }; children: ReactNode }) {
+export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { reservations } = useReservations();
+  const { state } = useDemo();
+  const { reservations } = state;
+  const tenant = { slug: state.slug, name: state.profile.name, cuisine: state.profile.cuisine, logoUrl: state.profile.logoUrl };
   const pending = reservations.filter((r) => r.status === "pending").length;
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- preferencia de UI leída tras hidratar
       setCollapsed(localStorage.getItem(STORAGE_KEY) === "1");
     } catch {}
   }, []);
@@ -53,7 +59,7 @@ export function AdminShell({ tenant, children }: { tenant: { slug: string; name:
   const isActive = (href: string) => (href === base ? pathname === base : pathname.startsWith(href));
 
   return (
-    <div className="min-h-dvh lg:flex">
+    <ThemeScope theme={state.profile.theme} className="min-h-dvh bg-background lg:flex">
       {/* ── Sidebar desktop ── */}
       <motion.aside
         initial={false}
@@ -87,9 +93,7 @@ export function AdminShell({ tenant, children }: { tenant: { slug: string; name:
 
           {/* Tenant */}
           <div className={cn("mt-4 flex items-center gap-3 rounded-2xl bg-background p-2", collapsed && "justify-center bg-transparent p-0")}>
-            <span className="grid size-11 shrink-0 place-items-center rounded-[0.9rem] bg-brand font-display text-[15px] font-bold text-brand-fg shadow-brand">
-              {initials(tenant.name)}
-            </span>
+            <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className="size-11 rounded-[0.9rem] text-[15px] shadow-brand" />
             {!collapsed && (
               <div className="min-w-0 leading-tight">
                 <p className="truncate font-display font-bold">{tenant.name}</p>
@@ -105,15 +109,6 @@ export function AdminShell({ tenant, children }: { tenant: { slug: string; name:
           </nav>
 
           <div className="mt-auto space-y-2">
-            {!collapsed && (
-              <div className="rounded-2xl bg-accent p-4 text-accent-fg">
-                <p className="font-display font-bold">Plan Pro · prueba</p>
-                <p className="mt-0.5 text-[12px] opacity-75">Te quedan 9 días gratis.</p>
-                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/60">
-                  <div className="h-full w-[36%] rounded-full bg-brand" />
-                </div>
-              </div>
-            )}
             <Link
               href={`/${tenant.slug}`}
               target="_blank"
@@ -123,8 +118,8 @@ export function AdminShell({ tenant, children }: { tenant: { slug: string; name:
                 collapsed && "justify-center px-0",
               )}
             >
-              <ExternalLink className="size-[18px] shrink-0" />
-              {!collapsed && "Ver menú público"}
+              <ExternalLink className="size-[18px] shrink-0" aria-hidden />
+              {collapsed ? <span className="sr-only">Ver menú público (nueva pestaña)</span> : "Ver menú público"}
             </Link>
           </div>
         </div>
@@ -132,19 +127,17 @@ export function AdminShell({ tenant, children }: { tenant: { slug: string; name:
 
       {/* ── Top bar mobile ── */}
       <header className="sticky top-0 z-30 flex h-16 items-center gap-3 bg-background/85 px-4 backdrop-blur-xl lg:hidden">
-        <span className="grid size-10 place-items-center rounded-xl bg-brand font-display text-[14px] font-bold text-brand-fg shadow-brand">
-          {initials(tenant.name)}
-        </span>
+        <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className="size-10 rounded-xl text-[14px] shadow-brand" />
         <div className="min-w-0 leading-tight">
           <p className="truncate font-display font-bold">{tenant.name}</p>
-          <p className="text-[12px] text-muted">Panel de control</p>
+          <p className="text-[12px] text-muted">Panel · demo</p>
         </div>
         <Link
           href={`${base}/reservas`}
-          aria-label="Reservas pendientes"
+          aria-label={`Solicitudes pendientes: ${pending}`}
           className="pressable relative ml-auto grid size-11 place-items-center rounded-2xl bg-surface shadow-soft ring-1 ring-line/70"
         >
-          <Bell className="size-5" />
+          <Bell className="size-5" aria-hidden />
           {pending > 0 && (
             <span className="absolute -top-1 -right-1 grid h-5 min-w-5 place-items-center rounded-full bg-brand px-1 text-[11px] font-bold text-brand-fg ring-2 ring-background">
               {pending}
@@ -153,7 +146,10 @@ export function AdminShell({ tenant, children }: { tenant: { slug: string; name:
         </Link>
       </header>
 
-      <main className="min-w-0 flex-1 px-4 pt-2 pb-32 sm:px-6 lg:px-8 lg:py-8">{children}</main>
+      <main className="min-w-0 flex-1 px-4 pt-2 pb-36 sm:px-6 lg:px-8 lg:py-8">
+        <DemoBanner />
+        {children}
+      </main>
 
       {/* ── Bottom nav mobile ── */}
       <nav className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe lg:hidden">
@@ -165,6 +161,8 @@ export function AdminShell({ tenant, children }: { tenant: { slug: string; name:
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={active ? "page" : undefined}
+                aria-label={item.badge ? `${item.label} (${item.badge} pendientes)` : undefined}
                 className={cn(
                   "pressable relative flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2 text-[11px] font-semibold",
                   active ? "text-brand" : "text-muted",
@@ -177,7 +175,7 @@ export function AdminShell({ tenant, children }: { tenant: { slug: string; name:
                     transition={{ type: "spring", stiffness: 420, damping: 34 }}
                   />
                 )}
-                <span className="relative">
+                <span className="relative" aria-hidden>
                   <Icon className="size-[22px]" strokeWidth={active ? 2.5 : 2} />
                   {!!item.badge && (
                     <span className="absolute -top-1.5 -right-2.5 grid h-4 min-w-4 place-items-center rounded-full bg-brand px-1 text-[10px] font-bold text-brand-fg">
@@ -191,7 +189,7 @@ export function AdminShell({ tenant, children }: { tenant: { slug: string; name:
           })}
         </div>
       </nav>
-    </div>
+    </ThemeScope>
   );
 }
 
@@ -201,6 +199,8 @@ function SidebarLink({ item, active, collapsed }: { item: NavItem; active: boole
     <Link
       href={item.href}
       title={collapsed ? item.label : undefined}
+      aria-current={active ? "page" : undefined}
+      aria-label={collapsed || item.badge ? `${item.label}${item.badge ? ` (${item.badge} pendientes)` : ""}` : undefined}
       className={cn(
         "pressable relative flex h-12 items-center gap-3 rounded-2xl px-3.5 text-[15px] font-semibold",
         active ? "text-brand-fg" : "text-muted hover:bg-background hover:text-foreground",
@@ -214,10 +214,11 @@ function SidebarLink({ item, active, collapsed }: { item: NavItem; active: boole
           transition={{ type: "spring", stiffness: 420, damping: 36 }}
         />
       )}
-      <Icon className="relative size-5 shrink-0" strokeWidth={active ? 2.5 : 2} />
+      <Icon className="relative size-5 shrink-0" strokeWidth={active ? 2.5 : 2} aria-hidden />
       {!collapsed && <span className="relative truncate">{item.label}</span>}
       {!!item.badge && (
         <span
+          aria-hidden
           className={cn(
             "relative grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[11px] font-bold",
             active ? "bg-white/25 text-brand-fg" : "bg-brand text-brand-fg",

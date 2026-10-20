@@ -5,3 +5,7 @@ next-env.d.ts
 *.tsbuildinfo
 .env*.local
 .DS_Store
+
+# Playwright
+playwright-report
+test-results

@@ -10,10 +10,10 @@
   --background: #fbf8f4;
   --surface: #ffffff;
   --foreground: #17130f;
-  --muted: #7a7168;
+  --muted: #6b6259;
   --line: #ece6de;
 
-  --brand: #ff5a1f;
+  --brand: #c2410c;
   --brand-fg: #ffffff;
   --accent: #ffe9dc;
   --accent-fg: #8a2c06;
@@ -32,7 +32,7 @@
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
   /* Tinte suave del brand para fondos/estados, derivado en runtime */
-  --color-brand-soft: color-mix(in oklch, var(--brand) 12%, white);
+  --color-brand-soft: color-mix(in oklch, var(--brand) 9%, white);
 
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
@@ -103,4 +103,16 @@
 
 @keyframes marquee {
   to { transform: translateX(-50%); }
+}
+
+/* Movimiento reducido: sin loops decorativos ni transiciones de "hundido". */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

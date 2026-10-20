@@ -2,21 +2,38 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 // Recuperación de contraseña contra Supabase LOCAL + Mailpit. Usuario dedicado de supabase/seed.sql
-// (recuperacion@example.test, sin comercio), así que cambiar su clave no afecta a los demás tests.
+// (recuperacion@example.test, SIN comercio), así que cambiar su clave no afecta a los demás tests.
+// Un usuario sin comercio que entra a /admin va a /registro/local: ese es el destino esperado tras guardar la clave.
 
 const MAILPIT = process.env.E2E_MAILPIT_URL ?? "http://127.0.0.1:54324";
 const KNOWN = "recuperacion@example.test";
 const NEW_PASSWORD = "clave-nueva-2026";
+// Supabase rechaza una contraseña igual a la actual: cada test que guarda una usa la suya.
+const SECOND_PASSWORD = "clave-otra-2026-b";
 const NEUTRAL = /Si hay una cuenta con ese email/;
 const LINK_ERROR = /no es válido, venció o ya se usó/;
+const AFTER_SAVE = /\/registro\/local$/;
 
-/** Enlace de recuperación del último email a `email`. El host del enlace es el SiteURL local; se usa solo el path. */
-async function recoveryLink(email: string): Promise<string> {
-  for (let i = 0; i < 40; i++) {
+type MailMessage = { ID: string };
+
+async function mailIds(email: string): Promise<Set<string>> {
+  const res = await fetch(`${MAILPIT}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`);
+  const { messages } = (await res.json()) as { messages?: MailMessage[] };
+  return new Set((messages ?? []).map((m) => m.ID));
+}
+
+/**
+ * Enlace de recuperación del email NUEVO enviado a `email`: espera un mensaje cuyo ID no estaba en `before`.
+ * Tomar "el último que haya" puede devolver un email viejo (con el token ya usado) antes de que llegue el nuevo.
+ * El host del enlace es el SiteURL local; se usa solo el path.
+ */
+async function newRecoveryLink(email: string, before: Set<string>): Promise<string> {
+  for (let i = 0; i < 80; i++) {
     const res = await fetch(`${MAILPIT}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`);
-    const { messages } = (await res.json()) as { messages: { ID: string }[] };
-    if (messages?.length) {
-      const msg = (await (await fetch(`${MAILPIT}/api/v1/message/${messages[0].ID}`)).json()) as { HTML: string; Text: string };
+    const { messages } = (await res.json()) as { messages?: MailMessage[] };
+    const fresh = (messages ?? []).find((m) => !before.has(m.ID));
+    if (fresh) {
+      const msg = (await (await fetch(`${MAILPIT}/api/v1/message/${fresh.ID}`)).json()) as { HTML: string; Text: string };
       const link = (msg.HTML + msg.Text).match(/https?:\/\/[^\s"'<>]+\/auth\/callback\?[^\s"'<>]+/)?.[0];
       if (link) {
         const url = new URL(link.replaceAll("&amp;", "&"));
@@ -25,13 +42,27 @@ async function recoveryLink(email: string): Promise<string> {
     }
     await new Promise((r) => setTimeout(r, 250));
   }
-  throw new Error(`No llegó el email de recuperación a ${email}`);
+  throw new Error(`No llegó un email de recuperación nuevo a ${email}`);
 }
 
 async function requestReset(page: Page, email: string) {
   await page.goto("/recuperar");
   await page.getByLabel("Email").fill(email);
   await page.getByRole("button", { name: "Enviarme el enlace" }).click();
+}
+
+/** Pide el enlace y devuelve el path del email nuevo. */
+async function requestAndGetLink(page: Page, email: string): Promise<string> {
+  const before = await mailIds(email);
+  await requestReset(page, email);
+  await expect(page.getByRole("status").filter({ hasText: NEUTRAL })).toBeVisible();
+  return newRecoveryLink(email, before);
+}
+
+async function saveNewPassword(page: Page, password: string, confirm = password) {
+  await page.getByLabel("Contraseña nueva").fill(password);
+  await page.getByLabel("Repetí la contraseña").fill(confirm);
+  await page.getByRole("button", { name: "Guardar contraseña" }).click();
 }
 
 test.describe("recuperación de contraseña", () => {
@@ -56,37 +87,40 @@ test.describe("recuperación de contraseña", () => {
   });
 
   test("flujo completo: enlace del email → contraseña nueva → ingreso con la clave nueva", async ({ page, browser }) => {
-    await requestReset(page, KNOWN);
-    const link = await recoveryLink(KNOWN);
-    await page.goto(link);
+    await page.goto(await requestAndGetLink(page, KNOWN));
 
     await expect(page).toHaveURL(/\/recuperar\/nueva$/);
-    await page.getByLabel("Contraseña nueva").fill(NEW_PASSWORD);
-    await page.getByLabel("Repetí la contraseña").fill(NEW_PASSWORD);
-    await page.getByRole("button", { name: "Guardar contraseña" }).click();
-    await expect(page).toHaveURL(/\/admin$/);
+    await saveNewPassword(page, NEW_PASSWORD);
+    await expect(page).toHaveURL(AFTER_SAVE);
 
+    // La clave nueva sirve para ingresar desde cero; la anterior ya no.
     const ctx = await browser.newContext();
     const fresh = await ctx.newPage();
     await fresh.goto("/login");
     await fresh.getByLabel("Email").fill(KNOWN);
     await fresh.getByLabel("Contraseña").fill(NEW_PASSWORD);
     await fresh.getByRole("button", { name: "Ingresar" }).click();
-    await expect(fresh).toHaveURL(/\/admin$/);
+    await expect(fresh).toHaveURL(AFTER_SAVE);
+
+    const old = await browser.newContext();
+    const oldPage = await old.newPage();
+    await oldPage.goto("/login");
+    await oldPage.getByLabel("Email").fill(KNOWN);
+    await oldPage.getByLabel("Contraseña").fill("sentate-dev-only");
+    await oldPage.getByRole("button", { name: "Ingresar" }).click();
+    await expect(oldPage.getByRole("alert").filter({ hasText: "Email o contraseña incorrectos" })).toBeVisible();
     await ctx.close();
+    await old.close();
   });
 
   test("enlace reutilizado: no vuelve a funcionar y pide uno nuevo", async ({ page }) => {
-    await requestReset(page, KNOWN);
-    const link = await recoveryLink(KNOWN);
-    // Primer uso: lo canjea y guarda una clave (la misma que el test anterior, sin importar el orden).
+    const link = await requestAndGetLink(page, KNOWN);
+    // Primer uso: lo canjea y guarda una clave.
     await page.goto(link);
-    await page.getByLabel("Contraseña nueva").fill(NEW_PASSWORD);
-    await page.getByLabel("Repetí la contraseña").fill(NEW_PASSWORD);
-    await page.getByRole("button", { name: "Guardar contraseña" }).click();
-    await expect(page).toHaveURL(/\/admin$/);
+    await saveNewPassword(page, SECOND_PASSWORD);
+    await expect(page).toHaveURL(AFTER_SAVE);
 
-    // Segundo uso del mismo enlace.
+    // Segundo uso del mismo enlace, sin la sesión del primero.
     await page.context().clearCookies();
     await page.goto(link);
     await expect(page).toHaveURL(/\/recuperar\?error=enlace$/);
@@ -111,19 +145,15 @@ test.describe("recuperación de contraseña", () => {
   });
 
   test("contraseñas que no coinciden y menos de 8 caracteres: el servidor lo rechaza", async ({ page }) => {
-    await requestReset(page, KNOWN);
-    await page.goto(await recoveryLink(KNOWN));
-    await page.getByLabel("Contraseña nueva").fill("corta");
-    await page.getByLabel("Repetí la contraseña").fill("corta");
-    await page.getByRole("button", { name: "Guardar contraseña" }).click();
-    await expect(page.getByRole("alert")).toContainText("al menos 8");
+    await page.goto(await requestAndGetLink(page, KNOWN));
+    await expect(page).toHaveURL(/\/recuperar\/nueva$/);
 
-    await page.getByLabel("Contraseña nueva").fill("clave-larga-1");
-    await page.getByLabel("Repetí la contraseña").fill("clave-larga-2");
-    await page.getByRole("button", { name: "Guardar contraseña" }).click();
-    await expect(page.getByRole("alert")).toContainText("no coinciden");
+    await saveNewPassword(page, "corta");
+    await expect(page.getByRole("alert").filter({ hasText: "al menos 8" })).toBeVisible();
+
+    await saveNewPassword(page, "clave-larga-1", "clave-larga-2");
+    await expect(page.getByRole("alert").filter({ hasText: "no coinciden" })).toBeVisible();
   });
-
 });
 
 test.describe("accesibilidad de recuperación", () => {

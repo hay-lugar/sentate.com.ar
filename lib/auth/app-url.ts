@@ -18,9 +18,10 @@ export function appOrigin(env: Env = process.env): string {
     throw new Error("APP_URL no es una URL válida.");
   }
 
-  const localHttp = url.protocol === "http:" && LOCAL_HOSTS.has(url.hostname) && env.NODE_ENV !== "production";
-  if (url.protocol !== "https:" && !localHttp) {
-    throw new Error("APP_URL debe usar https (http solo en localhost, fuera de producción).");
+  // http solo para loopback (E2E y desarrollo con `next start` o `next dev`). Un dominio real exige https.
+  const loopbackHttp = url.protocol === "http:" && LOCAL_HOSTS.has(url.hostname);
+  if (url.protocol !== "https:" && !loopbackHttp) {
+    throw new Error("APP_URL debe usar https (http solo en localhost o 127.0.0.1).");
   }
   if (url.pathname !== "/" || url.search || url.hash || url.username || url.password) {
     throw new Error("APP_URL debe ser solo el origen, sin ruta ni credenciales.");

@@ -8,10 +8,15 @@ describe("appOrigin: origen de los enlaces de email desde configuración", () =>
     expect(appOrigin({ APP_URL: "https://sentate.com.ar/", NODE_ENV: "production" })).toBe("https://sentate.com.ar");
   });
 
-  it("acepta http solo en localhost fuera de producción", () => {
+  it("acepta http solo en loopback (localhost o 127.0.0.1), también en build de producción local", () => {
     expect(appOrigin({ APP_URL: "http://localhost:3000", NODE_ENV: "development" })).toBe("http://localhost:3000");
-    expect(() => appOrigin({ APP_URL: "http://localhost:3000", NODE_ENV: "production" })).toThrow(/https/);
+    expect(appOrigin({ APP_URL: "http://localhost:3300", NODE_ENV: "production" })).toBe("http://localhost:3300");
+    expect(appOrigin({ APP_URL: "http://127.0.0.1:54321", NODE_ENV: "production" })).toBe("http://127.0.0.1:54321");
+  });
+
+  it("rechaza http hacia un dominio real aunque no sea producción", () => {
     expect(() => appOrigin({ APP_URL: "http://sentate.com.ar", NODE_ENV: "development" })).toThrow(/https/);
+    expect(() => appOrigin({ APP_URL: "http://sentate.com.ar", NODE_ENV: "production" })).toThrow(/https/);
   });
 
   it("rechaza rutas, query, credenciales y URLs inválidas", () => {

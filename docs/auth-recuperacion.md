@@ -22,7 +22,7 @@ Flujo implementado en Fase 4 (punto 3). Usa el flujo recomendado de Supabase par
 ## Origen de los enlaces
 
 Los enlaces de email **no** usan los headers `origin` o `host` del request. Salen de `APP_URL`
-(`lib/auth/app-url.ts`): solo origen, `https` salvo `http://localhost` fuera de producción, sin ruta
+(`lib/auth/app-url.ts`): solo origen, `https`; `http` solo para `localhost` o `127.0.0.1`, sin ruta
 ni credenciales. Si `APP_URL` falta o es inválida, el alta y la recuperación muestran un error genérico
 y no envían nada.
 

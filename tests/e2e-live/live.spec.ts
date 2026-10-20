@@ -341,6 +341,22 @@ test.describe("accesibilidad y mobile", () => {
     await expectAccessible(page);
   });
 
+  // Superficies públicas con datos reales: la carta que escanea el comensal y el alta del dueño, en celular y escritorio.
+  for (const [label, viewport] of [["360px", { width: 360, height: 800 }], ["390px", { width: 390, height: 800 }], ["escritorio", { width: 1280, height: 800 }]] as const) {
+    test(`${label}: carta pública real y alta sin scroll horizontal ni violaciones serias de a11y`, async ({ browser }) => {
+      const ctx = await browser.newContext({ viewport, reducedMotion: "reduce", isMobile: viewport.width < 600, hasTouch: viewport.width < 600 });
+      const page = await ctx.newPage();
+      for (const path of ["/prueba-bodegon", "/registro", "/recuperar"]) {
+        await page.goto(path);
+        await page.waitForLoadState("networkidle");
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        expect(overflow, `${path} desborda`).toBeLessThanOrEqual(0);
+        await expectAccessible(page);
+      }
+      await ctx.close();
+    });
+  }
+
   for (const width of [360, 390]) {
     test(`mobile ${width}px: panel de ajustes y reservas sin scroll horizontal`, async ({ browser }) => {
       const ctx = await browser.newContext({ viewport: { width, height: 800 }, isMobile: true, hasTouch: true });

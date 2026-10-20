@@ -1,6 +1,7 @@
 # Fase 2: modelo de datos y seguridad
 
-Estado: **implementado y probado en un Supabase local**. No se aplicó a ninguna base remota.
+Estado: implementado y probado en un Supabase local. **Aplicado al proyecto remoto `Sentate`
+(`nemeftbwnxymjdqinjtj`) el 2026-10-20** (sin `seed.sql`; base vacía). Ver §10.
 El frontend sigue con mocks (sin cambios en esta fase).
 
 > **Dependencia abierta:** esta rama se apoya en `fase-1.1` (PR #1). Ese PR seguía **abierto y sin
@@ -254,3 +255,24 @@ npx supabase db lint --local -s public,private     # plpgsql_check
 - **Precio y prueba duplicados:** viven en `private.plan_config` y en el espejo del frontend
   (`lib/config/plan.ts`). En Fase 3 el front debería leerlos del servidor o tener una prueba que detecte
   si se desalinean.
+
+## 10. Registro de aplicación remota (2026-10-20)
+
+- Proyecto: `Sentate` (`nemeftbwnxymjdqinjtj`), Postgres 17. Antes: sin migraciones ni tablas.
+- Se aplicaron las 6 migraciones en orden con la integración de Supabase (contenido idéntico a
+  `supabase/migrations/`). Luego se alineó `supabase_migrations.schema_migrations` a las versiones de los
+  archivos (`20261020000100` … `20261020000600`) para que `supabase db push` no intente reaplicarlas.
+- **No** se cargó `seed.sql`: la base remota está vacía de comercios y usuarios.
+- Verificación:
+  - Controles estructurales: 10/10 tablas con RLS, 0 funciones `SECURITY DEFINER` en `public`, todas
+    con `search_path` vacío, 27 políticas.
+  - Grants: `anon` sin acceso a reservas ni suscripciones, `authenticated` sin escritura de membresías,
+    suscripciones ni `tenants.status`.
+  - Configuración: plan de 30 días a $5.500, carta al vencer = `visible`.
+  - Data API con clave publicable: `tenants` → `[]`; `reservations` y `tenant_subscriptions` → `42501`;
+    esquema `private` → `PGRST106` (no expuesto); `create_tenant` sin sesión → `42501`;
+    `request_reservation` a comercio inexistente → `tenant_unavailable`.
+  - Advisors: solo `INFO`. RLS sin políticas en `private.settings` y `private.plan_config` (intencional:
+    deny-all y esquema no expuesto) y 7 índices sin uso (base vacía).
+- **Pendiente:** las pruebas pgTAP crean usuarios y datos, así que se corren en local o en un branch
+  de staging, no en producción.

@@ -27,8 +27,9 @@ async function mailIds(email: string): Promise<Set<string>> {
  * Tomar "el último que haya" puede devolver un email viejo (con el token ya usado) antes de que llegue el nuevo.
  * El host del enlace es el SiteURL local; se usa solo el path.
  */
-async function newRecoveryLink(email: string, before: Set<string>): Promise<string> {
-  for (let i = 0; i < 80; i++) {
+async function newRecoveryLink(email: string, before: Set<string>, timeoutMs = 20_000): Promise<string> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
     const res = await fetch(`${MAILPIT}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`);
     const { messages } = (await res.json()) as { messages?: MailMessage[] };
     const fresh = (messages ?? []).find((m) => !before.has(m.ID));
@@ -51,12 +52,24 @@ async function requestReset(page: Page, email: string) {
   await page.getByRole("button", { name: "Enviarme el enlace" }).click();
 }
 
-/** Pide el enlace y devuelve el path del email nuevo. */
+/**
+ * Pide el enlace y devuelve el path del email nuevo.
+ * Auth rechaza un segundo pedido del mismo usuario dentro de max_frequency (1 s en local) y la app responde
+ * igual de neutral, sin enviar nada. Si no llega un email nuevo, se vuelve a pedir tras esa ventana.
+ */
 async function requestAndGetLink(page: Page, email: string): Promise<string> {
-  const before = await mailIds(email);
-  await requestReset(page, email);
-  await expect(page.getByRole("status").filter({ hasText: NEUTRAL })).toBeVisible();
-  return newRecoveryLink(email, before);
+  const attempts = 3;
+  for (let attempt = 1; ; attempt++) {
+    const before = await mailIds(email);
+    await requestReset(page, email);
+    await expect(page.getByRole("status").filter({ hasText: NEUTRAL })).toBeVisible();
+    try {
+      return await newRecoveryLink(email, before, 6_000);
+    } catch (error) {
+      if (attempt === attempts) throw error;
+      await page.waitForTimeout(1_500);
+    }
+  }
 }
 
 async function saveNewPassword(page: Page, password: string, confirm = password) {

@@ -88,12 +88,11 @@ integración (sin bloqueos en la base y sin cambios aplicados). Se aplicó por p
 
 - ✅ `private.is_reserved_demo_slug`, `private.tenants_validate`, `private.create_tenant_impl`,
   `private.request_reservation_impl`, índice `reservations_tenant_created_idx`, `public.get_tenant_access`.
-- ⏳ `public.replace_tenant_schedule`: el bloque contiene un `DELETE` (dentro del cuerpo de la función) y la
-  integración pide confirmación explícita para sentencias destructivas; sin esa confirmación vence el
-  timeout. **Pendiente de aplicar con confirmación** (o con `supabase db push`). Mientras falte, guardar
-  Ajustes en un comercio real guarda los datos, pero no los horarios, y lo informa.
-- Cuando esté completa, registrar la versión: insertar `20261020000700` / `phase3_abuse_limits_and_schedule`
-  en `supabase_migrations.schema_migrations` (o usar `supabase migration repair --status applied 20261020000700`).
+- ✅ `public.replace_tenant_schedule`: el bloque contiene un `DELETE` y la integración pide confirmación para
+  sentencias destructivas, que vencía por timeout. Se aplicó desde el SQL Editor del dashboard. Verificado: cuerpo
+  idéntico al del archivo (md5 del `prosrc`), `SECURITY INVOKER`, `search_path` vacío, `EXECUTE` solo para
+  `authenticated` (anon → `42501`).
+- Versión `20261020000700` registrada en `supabase_migrations.schema_migrations`.
 
 Advisors remotos después de aplicar: solo `INFO` (tablas privadas deny-all e índices sin uso en base vacía).
 

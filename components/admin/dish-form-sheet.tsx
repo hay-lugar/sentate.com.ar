@@ -10,6 +10,7 @@ import type { DishInput } from "@/lib/demo/state";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { FieldError, inputClass } from "@/components/menu/reservation/controls";
 import { cn } from "@/lib/format";
+import { ImageUploader } from "./image-uploader";
 import { Switch } from "./switch";
 
 const TAG_LABEL: Record<DishTag, string> = {
@@ -42,7 +43,7 @@ type Props = {
 };
 
 export function DishFormSheet({ target, categories, onClose, onSave, onDelete }: Props) {
-  const { resolveId } = useDemo();
+  const { resolveId, live } = useDemo();
   const [rawValues, setValues] = useState<DishFormValues | null>(null);
   // Si el plato o su categoría se crearon recién, la base pudo confirmar el ID real con el formulario abierto.
   const values = rawValues && { ...rawValues, categoryId: resolveId(rawValues.categoryId), id: rawValues.id && resolveId(rawValues.id) };
@@ -165,19 +166,31 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
             </FormField>
           </div>
 
-          <FormField label="Imagen (URL https)" optional id="dish-image" error={errors.image}>
-            <input
-              id="dish-image"
-              type="url"
-              inputMode="url"
-              value={values.image}
-              onChange={(e) => set("image", e.target.value)}
-              aria-invalid={!!errors.image}
-              aria-describedby={errors.image ? "dish-image-error" : undefined}
-              className={inputClass}
-              placeholder="https://…"
-            />
-          </FormField>
+          {live ? (
+            // Comercio real: foto subida a Storage (la ruta se guarda con el plato). El valor anterior sigue
+            // referenciado hasta que el guardado del plato se confirma.
+            <div role="group" aria-labelledby="dish-image-label">
+              <p id="dish-image-label" className="mb-1.5 flex items-baseline justify-between px-1 text-[13px] font-semibold">
+                Foto del plato <span className="text-[12px] font-medium text-muted">Opcional</span>
+              </p>
+              <ImageUploader tenantId={live.tenantId} kind="dish" value={values.image || null} onChange={(path) => set("image", path ?? "")} />
+              <FieldError id="dish-image-error">{errors.image}</FieldError>
+            </div>
+          ) : (
+            <FormField label="Imagen (URL https)" optional id="dish-image" error={errors.image}>
+              <input
+                id="dish-image"
+                type="url"
+                inputMode="url"
+                value={values.image}
+                onChange={(e) => set("image", e.target.value)}
+                aria-invalid={!!errors.image}
+                aria-describedby={errors.image ? "dish-image-error" : undefined}
+                className={inputClass}
+                placeholder="https://…"
+              />
+            </FormField>
+          )}
 
           <fieldset>
             <legend className="mb-2 px-1 text-[13px] font-semibold">Etiquetas</legend>

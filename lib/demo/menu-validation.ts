@@ -1,5 +1,6 @@
 // Validación pura de formularios del gestor de carta.
 
+import { isImagePath } from "@/lib/images/paths";
 import type { Category, DishTag } from "@/lib/domain/types";
 import type { DishInput } from "./state";
 import { parsePrice } from "@/lib/format";
@@ -47,7 +48,8 @@ export function validateDishForm(
   if (!categories.some((c) => c.id === v.categoryId)) errors.categoryId = "Elegí una categoría.";
 
   const image = v.image.trim();
-  if (image) {
+  // Una ruta de Storage (foto subida desde el panel) es válida; el resto debe ser una URL https.
+  if (image && !isImagePath(image)) {
     try {
       const url = new URL(image);
       if (url.protocol !== "https:") errors.image = "La imagen debe ser una URL https.";

@@ -3,6 +3,8 @@
 import { cookies } from "next/headers";
 import { liveMutation, type MutationErrorCode, type MutationResult } from "@/lib/admin/live-mutations";
 import { validateProfileInfo, validateSchedule } from "@/lib/demo/profile-validation";
+import { IMAGE_BUCKET } from "@/lib/images/config";
+import { imageRefProblem } from "@/lib/images/paths";
 import { createClient } from "@/utils/supabase/server";
 import { z } from "zod";
 
@@ -95,7 +97,33 @@ export async function mutateTenantAction(tenantId: unknown, input: unknown): Pro
   const { data: claims } = await supabase.auth.getClaims();
   if (!claims?.claims?.sub) return fail("session", MESSAGES.session);
 
+  // Una ruta de Storage debe ser de ESTE comercio y del tipo de la columna (la base también lo exige).
+  const imageProblem =
+    m.type === "saveSettings"
+      ? imageRefProblem(m.profile.logoUrl, t, "logo")
+      : m.type === "saveDish"
+        ? imageRefProblem(m.dish.image, t, "dish")
+        : m.type === "saveCover"
+          ? imageRefProblem(m.coverUrl, t, "cover")
+          : null;
+  if (imageProblem) return fail("invalid", imageProblem);
+
   switch (m.type) {
+    case "saveCover": {
+      const { data, error } = await supabase
+        .from("tenants")
+        .update({ cover_url: m.coverUrl })
+        .eq("id", t)
+        .eq("updated_at", m.expectedVersion)
+        .select("id, updated_at");
+      if (error) return describe(error);
+      if (data.length) return { ok: true, version: data[0].updated_at as string };
+      // 0 filas: otra pestaña cambió el comercio (stale) o no hay permiso.
+      const { data: still, error: readError } = await supabase.from("tenants").select("id").eq("id", t).maybeSingle();
+      if (readError) return describe(readError);
+      return still ? fail("stale", MESSAGES.stale) : fail("forbidden", MESSAGES.forbidden);
+    }
+
     case "setReservationStatus": {
       const { data, error } = await supabase
         .from("reservations")
@@ -251,4 +279,25 @@ export async function mutateTenantAction(tenantId: unknown, input: unknown): Pro
       return data.length ? { ok: true } : zeroRows(supabase, "categories", m.categoryId, t);
     }
   }
+}
+
+/**
+ * Borra las imágenes del comercio que ninguna fila referencia (reemplazadas, quitadas o subidas y no guardadas).
+ * La base excluye las subidas de la última hora y las referenciadas (tenant_image_orphans). Con la sesión del dueño:
+ * el borrado también pasa por RLS. Es limpieza best-effort: un fallo no afecta lo guardado.
+ */
+export async function sweepOrphanImagesAction(tenantId: unknown): Promise<{ removed: number }> {
+  const tenant = z.uuid().safeParse(tenantId);
+  if (!tenant.success) return { removed: 0 };
+  const supabase = createClient(await cookies());
+  const { data: claims } = await supabase.auth.getClaims();
+  if (!claims?.claims?.sub) return { removed: 0 };
+
+  const { data, error } = await supabase.rpc("tenant_image_orphans", { p_tenant_id: tenant.data });
+  if (error || !data) return { removed: 0 };
+  const names = (data as { name: string }[]).map((r) => r.name).slice(0, 100);
+  if (!names.length) return { removed: 0 };
+  const { data: removed, error: removeError } = await supabase.storage.from(IMAGE_BUCKET).remove(names);
+  if (removeError) console.error("[sentate] sweep images", removeError.message);
+  return { removed: removed?.length ?? 0 };
 }

@@ -3,7 +3,7 @@
 -- Decisiones:
 -- - Bucket PRIVADO. La carta pública no usa URLs permanentes: la app firma URLs de lectura (createSignedUrls)
 --   con el cliente anónimo, y RLS decide qué objetos puede firmar el visitante.
--- - Ruta: <tenant_id>/<logo|cover|dish>/<uuid>.webp. Un UUID nuevo por subida: los nombres no colisionan.
+-- - Ruta: <tenant_id>/<logo|cover|dish>/<uuid>.<webp|jpg>. Un UUID nuevo por subida: los nombres no colisionan.
 -- - Escritura y borrado: solo can_operate (miembro con acceso operativo). Lectura: miembros, y público solo
 --   para imágenes referenciadas por un comercio visible o por un plato disponible en una carta visible.
 -- - Las columnas guardan la ruta (no una URL ni un data URL). Las URLs https de demos siguen aceptadas.
@@ -25,7 +25,7 @@ immutable
 set search_path = ''
 as $$
   select case
-    when p_name ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/(logo|cover|dish)/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.webp$'
+    when p_name ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/(logo|cover|dish)/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(webp|jpg)$'
       then split_part(p_name, '/', 1)::uuid
   end;
 $$;
@@ -84,20 +84,22 @@ alter table public.tenants drop constraint if exists tenants_logo_url;
 alter table public.tenants drop constraint if exists tenants_cover_url;
 alter table public.menu_items drop constraint if exists menu_items_image_url;
 
+-- El prefijo de la ruta debe ser el id de la PROPIA fila. Sin esto, un dueño podría guardar en su logo la ruta de
+-- una imagen de otro comercio y la política de lectura pública (image_is_public) permitiría firmarla.
 alter table public.tenants add constraint tenants_logo_url check (
   logo_url is null
   or (logo_url ~ '^https://' and char_length(logo_url) <= 2048)
-  or logo_url ~ '^[0-9a-f-]{36}/logo/[0-9a-f-]{36}\.webp$'
+  or (logo_url ~ '^[0-9a-f-]{36}/logo/[0-9a-f-]{36}\.(webp|jpg)$' and split_part(logo_url, '/', 1) = id::text)
 );
 alter table public.tenants add constraint tenants_cover_url check (
   cover_url is null
   or (cover_url ~ '^https://' and char_length(cover_url) <= 2048)
-  or cover_url ~ '^[0-9a-f-]{36}/cover/[0-9a-f-]{36}\.webp$'
+  or (cover_url ~ '^[0-9a-f-]{36}/cover/[0-9a-f-]{36}\.(webp|jpg)$' and split_part(cover_url, '/', 1) = id::text)
 );
 alter table public.menu_items add constraint menu_items_image_url check (
   image_url is null
   or (image_url ~ '^https://' and char_length(image_url) <= 2048)
-  or image_url ~ '^[0-9a-f-]{36}/dish/[0-9a-f-]{36}\.webp$'
+  or (image_url ~ '^[0-9a-f-]{36}/dish/[0-9a-f-]{36}\.(webp|jpg)$' and split_part(image_url, '/', 1) = tenant_id::text)
 );
 
 -- ───────────────────────── huérfanos ─────────────────────────

@@ -49,8 +49,8 @@ jobs:
         with:
           version: 2.121.0
       - run: npx -y npm@11 ci
-      # Realtime y Mailpit son necesarios (reservas en vivo y confirmación de email).
-      - run: supabase start -x storage-api,imgproxy,studio,edge-runtime,logflare,vector,supavisor
+      # Realtime y Mailpit (reservas en vivo y emails) y Storage (imágenes del comercio) son necesarios.
+      - run: supabase start -x imgproxy,studio,edge-runtime,logflare,vector,supavisor
       - run: supabase db reset
       - run: supabase db lint --level warning
       - run: supabase test db

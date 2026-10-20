@@ -126,6 +126,8 @@ export type LiveTenantRecord = TenantRecord & {
   access: TenantAccess;
   /** tenants.updated_at: control de concurrencia de Ajustes (perfil + horarios). */
   settingsVersion: string;
+  /** tenants.cover_url: ruta de Storage o URL https. La portada se edita aparte de Ajustes (no está en el perfil). */
+  coverUrl: string | null;
 };
 
 /* ───────────── Contrato público (lo único que llega al comensal) ───────────── */

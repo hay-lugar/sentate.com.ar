@@ -24,13 +24,18 @@ async function completeReservation(page: Page) {
 }
 
 test.describe("slugs", () => {
-  for (const path of ["/no-existe", "/admin/no-existe"]) {
-    test(`${path} responde 404`, async ({ page }) => {
-      const res = await page.goto(path);
-      expect(res?.status()).toBe(404);
-      await expect(page.getByRole("heading", { name: "Esta mesa no existe" })).toBeVisible();
-    });
-  }
+  test("/no-existe responde 404", async ({ page }) => {
+    const res = await page.goto("/no-existe");
+    expect(res?.status()).toBe(404);
+    await expect(page.getByRole("heading", { name: "Esta mesa no existe" })).toBeVisible();
+  });
+
+  // Sin sesión no se distingue un slug inexistente de un local real sin publicar: se pide login
+  // (no se filtra qué comercios existen).
+  test("/admin/no-existe sin sesión lleva al login", async ({ page }) => {
+    await page.goto("/admin/no-existe");
+    await expect(page).toHaveURL(/\/login\?next=%2Fadmin%2Fno-existe$/);
+  });
 });
 
 test.describe("bottom sheet accesible", () => {

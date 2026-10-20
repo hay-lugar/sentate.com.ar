@@ -91,8 +91,22 @@ export type TenantRecord = {
   profile: TenantProfile;
   categories: Category[];
   reservations: Reservation[];
-  stats: TenantStats;
+  /** null = sin métricas todavía (comercio real: la analítica llega en otra fase). */
+  stats: TenantStats | null;
 };
+
+/** Estado comercial visible para el dueño (cuenta y futura pantalla de suscripción). */
+export type TenantAccess = {
+  subscriptionStatus: "trialing" | "active" | "past_due" | "canceled";
+  trialEndsAt: string;
+  /** Días restantes de prueba, calculados en el servidor al leer. */
+  trialDaysLeft: number;
+  /** Calculado por la base al leer (prueba/suscripción vigente). */
+  canOperate: boolean;
+};
+
+/** Registro de un comercio real leído de Supabase para el panel. */
+export type LiveTenantRecord = TenantRecord & { id: string; isPublished: boolean; access: TenantAccess };
 
 /* ───────────── Contrato público (lo único que llega al comensal) ───────────── */
 
@@ -101,6 +115,8 @@ export type PublicDish = Pick<Dish, "id" | "name" | "description" | "price" | "i
 export type PublicCategory = { id: string; name: string; dishes: PublicDish[] };
 
 export type PublicTenant = {
+  /** UUID del comercio real (solo en datos de Supabase; las demos no tienen). */
+  id?: string;
   slug: string;
   name: string;
   tagline: string;

@@ -5,7 +5,17 @@ import { AlertTriangle, Check, FlaskConical, RotateCcw } from "lucide-react";
 import { describeSlot } from "@/lib/domain/schedule";
 import type { SubmittedSummary } from "./use-reservation-request";
 
-export function SubmittedView({ tenantName, summary, onClose }: { tenantName: string; summary: SubmittedSummary; onClose: () => void }) {
+export function SubmittedView({
+  tenantName,
+  summary,
+  live,
+  onClose,
+}: {
+  tenantName: string;
+  summary: SubmittedSummary;
+  live: boolean;
+  onClose: () => void;
+}) {
   return (
     <div className="px-6 pb-safe text-center" role="status">
       <motion.div
@@ -19,9 +29,19 @@ export function SubmittedView({ tenantName, summary, onClose }: { tenantName: st
         </svg>
       </motion.div>
 
-      <h2 className="mt-5 text-[26px] font-bold">Solicitud simulada</h2>
+      <h2 className="mt-5 text-[26px] font-bold">{live ? "Solicitud enviada" : "Solicitud simulada"}</h2>
       <p className="mx-auto mt-1.5 max-w-[19rem] text-[14px] text-muted">
-        Gracias, {summary.firstName}. Como esto es una demo, <b className="text-foreground">la solicitud no se envió a {tenantName}</b> y no se guardaron tus datos.
+        {live ? (
+          <>
+            Gracias, {summary.firstName}. {tenantName} recibió tu pedido. <b className="text-foreground">Todavía no es una reserva confirmada:</b>{" "}
+            el local la revisa según su disponibilidad.
+          </>
+        ) : (
+          <>
+            Gracias, {summary.firstName}. Como esto es una demo, <b className="text-foreground">la solicitud no se envió a {tenantName}</b> y no se
+            guardaron tus datos.
+          </>
+        )}
       </p>
 
       <div className="relative mt-6 rounded-3xl bg-background p-5 text-left ring-1 ring-line/70">
@@ -41,12 +61,14 @@ export function SubmittedView({ tenantName, summary, onClose }: { tenantName: st
         </dl>
       </div>
 
+      {!live && (
       <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-accent p-3 text-left text-[12px] leading-snug text-accent-fg">
         <FlaskConical className="mt-0.5 size-4 shrink-0" aria-hidden />
         <span>
           En el producto real, una solicitud queda <b>pendiente</b> hasta que el local la acepta. Recién ahí es una <b>reserva confirmada</b>.
         </span>
       </div>
+      )}
 
       <button
         type="button"
@@ -59,7 +81,17 @@ export function SubmittedView({ tenantName, summary, onClose }: { tenantName: st
   );
 }
 
-export function FailedView({ onRetry, onBack, retrying }: { onRetry: () => void; onBack: () => void; retrying: boolean }) {
+export function FailedView({
+  message,
+  onRetry,
+  onBack,
+  retrying,
+}: {
+  message: string | null;
+  onRetry: () => void;
+  onBack: () => void;
+  retrying: boolean;
+}) {
   return (
     <div className="px-6 pb-safe text-center" role="alert">
       <div className="mx-auto grid size-20 place-items-center rounded-full bg-rose-50 text-rose-700">
@@ -67,7 +99,7 @@ export function FailedView({ onRetry, onBack, retrying }: { onRetry: () => void;
       </div>
       <h2 className="mt-5 text-[24px] font-bold">No pudimos enviar la solicitud</h2>
       <p className="mx-auto mt-1.5 max-w-[19rem] text-[14px] text-muted">
-        Error simulado de la demo. Tus datos siguen cargados: podés reintentar.
+        {message ?? "Algo salió mal."} Tus datos siguen cargados: podés reintentar.
       </p>
       <div className="mt-6 mb-2 flex gap-3">
         <button type="button" onClick={onBack} className="pressable h-14 flex-1 rounded-2xl bg-background font-semibold ring-1 ring-line">

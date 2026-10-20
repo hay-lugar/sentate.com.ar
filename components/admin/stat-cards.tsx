@@ -7,12 +7,13 @@ import { cn, formatNumber } from "@/lib/format";
 import { useDemo } from "./demo-provider";
 
 export function StatCards() {
-  const { state, stats } = useDemo();
+  const { state, stats, mode } = useDemo();
+  const demo = mode === "demo";
   const dishes = state.categories.flatMap((c) => c.dishes);
   const activeDishes = dishes.filter((d) => d.active).length;
   const totalDishes = dishes.length;
-  const views = stats.menuViewsLast7;
-  const prevViews = stats.menuViewsPrev7Total;
+  const views = stats?.menuViewsLast7 ?? [];
+  const prevViews = stats?.menuViewsPrev7Total ?? 0;
   const pct = totalDishes ? Math.round((activeDishes / totalDishes) * 100) : 0;
   // Fecha de servicio de hoy (incluye turnos después de medianoche).
   const today = state.reservations.filter((r) => r.dayOffset === 0 && r.status !== "rejected");
@@ -27,7 +28,7 @@ export function StatCards() {
       <StatCard
         index={0}
         icon={CalendarCheck}
-        label="Mesas de hoy · ejemplo"
+        label={demo ? "Mesas de hoy · ejemplo" : "Mesas de hoy"}
         value={today.length}
         highlight
         footer={
@@ -57,6 +58,7 @@ export function StatCards() {
           </div>
         }
       />
+      {stats ? (
       <StatCard
         index={2}
         icon={Eye}
@@ -72,6 +74,16 @@ export function StatCards() {
           </span>
         }
       />
+      ) : (
+        <StatCard
+          index={2}
+          icon={Eye}
+          label="Visitas al menú"
+          value="—"
+          className="sm:col-span-2 xl:col-span-1"
+          footer={<span>Las métricas de visitas llegan en una próxima versión.</span>}
+        />
+      )}
     </div>
   );
 }

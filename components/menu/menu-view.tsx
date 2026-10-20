@@ -6,6 +6,7 @@ import type { PublicDish, PublicTenant } from "@/lib/domain/types";
 import { getOpenState } from "@/lib/domain/schedule";
 import { useZonedNow } from "@/lib/hooks/use-zoned-now";
 import type { ZonedNow } from "@/lib/time/zoned";
+import type { TenantSource } from "@/lib/data/resolve";
 import { scrollBehavior } from "@/components/ui/motion-provider";
 import { CategoryTabs } from "./category-tabs";
 import { DishCard } from "./dish-card";
@@ -17,7 +18,17 @@ import { CompactBar, RestaurantHeader } from "./restaurant-header";
 /** Alto de la barra compacta (56) + tabs (~62): offset para anclar secciones. */
 const STICKY_OFFSET = 118;
 
-export function MenuView({ tenant, initialNow, localEdits }: { tenant: PublicTenant; initialNow: ZonedNow; localEdits: boolean }) {
+export function MenuView({
+  tenant,
+  source,
+  initialNow,
+  localEdits,
+}: {
+  tenant: PublicTenant;
+  source: TenantSource;
+  initialNow: ZonedNow;
+  localEdits: boolean;
+}) {
   const now = useZonedNow(tenant.timezone, initialNow);
   const status = getOpenState(tenant.schedule, now);
   const categories = tenant.categories;
@@ -89,7 +100,7 @@ export function MenuView({ tenant, initialNow, localEdits }: { tenant: PublicTen
   return (
     <div className="relative mx-auto min-h-dvh max-w-md bg-background pb-36 sm:shadow-lift">
       <CompactBar tenant={tenant} status={status} visible={compact} />
-      <RestaurantHeader tenant={tenant} status={status} localEdits={localEdits} />
+      <RestaurantHeader tenant={tenant} status={status} demo={source === "demo"} localEdits={localEdits} />
 
       {categories.length > 0 ? (
         <>
@@ -130,7 +141,9 @@ export function MenuView({ tenant, initialNow, localEdits }: { tenant: PublicTen
       )}
 
       <p className="mt-10 px-6 text-center text-[12px] text-muted">
-        Precios de ejemplo en pesos argentinos. Esta es una demo: los datos son ficticios.
+        {source === "demo"
+          ? "Precios de ejemplo en pesos argentinos. Esta es una demo: los datos son ficticios."
+          : "Precios en pesos argentinos."}
         <br />
         Menú digital por <span className="font-display font-bold text-foreground">sentate.</span>
       </p>
@@ -146,7 +159,7 @@ export function MenuView({ tenant, initialNow, localEdits }: { tenant: PublicTen
           reopenTimer.current = window.setTimeout(() => setReserving(true), 220);
         }}
       />
-      <ReservationFlow tenant={tenant} open={reserving} onClose={closeReservation} />
+      <ReservationFlow tenant={tenant} source={source} open={reserving} onClose={closeReservation} />
     </div>
   );
 }

@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "check": "npm run typecheck && npm run lint && npm run test && npm run build"
+    "check": "npm run typecheck && npm run lint && npm run test && npm run build",
+    "test:e2e:live": "playwright test -c playwright.live.config.ts",
+    "test:db": "supabase test db"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

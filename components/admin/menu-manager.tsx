@@ -1,15 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowDown, ArrowUp, Check, ImageOff, Pencil, Plus, Trash2, UtensilsCrossed, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Pencil, Plus, Trash2, UtensilsCrossed, X } from "lucide-react";
 import { useState } from "react";
 import type { Category } from "@/lib/domain/types";
 import { MENU_LIMITS, validateCategoryName } from "@/lib/demo/menu-validation";
 import { cn, formatPrice } from "@/lib/format";
-import { DishImage } from "@/components/menu/dish-image";
 import { FieldError, inputClass } from "@/components/menu/reservation/controls";
 import { useDemo } from "./demo-provider";
 import { DishFormSheet, type DishFormTarget } from "./dish-form-sheet";
+import { DishThumb } from "./dish-thumb";
 import { Switch } from "./switch";
 
 export function MenuManager() {
@@ -248,7 +248,7 @@ function CategoryCard({
             <li key={d.id} className="flex items-center gap-3 rounded-2xl p-2 hover:bg-background">
               {/* Sin opacidad sobre el texto: un plato no disponible se marca con etiqueta (contraste AA). */}
               <span className={cn("relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-background text-muted", !d.active && "opacity-50 grayscale")}>
-                {d.image ? <DishImage src={d.image} alt="" sizes="48px" /> : <ImageOff className="size-4" aria-hidden />}
+                <DishThumb image={d.image} />
               </span>
               <div className="min-w-0 flex-1 leading-tight">
                 <p className="truncate text-[14px] font-semibold" title={d.name}>

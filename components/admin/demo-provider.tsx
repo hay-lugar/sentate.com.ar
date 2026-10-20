@@ -34,7 +34,7 @@ type RunLive = (build: LiveBuild, opts?: LiveOpts) => Promise<MutationResult>;
 export type StorageStatus = "fixture" | "local" | "unavailable";
 
 /** Comercio real: los cambios se guardan en Supabase con la sesión del dueño. */
-export type LiveInfo = { tenantId: string; isPublished: boolean; access: TenantAccess; email: string; settingsVersion: string };
+export type LiveInfo = { tenantId: string; isPublished: boolean; access: TenantAccess; email: string; settingsVersion: string; coverUrl: string | null };
 
 type Ctx = {
   mode: "demo" | "live";

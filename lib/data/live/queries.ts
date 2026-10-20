@@ -6,6 +6,7 @@
 import { cookies } from "next/headers";
 import type { LiveTenantRecord, PublicTenant } from "@/lib/domain/types";
 import { addDays, zonedNow } from "@/lib/time/zoned";
+import { resolveImageRef, signImagePaths } from "@/lib/images/sign";
 import { createClient } from "@/utils/supabase/server";
 import { isSupabaseConfigured } from "@/utils/supabase/env";
 import {
@@ -72,15 +73,20 @@ export async function getLivePublicTenant(slug: string): Promise<LiveResult<Publ
   ]);
   const failed = [shifts, closures, categories, items].find((r) => r.error);
   if (failed) return fail("public menu", failed.error);
+
+  // Las imágenes viven en un bucket privado: se firman acá (RLS limita lo firmable a la carta visible) y el resto del
+  // código recibe URLs listas para mostrar. Una ruta que no se pudo firmar queda sin imagen en vez de romper la carta.
+  const menuItems = items.data as MenuItemRow[];
+  const signed = await signImagePaths(supabase, [tenant.logo_url, tenant.cover_url, ...menuItems.map((i) => i.image_url)]);
+  const publicRow: TenantRow = {
+    ...tenant,
+    logo_url: resolveImageRef(signed, tenant.logo_url),
+    cover_url: resolveImageRef(signed, tenant.cover_url),
+  };
+  const publicItems = menuItems.map((i) => ({ ...i, image_url: resolveImageRef(signed, i.image_url) }));
   return {
     status: "ok",
-    data: liveToPublicTenant(
-      tenant,
-      shifts.data as ShiftRow[],
-      categories.data as CategoryRow[],
-      items.data as MenuItemRow[],
-      closures.data as ClosureRow[],
-    ),
+    data: liveToPublicTenant(publicRow, shifts.data as ShiftRow[], categories.data as CategoryRow[], publicItems, closures.data as ClosureRow[]),
   };
 }
 
@@ -142,6 +148,7 @@ export async function getLiveTenantRecord(slug: string): Promise<LiveResult<Live
       id: tenant.id,
       isPublished: tenant.is_published,
       settingsVersion: tenant.updated_at,
+      coverUrl: tenant.cover_url,
       slug: tenant.slug,
       profile: rowToProfile(tenant, shifts.data as ShiftRow[], closures.data as ClosureRow[]),
       categories: rowsToCategories(categories.data as CategoryRow[], items.data as MenuItemRow[]),

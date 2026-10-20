@@ -11,13 +11,15 @@ import { cn } from "@/lib/format";
 import { FieldError, inputClass } from "@/components/menu/reservation/controls";
 import { TenantLogo } from "@/components/ui/tenant-logo";
 import { useDemo } from "./demo-provider";
+import { CoverField } from "./cover-field";
+import { ImageUploader } from "./image-uploader";
 import { ScheduleEditor } from "./schedule-editor";
 
 const LOGO_TYPES = ["image/png", "image/jpeg", "image/webp"];
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 export function SettingsForm() {
-  const { state, saveSettings, notify, mode } = useDemo();
+  const { state, saveSettings, notify, mode, live: liveInfo } = useDemo();
   const router = useRouter();
   const live = mode === "live";
   const [draft, setDraft] = useState<TenantProfile>(state.profile);
@@ -98,29 +100,48 @@ export function SettingsForm() {
     <form onSubmit={submit} noValidate className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 pb-24 lg:grid-cols-2">
       {/* Datos del local */}
       <Card title="Tu local">
-        <div className="mb-4 flex items-center gap-4">
-          <TenantLogo name={draft.name || "?"} logoUrl={draft.logoUrl} className="size-16 rounded-2xl text-xl ring-1 ring-line" />
-          <div className="flex flex-wrap gap-2">
-            {!live && (
-            <label className="pressable inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-background px-3 text-[13px] font-semibold ring-1 ring-line focus-within:ring-2 focus-within:ring-brand">
-              <ImagePlus className="size-4" aria-hidden />
-              {draft.logoUrl ? "Cambiar logo" : "Subir logo"}
-              <input type="file" accept={LOGO_TYPES.join(",")} className="sr-only" onChange={(e) => onLogo(e.target.files?.[0])} />
-            </label>
-            )}
-            {draft.logoUrl && (
-              <button type="button" onClick={() => set("logoUrl", undefined)} className="pressable h-10 rounded-xl px-3 text-[13px] font-semibold text-rose-700 hover:bg-rose-50">
-                Quitar logo
-              </button>
-            )}
+        {liveInfo ? (
+          <div className="mb-5 space-y-5 border-b border-line/70 pb-5">
+            <div role="group" aria-labelledby={id("logo-label")}>
+              <p id={id("logo-label")} className="mb-2 px-1 text-[13px] font-semibold">
+                Logo <span className="text-[12px] font-medium text-muted">Opcional · se guarda con «Guardar cambios»</span>
+              </p>
+              <ImageUploader tenantId={liveInfo.tenantId} kind="logo" value={draft.logoUrl ?? null} onChange={(path) => set("logoUrl", path ?? undefined)} />
+            </div>
+            <div role="group" aria-labelledby={id("cover-label")}>
+              <p id={id("cover-label")} className="mb-2 px-1 text-[13px] font-semibold">
+                Portada <span className="text-[12px] font-medium text-muted">Opcional · se guarda al subirla</span>
+              </p>
+              <CoverField live={liveInfo} />
+            </div>
           </div>
-        </div>
-        <p className="-mt-2 mb-4 text-[12px] text-muted">
-          {live
-            ? "La subida de logos llega en la próxima versión. Mientras tanto se muestran las iniciales."
-            : "Opcional. PNG, JPG o WebP hasta 200 KB. Sin logo se muestran las iniciales."}
-        </p>
-        <FieldError id={id("logo-error")}>{errors.logo}</FieldError>
+        ) : (
+          <>
+          <div className="mb-4 flex items-center gap-4">
+            <TenantLogo name={draft.name || "?"} logoUrl={draft.logoUrl} className="size-16 rounded-2xl text-xl ring-1 ring-line" />
+            <div className="flex flex-wrap gap-2">
+              {!live && (
+              <label className="pressable inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-background px-3 text-[13px] font-semibold ring-1 ring-line focus-within:ring-2 focus-within:ring-brand">
+                <ImagePlus className="size-4" aria-hidden />
+                {draft.logoUrl ? "Cambiar logo" : "Subir logo"}
+                <input type="file" accept={LOGO_TYPES.join(",")} className="sr-only" onChange={(e) => onLogo(e.target.files?.[0])} />
+              </label>
+              )}
+              {draft.logoUrl && (
+                <button type="button" onClick={() => set("logoUrl", undefined)} className="pressable h-10 rounded-xl px-3 text-[13px] font-semibold text-rose-700 hover:bg-rose-50">
+                  Quitar logo
+                </button>
+              )}
+            </div>
+          </div>
+          <p className="-mt-2 mb-4 text-[12px] text-muted">
+            {live
+              ? "La subida de logos llega en la próxima versión. Mientras tanto se muestran las iniciales."
+              : "Opcional. PNG, JPG o WebP hasta 200 KB. Sin logo se muestran las iniciales."}
+          </p>
+          <FieldError id={id("logo-error")}>{errors.logo}</FieldError>
+          </>
+        )}
 
         <div className="space-y-3">
           <TextField id={id("name")} label="Nombre del local" value={draft.name} onChange={(v) => set("name", v)} error={errors.name} />

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { DISH_TAGS } from "@/lib/domain/types";
 import { MENU_LIMITS } from "@/lib/demo/menu-validation";
 import { PROFILE_LIMITS } from "@/lib/demo/profile-validation";
+import { IMAGE_PATH_RE } from "@/lib/images/paths";
 
 const uuid = z.uuid();
 /** Marca de versión (updated_at de Postgres, ISO 8601 con zona). */
@@ -12,6 +13,8 @@ const version = z.string().min(10).max(40).refine((v) => !Number.isNaN(Date.pars
 const wallTime = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 const plainDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const hex = z.string().regex(/^#[0-9a-fA-F]{6}$/);
+/** URL https (demos) o ruta del bucket tenant-images. Nunca data URLs. El dueño de la ruta se valida en la acción. */
+const imageRef = z.union([z.url({ protocol: /^https$/ }).max(500), z.string().regex(IMAGE_PATH_RE)]);
 
 export const shiftInput = z.object({
   label: z.string().trim().min(1).max(PROFILE_LIMITS.shiftLabelMax),
@@ -34,8 +37,7 @@ export const profileInput = z.object({
   address: z.string().trim().min(1).max(PROFILE_LIMITS.textMax),
   phone: z.string().trim().min(8).max(30),
   timezone: z.string().min(1).max(64),
-  // Solo URLs https (sin Storage todavía): nunca data URLs en la base.
-  logoUrl: z.url({ protocol: /^https$/ }).max(500).nullable(),
+  logoUrl: imageRef.nullable(),
   theme: z.object({ primary: hex, primaryForeground: hex, accent: hex, accentForeground: hex }),
 });
 
@@ -44,7 +46,7 @@ const dishInput = z.object({
   name: z.string().trim().min(MENU_LIMITS.dishNameMin).max(MENU_LIMITS.dishNameMax),
   description: z.string().trim().max(MENU_LIMITS.descriptionMax),
   price: z.number().int().min(MENU_LIMITS.priceMin).max(MENU_LIMITS.priceMax),
-  image: z.url({ protocol: /^https$/ }).max(500).nullable(),
+  image: imageRef.nullable(),
   tags: z.array(z.enum(DISH_TAGS as [string, ...string[]])).max(DISH_TAGS.length),
   active: z.boolean(),
 });
@@ -66,6 +68,7 @@ export const liveMutation = z.discriminatedUnion("type", [
     /** null = no tocar horarios. */
     schedule: scheduleInput.nullable(),
   }),
+  z.object({ type: z.literal("saveCover"), expectedVersion: version, coverUrl: imageRef.nullable() }),
   z.object({ type: z.literal("saveDish"), categoryId: uuid, dish: dishInput, expectedVersion: version.optional() }),
   z.object({ type: z.literal("setDishActive"), dishId: uuid, active: z.boolean(), expectedVersion: version }),
   z.object({ type: z.literal("deleteDish"), dishId: uuid, expectedVersion: version }),

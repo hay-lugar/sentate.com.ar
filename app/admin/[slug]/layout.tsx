@@ -49,7 +49,7 @@ export default async function AdminLayout({ children, params }: Props) {
     <AdminDemoProvider
       key={`live:${live.id}`}
       record={live}
-      live={{ tenantId: live.id, isPublished: live.isPublished, access: live.access, email: user.email, settingsVersion: live.settingsVersion }}
+      live={{ tenantId: live.id, isPublished: live.isPublished, access: live.access, email: user.email, settingsVersion: live.settingsVersion, coverUrl: live.coverUrl }}
     >
       <AdminShell>{live.access.canOperate ? children : <AccessExpired access={live.access} />}</AdminShell>
     </AdminDemoProvider>

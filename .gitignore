@@ -3,7 +3,10 @@ node_modules
 out
 next-env.d.ts
 *.tsbuildinfo
-.env*.local
+# Variables de entorno: NUNCA se versionan (pueden tener secretos reales). Solo la plantilla.
+.env
+.env.*
+!.env.example
 .DS_Store
 
 # Playwright

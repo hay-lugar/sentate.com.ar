@@ -1,7 +1,7 @@
 # Fase 3.1 · Estabilización
 
 En esta fase se corrigieron los problemas que encontramos en la Fase 3: los horarios se perdían, las escrituras no eran atómicas, había estados de error engañosos y las reservas no llegaban en vivo. También agregamos CI y una validación de punta a punta.
-Los cambios de esquema están en `supabase/migrations/20261021000800_phase31_settings_reorder_realtime.sql`. Todo se probó solo en local; la base remota no se tocó.
+Los cambios de esquema están en `supabase/migrations/20261021000800_phase31_settings_reorder_realtime.sql`. Todo se probó en local. La migración se aplicó después en el proyecto remoto (ver §6).
 
 Documentación oficial consultada (Supabase, octubre 2026):
 - Realtime Broadcast con canales privados y autorización por RLS sobre `realtime.messages` (`realtime.topic()`, `private: true`).
@@ -149,9 +149,26 @@ Las E2E live cubren:
 - Job 2: Supabase local (`supabase/setup-cli`, versión 2.121.0), `db lint`, pgTAP, Data API + Realtime y E2E live.
 - Los requisitos para correrlo en local están en el README ("Pruebas con Supabase local").
 
-## 6. Lo que NO cubre esta fase
+## 6. Aplicación remota de la migración 08 (2026-10-20)
 
-- No se modificó la base remota. La migración 08 queda para aplicar con `supabase db push` cuando se apruebe; después hay que registrarla, igual que la 07.
+Se aplicó en el proyecto `Sentate` (`nemeftbwnxymjdqinjtj`) después de mergear el PR #5. Antes de aplicar se verificó que la base tuviera las migraciones 01 a 07 y lo que usa Realtime (`realtime.messages`, `realtime.send` y `realtime.topic`).
+
+**Cómo se aplicó.**
+- `apply_migration` se cortó por timeout: la integración pide confirmación para los bloques con `DELETE`/`DROP`. No se aplicó nada en ese intento.
+- Se aplicó por partes:
+  - Con `execute_sql`, en una transacción: `reorder_categories`, `private.reservations_topic_tenant`, `private.reservations_broadcast`, el trigger `reservations_broadcast` y la política `sentate_reservations_receive`. Como no existían, se crearon sin `drop ... if exists`.
+  - Desde el SQL Editor del dashboard: `save_tenant_settings`, que contiene `DELETE`.
+- Se registró la versión `20261021000800` (`phase31_settings_reorder_realtime`) en `supabase_migrations.schema_migrations`, así `supabase db push` no la reaplica.
+
+**Verificación.**
+- El md5 del cuerpo de las 4 funciones coincide con el archivo.
+- Seguridad:
+  - `save_tenant_settings` y `reorder_categories` son `SECURITY INVOKER`, con `search_path` vacío y `EXECUTE` solo para `authenticated`. Sin sesión, la Data API devuelve `42501`.
+  - El trigger está habilitado. La política es `SELECT` para `authenticated`.
+- Advisors: solo `INFO`, por las tablas privadas *deny-all*, que es intencional.
+
+## 7. Lo que NO cubre esta fase
+
 - La falla temporal de la base se prueba con tests unitarios (`resolve.test.ts`), no de punta a punta. Para simularla haría falta cortar Supabase durante la E2E.
 - No hay rate limiting por IP en el borde, ni Storage para logos.
 - Mercado Pago, WhatsApp, métricas comerciales y el despliegue a producción quedan fuera de alcance.

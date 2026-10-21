@@ -11,8 +11,8 @@ Documento vivo. Cada etapa lo actualiza con lo realmente implementado y verifica
 | C | `/explorar`, búsqueda, filtros, mapa | Integrada en main |
 | D | Perfil del comensal, favoritos, historial, OAuth | Integrada en main |
 | E | Capacidad y reservas con disponibilidad real | Integrada en main |
-| F | Carta avanzada y administración del comercio | En curso |
-| G | Superadmin completo, validación integral | Pendiente |
+| F | Carta avanzada y administración del comercio | Integrada en main |
+| G | Superadmin completo, validación integral | Ver `docs/validacion-explorador.md` |
 
 ## Cuatro ejes independientes
 

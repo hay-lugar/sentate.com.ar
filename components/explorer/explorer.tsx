@@ -211,12 +211,12 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
             value={text}
             maxLength={80}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Nombre, plato o zona. Ej.: parrilla en Rafaela"
+            placeholder="Local, plato o zona"
             className={cn(inputClass, "pl-12")}
             autoComplete="off"
           />
         </div>
-        <Button type="submit">Buscar</Button>
+        <Button type="submit" className="px-4">Buscar</Button>
         <Button variant="secondary" onClick={() => setSheet(true)} className="lg:hidden" aria-label={`Filtros${count ? `, ${count} activos` : ""}`}>
           <SlidersHorizontal className="size-4" aria-hidden />
           <span className="hidden min-[420px]:inline">Filtros{count ? ` (${count})` : ""}</span>

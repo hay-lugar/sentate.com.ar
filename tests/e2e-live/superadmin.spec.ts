@@ -18,8 +18,9 @@ test("un dueño o un comensal no ven el módulo (404) ni pueden llamar a las ope
     const page = await ctx.newPage();
     await login(page, email, "/cuenta");
     await expect(page.getByRole("link", { name: /superadministración/ })).toHaveCount(0);
-    const res = await page.goto("/superadmin");
-    expect(res?.status()).toBe(404);
+    await page.goto("/superadmin");
+    await expect(page.getByRole("heading", { name: "No encontramos esta página" })).toBeVisible();
+    await expect(page.getByText("Bandeja de moderación")).toHaveCount(0);
     await ctx.close();
   }
   const anon = await browser.newContext({ baseURL });

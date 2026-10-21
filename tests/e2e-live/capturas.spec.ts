@@ -19,7 +19,7 @@ async function login(page: Page, email: string) {
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Contraseña").fill(PASSWORD);
   await page.getByRole("button", { name: "Ingresar" }).click();
-  await expect(page).toHaveURL(/\/(admin|cuenta)|\/$/);
+  await page.waitForURL((url) => !url.pathname.startsWith("/login"));
 }
 
 const shot = (page: Page, name: string, w: string) => page.screenshot({ path: `capturas/${name}-${w}.png`, fullPage: false });

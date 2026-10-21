@@ -117,7 +117,7 @@ export function BottomSheet({ open, onClose, children, label, header, footer, cl
           <div className="fixed inset-0 z-50">
             <motion.div
               aria-hidden
-              className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]"
+              className="absolute inset-0 bg-black/40"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -132,7 +132,7 @@ export function BottomSheet({ open, onClose, children, label, header, footer, cl
               tabIndex={-1}
               className={cn(
                 "absolute inset-x-0 bottom-0 mx-auto flex max-h-[92dvh] w-full max-w-md flex-col outline-none",
-                "rounded-t-[2rem] bg-surface shadow-float",
+                "rounded-t-2xl bg-surface shadow-lift",
                 className,
               )}
               initial={{ y: "100%" }}
@@ -150,7 +150,7 @@ export function BottomSheet({ open, onClose, children, label, header, footer, cl
                 className="shrink-0 cursor-grab touch-none select-none active:cursor-grabbing"
                 onPointerDown={(e) => controls.start(e)}
               >
-                <div aria-hidden className="mx-auto mt-3 h-1.5 w-11 rounded-full bg-line" />
+                <div aria-hidden className="mx-auto mt-3 h-1 w-10 rounded-full bg-line-strong" />
                 <div className="flex items-start gap-3 px-6 pt-4 pb-2">
                   <div className="min-w-0 flex-1">
                     {header}
@@ -160,7 +160,7 @@ export function BottomSheet({ open, onClose, children, label, header, footer, cl
                     onClick={onClose}
                     onPointerDown={(e) => e.stopPropagation()}
                     aria-label="Cerrar"
-                    className="pressable -mr-1 grid size-10 shrink-0 place-items-center rounded-full bg-background text-muted hover:text-foreground"
+                    className="pressable -mr-1 grid size-10 shrink-0 place-items-center rounded-full text-muted hover:bg-subtle hover:text-foreground"
                   >
                     <X className="size-[18px]" strokeWidth={2.5} />
                   </button>
@@ -170,7 +170,7 @@ export function BottomSheet({ open, onClose, children, label, header, footer, cl
                 {children}
               </div>
               {footer && (
-                <div className="shrink-0 border-t border-line/70 bg-surface px-6 pt-4 pb-safe">{footer}</div>
+                <div className="shrink-0 border-t border-line bg-surface px-6 pt-4 pb-safe">{footer}</div>
               )}
             </motion.div>
           </div>

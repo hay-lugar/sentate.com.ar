@@ -5,9 +5,19 @@ Fase 4, punto 7. Esta guía deja listo el piloto en `sentate.com.ar` **sin tocar
 ## Estado verificado (al escribir esto)
 
 - Rama predeterminada del repositorio: `main` (verificado por la API de GitHub).
-- **No existe un proyecto de Vercel para Sentate** en las cuentas accesibles: no hay despliegue ni preview. Crearlo es una acción tuya.
+- **No existe un proyecto de Vercel para Sentate** y **no pude crearlo**: la API de Vercel respondió `403 forbidden` («no tenés permiso para crear el proyecto») sobre el equipo `geronimo-mendezs-projects` (ver «Bloqueo actual»). No hay despliegue ni preview.
 - Las migraciones `20261022000100` (Storage) y `20261022000200` (cupo por IP) **no están aplicadas** en el proyecto Supabase remoto.
 - Nada de esto se probó en un dominio real: lo verificado es build, pruebas locales y CI.
+
+## Bloqueo actual (Vercel)
+
+Crear el proyecto con la conexión autorizada falló con `403`. No sé la causa exacta (la cuenta tenía una verificación pendiente). Lo mínimo que falta, **hecho por el titular en el dashboard de Vercel** (sin pasar contraseñas ni tokens por el chat):
+
+1. Completar la verificación de la cuenta si Vercel la sigue pidiendo.
+2. *Add New → Project → Import* `hay-lugar/sentate.com.ar` (rama de producción `main`; framework Next.js; Node 22, ya fijado en `package.json`). Cargar las variables de la sección 2.
+3. Avisarme la URL `https://<proyecto>.vercel.app`: con ella fijo `APP_URL`, configuro Auth y corro la prueba de humo.
+
+**Plan Hobby:** es gratuito, pero Vercel lo restringe a uso **no comercial**. Cobrar $14.999 ARS por mes a comercios es uso comercial: antes de cobrar hay que pasar a un plan de pago (decisión y costo tuyos; no se activó nada).
 
 ## 1. Separación de entornos
 
@@ -24,7 +34,7 @@ Reglas: la clave de desarrollo `sentate-dev-only` y los usuarios del seed no exi
 ## 2. Vercel (acción tuya)
 
 1. Importar `hay-lugar/sentate.com.ar` en Vercel, rama de producción `main`. Framework: Next.js (sin `vercel.json`; el build es `npm run build`). Node 22.
-2. Variables (Production y Preview por separado; en Preview usar un Supabase y `APP_URL` de preview, **no** los de producción):
+2. Variables. Hay un solo proyecto Supabase (el del piloto): **cargá las variables de Supabase solo en Production**. Sin ellas, Preview corre en modo demo y no toca datos reales:
 
    | Variable | Valor |
    |---|---|

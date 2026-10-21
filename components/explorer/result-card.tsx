@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/format";
 import { buttonClass } from "@/components/ui/button";
+import { FavoriteButton } from "@/components/account/favorite-button";
 import { formatDistance, type FacetData, type ResultItem } from "./types";
 
 type Props = {
@@ -11,9 +12,11 @@ type Props = {
   onSelect?: (id: string) => void;
   /** Sin botón de selección ni anclas (tarjeta del mapa). */
   compact?: boolean;
+  /** Corazón de favoritos: `loginHref` si no hay sesión. Sin esta prop no se muestra. */
+  favorite?: { initial: boolean; loginHref: string | null };
 };
 
-export function ResultCard({ item, facets, selected, onSelect, compact }: Props) {
+export function ResultCard({ item, facets, selected, onSelect, compact, favorite }: Props) {
   const type = facets.business_types.find((b) => b.code === item.business_type)?.label;
   const cuisines = item.cuisines.map((c) => facets.cuisines.find((x) => x.code === c)?.label).filter(Boolean);
   const distance = formatDistance(item.distance_m);
@@ -33,7 +36,10 @@ export function ResultCard({ item, facets, selected, onSelect, compact }: Props)
         ) : null}
       </div>
       <div className="min-w-0 flex-1">
-        <h3 className="truncate text-[16px] font-semibold">{item.name}</h3>
+        <div className="flex items-start gap-1">
+          <h3 className="min-w-0 flex-1 truncate text-[16px] font-semibold">{item.name}</h3>
+          {favorite && <FavoriteButton tenantId={item.id} name={item.name} initial={favorite.initial} loginHref={favorite.loginHref} />}
+        </div>
         <p className="truncate type-help">{meta}</p>
         <p className="truncate type-help">
           {place}

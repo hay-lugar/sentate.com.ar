@@ -7,6 +7,8 @@ import { Logo } from "@/components/ui/logo";
 import { buttonClass } from "@/components/ui/button";
 import { BRAND } from "@/lib/config/brand";
 import { redact } from "@/lib/log/redact";
+import { getMyFavoriteIds } from "@/lib/account/queries";
+import { getCurrentUser } from "@/lib/data/live/queries";
 import { createClient } from "@/utils/supabase/server";
 import { isSupabaseConfigured } from "@/utils/supabase/env";
 import { cookies } from "next/headers";
@@ -31,7 +33,8 @@ async function loadFacets(): Promise<{ facets: FacetData; failed: boolean }> {
 }
 
 export default async function ExplorarPage() {
-  const { facets, failed } = await loadFacets();
+  const [{ facets, failed }, user] = await Promise.all([loadFacets(), getCurrentUser()]);
+  const favorites = user ? await getMyFavoriteIds() : null;
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-line bg-background">
@@ -39,8 +42,8 @@ export default async function ExplorarPage() {
           <Link href="/" aria-label={`${BRAND.name}, inicio`} className="mr-auto inline-flex min-h-11 items-center">
             <Logo size="md" />
           </Link>
-          <Link href="/login" className={buttonClass({ variant: "quiet", size: "sm" })}>
-            Ingresar
+          <Link href={user ? "/cuenta" : "/login?next=/explorar"} className={buttonClass({ variant: "quiet", size: "sm" })}>
+            {user ? "Mi cuenta" : "Ingresar"}
           </Link>
         </nav>
       </header>
@@ -52,7 +55,7 @@ export default async function ExplorarPage() {
           </p>
         ) : (
           <Suspense>
-            <Explorer facets={facets} />
+            <Explorer facets={facets} favorites={favorites} />
           </Suspense>
         )}
       </main>

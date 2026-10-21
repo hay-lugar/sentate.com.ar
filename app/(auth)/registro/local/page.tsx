@@ -14,10 +14,8 @@ export default async function NuevoLocalPage() {
   const slugs = result.data;
   return (
     <>
-      <h1 className="text-2xl font-bold">{slugs.length ? "Sumá otro local" : "Contanos de tu local"}</h1>
-      <p className="mt-1 mb-6 text-[14px] text-muted">
-        Arranca sin publicar: cargá la carta y los horarios, y publicalo cuando esté listo.
-      </p>
+      <h1 className="text-2xl font-semibold">{slugs.length ? "Sumar otro local" : "Tu local"}</h1>
+      <p className="mt-1 mb-6 text-[15px] text-muted">Empieza sin publicar: cargás la carta y los horarios, y lo publicás cuando esté listo.</p>
       <CreateLocalForm />
     </>
   );

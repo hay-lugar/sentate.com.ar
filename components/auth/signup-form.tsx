@@ -20,7 +20,7 @@ export function SignupForm() {
       <SubmitButton pendingLabel="Creando cuenta…">Crear cuenta</SubmitButton>
       <p className="text-center text-[14px] text-muted">
         ¿Ya tenés cuenta?{" "}
-        <Link href="/login" className="font-semibold text-brand underline-offset-4 hover:underline">
+        <Link href="/login" className="font-medium text-foreground underline underline-offset-4">
           Ingresá
         </Link>
       </p>

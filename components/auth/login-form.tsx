@@ -17,7 +17,7 @@ export function LoginForm({ next, initialError }: { next?: string; initialError?
         <input id="password" name="password" type="password" autoComplete="current-password" required className={authInputClass} />
       </AuthField>
       <p className="-mt-2 text-right text-[13px]">
-        <Link href="/recuperar" className="font-semibold text-brand underline-offset-4 hover:underline">
+        <Link href="/recuperar" className="font-medium text-foreground underline underline-offset-4">
           Olvidé mi contraseña
         </Link>
       </p>
@@ -25,8 +25,8 @@ export function LoginForm({ next, initialError }: { next?: string; initialError?
       <SubmitButton pendingLabel="Ingresando…">Ingresar</SubmitButton>
       <p className="text-center text-[14px] text-muted">
         ¿Todavía no tenés cuenta?{" "}
-        <Link href="/registro" className="font-semibold text-brand underline-offset-4 hover:underline">
-          Probá gratis
+        <Link href="/registro" className="font-medium text-foreground underline underline-offset-4">
+          Crear cuenta
         </Link>
       </p>
     </form>

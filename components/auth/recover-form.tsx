@@ -44,7 +44,7 @@ export function RecoverForm({ initialError }: { initialError?: string }) {
         {cooldown > 0 ? `Podés pedir otro enlace en ${cooldown} s` : state.info ? "Enviar otro enlace" : "Enviarme el enlace"}
       </SubmitButton>
       <p className="text-center text-[14px] text-muted">
-        <Link href="/login" className="font-semibold text-brand underline-offset-4 hover:underline">
+        <Link href="/login" className="font-medium text-foreground underline underline-offset-4">
           Volver a ingresar
         </Link>
       </p>

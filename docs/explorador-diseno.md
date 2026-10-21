@@ -6,8 +6,8 @@ Documento vivo. Cada etapa lo actualiza con lo realmente implementado y verifica
 
 | Etapa | Contenido | Estado |
 |---|---|---|
-| A | Rol de plataforma, moderación, suspensión, visibilidad, auditoría | En curso |
-| B | Perfil geográfico (PostGIS), catálogos, aprobación | Pendiente |
+| A | Rol de plataforma, moderación, suspensión, visibilidad, auditoría | Integrada en main |
+| B | Perfil geográfico (PostGIS), catálogos, aprobación | En curso |
 | C | `/explorar`, búsqueda, filtros, mapa | Pendiente |
 | D | Perfil del comensal, favoritos, historial, OAuth | Pendiente |
 | E | Capacidad y reservas con disponibilidad real | Pendiente |
@@ -55,3 +55,13 @@ Un cambio de nombre o dirección de un comercio aprobado lo devuelve a `pending_
 ## Política de capacidad (etapa E, decisión)
 
 Una solicitud pendiente **retiene** cupo hasta que el comercio responde o vence (expiración configurable, por defecto 2 h); se libera al rechazar, cancelar o vencer. Las validaciones y escrituras ocurren en una transacción con bloqueo por comercio/fecha.
+
+## Etapa B — perfil geográfico (implementado)
+
+- `tenant_locations`: lat/lng (cota Argentina), `geog` generada con índice GiST, provincia, localidad (+ clave normalizada sin tildes), barrio y `confirmed_at`. Solo se escribe por `save_explorer_profile` (atómica: tipo, cocinas, enlaces, dirección y pin). Mover el pin sin confirmar deja la ubicación sin confirmar; moverlo más de 200 m en un comercio aprobado lo devuelve a revisión.
+- Catálogos de referencia: `provinces` (24), `business_types`, `cuisines` (máx. 3 por comercio). No hay catálogo de localidades: el filtro por localidad (etapa C) sale de las ubicaciones confirmadas de comercios listados.
+- Requisitos para enviar a revisión (`private.profile_missing`): tipo de comercio, dirección, teléfono del local, al menos un turno y ubicación confirmada. `private.is_listed` exige además tipo y ubicación confirmada.
+- Contrato público de `tenant_locations`: sin `confirmed_by`; visible solo para comercios listados (o para sus miembros).
+- Panel: «Mapa» (`/admin/[slug]/explorador`) con estado de moderación visible para el dueño, faltantes, editor con pin (MapLibre, carga dinámica solo ahí), coordenadas manuales como alternativa accesible y «Solicitar aprobación».
+- Geocodificación opcional (`/api/geocode`, Geoapify): requiere `GEOAPIFY_API_KEY` y sesión; no guarda resultados; sin clave se oculta.
+- Teselas: `NEXT_PUBLIC_MAP_STYLE_URL` (por defecto OpenFreeMap Positron). Sin SLA: si no cargan, el formulario sigue usable con coordenadas escritas.

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { CalendarDays, ExternalLink, LayoutDashboard, LogOut, PanelLeftClose, PanelLeftOpen, QrCode, Settings, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import { CalendarDays, ExternalLink, LayoutDashboard, LogOut, PanelLeftClose, PanelLeftOpen, MapPin, QrCode, Settings, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Logo } from "@/components/ui/logo";
 import { TenantLogo } from "@/components/ui/tenant-logo";
@@ -52,6 +52,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
     { href: `${base}/reservas`, label: "Reservas", icon: CalendarDays, badge: pending },
     { href: `${base}/menu`, label: "Menú", icon: UtensilsCrossed },
     { href: `${base}/qr`, label: "QR", icon: QrCode },
+    ...(mode === "live" ? [{ href: `${base}/explorador`, label: "Mapa", icon: MapPin }] : []),
     { href: `${base}/ajustes`, label: "Ajustes", icon: Settings },
   ];
   const isActive = (href: string) => (href === base ? pathname === base : pathname.startsWith(href));

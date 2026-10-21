@@ -7,9 +7,9 @@ export const metadata = { title: "Reservas" };
 export default function ReservasPage() {
   return (
     <>
-      <PageHeader eyebrow="Gestión" title="Reservas" />
-      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 2xl:grid-cols-[minmax(0,1fr)_360px]">
-        <ReservationsList title="Todas las solicitudes" />
+      <PageHeader title="Reservas" />
+      <ReservationsList title="Todas las solicitudes" />
+      <div className="mt-10">
         <TodayAgenda />
       </div>
     </>

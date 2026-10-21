@@ -18,7 +18,7 @@ export default function QrPage() {
   return (
     <>
       <div className="print:hidden">
-        <PageHeader eyebrow="Tu local" title="Código QR" />
+        <PageHeader title="Código QR" />
       </div>
       <QrSection origin={configuredOrigin()} />
     </>

@@ -1,8 +1,9 @@
 "use client";
 
-import { ImageOff, ImagePlus, LoaderCircle, RefreshCw, Trash2 } from "lucide-react";
+import { ImageOff, ImagePlus, LoaderCircle } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { sweepOrphanImagesAction } from "@/app/admin/[slug]/actions";
+import { Button, buttonClass } from "@/components/ui/button";
 import { cn } from "@/lib/format";
 import { ACCEPT_ATTR, KIND_SPECS, type ImageKind } from "@/lib/images/config";
 import { buildImagePath } from "@/lib/images/paths";
@@ -130,8 +131,8 @@ export function ImageUploader({ tenantId, kind, value, onChange, disabled, shape
       <div className={cn("flex gap-4", shape === "wide" ? "flex-col" : "items-center")}>
         <div
           className={cn(
-            "relative grid shrink-0 place-items-center overflow-hidden bg-background text-muted ring-1 ring-line",
-            shape === "wide" ? "aspect-[16/7] w-full rounded-2xl" : "size-24 rounded-2xl",
+            "relative grid shrink-0 place-items-center overflow-hidden bg-subtle text-muted ring-1 ring-line",
+            shape === "wide" ? "aspect-[16/7] w-full rounded-xl" : "size-24 rounded-xl",
           )}
         >
           {shown ? (
@@ -141,8 +142,8 @@ export function ImageUploader({ tenantId, kind, value, onChange, disabled, shape
             <ImageOff className="size-6" aria-hidden />
           )}
           {busy && (
-            <span className="absolute inset-0 grid place-items-center bg-surface/70 backdrop-blur-[1px]">
-              <LoaderCircle className="size-6 animate-spin text-brand" aria-hidden />
+            <span className="absolute inset-0 grid place-items-center bg-surface/70">
+              <LoaderCircle className="size-6 animate-spin" aria-hidden />
             </span>
           )}
         </div>
@@ -150,7 +151,8 @@ export function ImageUploader({ tenantId, kind, value, onChange, disabled, shape
         <div className="flex min-w-0 flex-wrap gap-2">
           <label
             className={cn(
-              "pressable inline-flex h-11 cursor-pointer items-center gap-2 rounded-xl bg-background px-3 text-[13px] font-semibold ring-1 ring-line focus-within:ring-2 focus-within:ring-brand",
+              buttonClass({ variant: "secondary" }),
+              "cursor-pointer focus-within:outline-2 focus-within:outline-offset-2",
               (busy || disabled) && "pointer-events-none opacity-60",
             )}
           >
@@ -167,14 +169,9 @@ export function ImageUploader({ tenantId, kind, value, onChange, disabled, shape
             />
           </label>
           {shown && !busy && (
-            <button
-              type="button"
-              onClick={remove}
-              disabled={disabled}
-              className="pressable inline-flex h-11 items-center gap-2 rounded-xl px-3 text-[13px] font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-60"
-            >
-              <Trash2 className="size-4" aria-hidden /> Quitar
-            </button>
+            <Button variant="danger" onClick={remove} disabled={disabled}>
+              Quitar
+            </Button>
           )}
         </div>
       </div>
@@ -187,26 +184,26 @@ export function ImageUploader({ tenantId, kind, value, onChange, disabled, shape
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={phase === "uploading" ? progress : undefined}
-            className="h-1.5 overflow-hidden rounded-full bg-background"
+            className="h-1.5 overflow-hidden rounded-full bg-line"
           >
             <div className="h-full rounded-full bg-brand transition-[width]" style={{ width: phase === "uploading" ? `${progress}%` : phase === "saving" ? "100%" : "8%" }} />
           </div>
-          <p className="mt-1.5 text-[12px] text-muted">{phase === "uploading" ? `${PHASE_LABEL.uploading} ${progress}%…` : PHASE_LABEL[phase as Exclude<Phase, "idle">]}</p>
+          <p className="mt-1.5 text-[13px] text-muted">{phase === "uploading" ? `${PHASE_LABEL.uploading} ${progress}%…` : PHASE_LABEL[phase as Exclude<Phase, "idle">]}</p>
         </div>
       )}
 
       {error && (
-        <p id={errorId} role="alert" className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl bg-rose-50 p-3 text-[13px] leading-snug text-rose-800">
+        <p id={errorId} role="alert" className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-danger/40 bg-danger/5 p-3 text-[14px] leading-snug text-danger">
           <span>{error.message}</span>
           {error.retryable && (
-            <button type="button" onClick={() => lastFile.current && void start(lastFile.current)} className="inline-flex items-center gap-1 font-semibold underline underline-offset-2">
-              <RefreshCw className="size-3.5" aria-hidden /> Reintentar
+            <button type="button" onClick={() => lastFile.current && void start(lastFile.current)} className="font-medium underline underline-offset-2">
+              Reintentar
             </button>
           )}
         </p>
       )}
 
-      <p id={hintId} className="text-[12px] text-muted">
+      <p id={hintId} className="text-[13px] text-muted">
         {limitsHint(kind)}
       </p>
     </div>

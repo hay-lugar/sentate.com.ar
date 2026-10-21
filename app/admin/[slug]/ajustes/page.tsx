@@ -6,7 +6,7 @@ export const metadata = { title: "Ajustes" };
 export default function AjustesPage() {
   return (
     <>
-      <PageHeader eyebrow="Tu local" title="Ajustes" />
+      <PageHeader title="Ajustes" />
       <SettingsForm />
     </>
   );

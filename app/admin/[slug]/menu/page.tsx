@@ -6,7 +6,7 @@ export const metadata = { title: "Carta" };
 export default function MenuPage() {
   return (
     <>
-      <PageHeader eyebrow="Tu carta" title="Menú" />
+      <PageHeader title="Menú" />
       <MenuManager />
     </>
   );

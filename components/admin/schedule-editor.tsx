@@ -1,11 +1,12 @@
 "use client";
 
-import { CalendarOff, Copy, Plus, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { ClosureDay, Schedule, Shift } from "@/lib/domain/types";
 import { PROFILE_LIMITS, type ProfileErrors } from "@/lib/demo/profile-validation";
 import { crossesMidnight, WEEKDAY_NAMES } from "@/lib/domain/schedule";
 import { formatPlainDate, fromMinutes, zonedNow } from "@/lib/time/zoned";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/format";
 import { FieldError, inputClass } from "@/components/menu/reservation/controls";
 
@@ -48,22 +49,22 @@ export function ScheduleEditor({
   return (
     <div>
       <fieldset aria-describedby={errors.schedule ? id("schedule-error") : undefined}>
-        <legend className="mb-1 px-1 text-[13px] font-semibold">Horarios por día</legend>
-        <p className="mb-3 px-1 text-[12px] text-muted">
+        <legend className="mb-1 text-[15px] font-medium">Horarios por día</legend>
+        <p className="mb-3 text-[14px] text-muted">
           Cada día puede tener turnos distintos. Si un turno cierra después de medianoche (ej. 20:00–00:30), esos horarios pertenecen
           al día en que abrió.
         </p>
         <FieldError id={id("schedule-error")}>{errors.schedule}</FieldError>
-        <ul className="space-y-2">
+        <ul className="divide-y divide-line border-y border-line">
           {ORDER.map((day) => {
             const shifts = schedule.week[day] ?? [];
             const open = shifts.length > 0;
             const dayError = errors[`day${day}` as keyof ProfileErrors];
             const dayName = WEEKDAY_NAMES[day];
             return (
-              <li key={day} className="rounded-2xl bg-background p-2.5" aria-label={`Horarios del ${dayName}`}>
+              <li key={day} className="py-3" aria-label={`Horarios del ${dayName}`}>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="min-w-[5.5rem] px-1 text-[14px] font-semibold capitalize">{dayName}</span>
+                  <span className="min-w-[5.5rem] text-[15px] font-medium capitalize">{dayName}</span>
                   <button
                     type="button"
                     aria-pressed={open}
@@ -72,8 +73,8 @@ export function ScheduleEditor({
                       setDay(day, open ? [] : [{ id: newShiftId(day), label: "Turno", open: "12:00", close: "16:00" }])
                     }
                     className={cn(
-                      "pressable h-9 rounded-xl px-3 text-[12px] font-semibold ring-1",
-                      open ? "bg-brand text-brand-fg ring-brand" : "bg-surface text-muted ring-line",
+                      "pressable h-10 rounded-full px-4 text-[14px] ring-1",
+                      open ? "bg-brand font-medium text-brand-fg ring-brand" : "bg-surface text-muted ring-line-strong",
                     )}
                   >
                     {open ? "Abierto" : "Cerrado"}
@@ -82,9 +83,9 @@ export function ScheduleEditor({
                     <button
                       type="button"
                       onClick={() => copyToOpenDays(day)}
-                      className="pressable ml-auto inline-flex h-9 items-center gap-1.5 rounded-xl px-2.5 text-[12px] font-semibold text-muted hover:bg-surface hover:text-foreground"
+                      className="pressable ml-auto inline-flex h-10 items-center gap-1.5 rounded-lg px-2.5 text-[14px] text-muted hover:bg-subtle hover:text-foreground"
                     >
-                      <Copy className="size-3.5" aria-hidden /> Copiar a los días abiertos
+                      Copiar a los días abiertos
                       <span className="sr-only"> (desde el {dayName})</span>
                     </button>
                   )}
@@ -98,7 +99,7 @@ export function ScheduleEditor({
                         className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-end gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
                       >
                         <div className="col-span-3 sm:col-span-1">
-                          <label htmlFor={id(`d${day}-s${i}-label`)} className="mb-1 block px-1 text-[11px] font-semibold text-muted">
+                          <label htmlFor={id(`d${day}-s${i}-label`)} className="mb-1 block text-[13px] text-muted">
                             Nombre del turno
                           </label>
                           <input
@@ -106,7 +107,7 @@ export function ScheduleEditor({
                             value={s.label}
                             maxLength={PROFILE_LIMITS.shiftLabelMax}
                             onChange={(e) => setDay(day, shifts.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))}
-                            className={cn(inputClass, "h-11 bg-surface")}
+                            className={cn(inputClass, "h-11")}
                           />
                         </div>
                         <TimeSelect
@@ -125,7 +126,7 @@ export function ScheduleEditor({
                           type="button"
                           aria-label={`Quitar turno ${s.label || i + 1} del ${dayName}`}
                           onClick={() => setDay(day, shifts.filter((_, j) => j !== i))}
-                          className="pressable grid size-11 place-items-center rounded-xl text-muted hover:bg-rose-50 hover:text-rose-700"
+                          className="pressable grid size-11 place-items-center rounded-lg text-muted hover:bg-subtle hover:text-danger"
                         >
                           <Trash2 className="size-4" aria-hidden />
                         </button>
@@ -137,9 +138,9 @@ export function ScheduleEditor({
                   <button
                     type="button"
                     onClick={() => setDay(day, [...shifts, { id: newShiftId(day), label: "Nuevo turno", open: "20:00", close: "23:30" }])}
-                    className="pressable mt-1 inline-flex h-9 items-center gap-1.5 rounded-xl px-2.5 text-[12px] font-semibold text-brand hover:bg-brand-soft"
+                    className="pressable mt-1 inline-flex h-10 items-center gap-1.5 rounded-lg px-2.5 text-[14px] font-medium hover:bg-subtle"
                   >
-                    <Plus className="size-3.5" aria-hidden /> Agregar turno<span className="sr-only"> el {dayName}</span>
+                    Agregar turno<span className="sr-only"> el {dayName}</span>
                   </button>
                 )}
                 <FieldError id={id(`d${day}-error`)}>{dayError}</FieldError>
@@ -193,20 +194,19 @@ function ClosuresEditor({
 
   return (
     <fieldset className="mt-5" aria-describedby={error || localError ? id("error") : undefined}>
-      <legend className="mb-1 px-1 text-[13px] font-semibold">Cierres excepcionales</legend>
-      <p className="mb-3 px-1 text-[12px] text-muted">Feriados, vacaciones o eventos privados: ese día no se toman reservas.</p>
+      <legend className="mb-1 text-[15px] font-medium">Cierres excepcionales</legend>
+      <p className="mb-3 text-[14px] text-muted">Feriados, vacaciones o eventos privados: ese día no se toman reservas.</p>
       {upcoming.length > 0 && (
         <ul className="mb-2 space-y-1.5">
           {upcoming.map((c) => (
-            <li key={c.date} className="flex items-center gap-2 rounded-xl bg-background px-3 py-2 text-[13px]">
-              <CalendarOff className="size-4 shrink-0 text-muted" aria-hidden />
-              <span className="font-semibold capitalize">{formatPlainDate(c.date, { weekday: "short", day: "numeric", month: "short" })}</span>
+            <li key={c.date} className="flex items-center gap-2 rounded-lg border border-line px-3 py-2 text-[14px]">
+              <span className="font-medium capitalize">{formatPlainDate(c.date, { weekday: "short", day: "numeric", month: "short" })}</span>
               {c.reason && <span className="min-w-0 truncate text-muted">· {c.reason}</span>}
               <button
                 type="button"
                 aria-label={`Quitar cierre del ${formatPlainDate(c.date, { weekday: "long", day: "numeric", month: "long" })}`}
                 onClick={() => onChange(closures.filter((x) => x.date !== c.date))}
-                className="pressable ml-auto grid size-9 shrink-0 place-items-center rounded-lg text-muted hover:bg-rose-50 hover:text-rose-700"
+                className="pressable ml-auto grid size-10 shrink-0 place-items-center rounded-lg text-muted hover:bg-subtle hover:text-danger"
               >
                 <Trash2 className="size-4" aria-hidden />
               </button>
@@ -216,13 +216,13 @@ function ClosuresEditor({
       )}
       <div className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-end">
         <div>
-          <label htmlFor={id("date")} className="mb-1 block px-1 text-[11px] font-semibold text-muted">
+          <label htmlFor={id("date")} className="mb-1 block text-[13px] text-muted">
             Fecha
           </label>
           <input id={id("date")} type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className={cn(inputClass, "h-11")} />
         </div>
         <div>
-          <label htmlFor={id("reason")} className="mb-1 block px-1 text-[11px] font-semibold text-muted">
+          <label htmlFor={id("reason")} className="mb-1 block text-[13px] text-muted">
             Motivo (opcional, lo ven los clientes)
           </label>
           <input
@@ -233,13 +233,9 @@ function ClosuresEditor({
             className={cn(inputClass, "h-11")}
           />
         </div>
-        <button
-          type="button"
-          onClick={add}
-          className="pressable inline-flex h-11 items-center justify-center gap-1.5 rounded-xl px-3 text-[13px] font-semibold text-brand ring-1 ring-line hover:bg-brand-soft"
-        >
-          <Plus className="size-4" aria-hidden /> Agregar cierre
-        </button>
+        <Button variant="secondary" onClick={add}>
+          Agregar cierre
+        </Button>
       </div>
       <FieldError id={id("error")}>{localError ?? error}</FieldError>
     </fieldset>
@@ -251,14 +247,14 @@ function TimeSelect({ id, label, value, onChange }: { id: string; label: string;
   const options = TIME_OPTIONS.includes(value) ? TIME_OPTIONS : [value, ...TIME_OPTIONS];
   return (
     <div className="min-w-0">
-      <label htmlFor={id} className="mb-1 block px-1 text-[11px] font-semibold text-muted">
+      <label htmlFor={id} className="mb-1 block text-[13px] text-muted">
         {label}
       </label>
       <select
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={cn(inputClass, "h-11 w-full min-w-0 bg-surface px-3 tabular-nums sm:w-[6.5rem]")}
+        className={cn(inputClass, "h-11 w-full min-w-0 px-3 tabular-nums sm:w-[6.5rem]")}
       >
         {options.map((t) => (
           <option key={t} value={t}>

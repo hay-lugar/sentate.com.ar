@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { cn } from "@/lib/format";
 
 export function Switch({
@@ -22,16 +21,9 @@ export function Switch({
       aria-label={label}
       aria-labelledby={labelledBy}
       onClick={onChange}
-      className={cn(
-        "pressable flex h-7 w-12 shrink-0 items-center rounded-full p-0.5 transition-colors duration-300",
-        checked ? "bg-emerald-600" : "bg-[#8f857a]",
-      )}
+      className={cn("pressable relative h-7 w-12 shrink-0 rounded-full transition-colors duration-150", checked ? "bg-success" : "bg-field")}
     >
-      <motion.span
-        layout
-        transition={{ type: "spring", stiffness: 600, damping: 34 }}
-        className={cn("size-6 rounded-full bg-white shadow-[0_2px_6px_rgb(0_0_0/0.18)]", checked && "ml-auto")}
-      />
+      <span aria-hidden className={cn("absolute top-0.5 left-0.5 size-6 rounded-full bg-white transition-transform duration-150", checked && "translate-x-5")} />
     </button>
   );
 }

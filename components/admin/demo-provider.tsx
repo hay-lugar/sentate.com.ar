@@ -365,41 +365,31 @@ export function AdminDemoProvider({
   return (
     <DemoContext.Provider value={value}>
       {children}
-      <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-28 z-[60] flex justify-center px-4 lg:bottom-8">
+      <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-28 z-[60] flex justify-center px-4 lg:bottom-20">
         <AnimatePresence>
           {toast && (
             <motion.div
               key={toast.id}
-              initial={{ y: 40, opacity: 0, scale: 0.95 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: 20, opacity: 0, scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 420, damping: 32 }}
-              className="pointer-events-auto flex max-w-full items-center gap-3 rounded-2xl bg-ink py-2.5 pr-2.5 pl-3 text-white shadow-lift"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="pointer-events-auto flex max-w-full items-center gap-3 rounded-xl bg-foreground py-3 pr-3 pl-4 text-background shadow-lift"
               role={toast.tone === "error" ? "alert" : "status"}
             >
-              <span
-                className={
-                  toast.tone === "ok"
-                    ? "grid size-7 shrink-0 place-items-center rounded-lg bg-emerald-400 text-ink"
-                    : toast.tone === "error"
-                      ? "grid size-7 shrink-0 place-items-center rounded-lg bg-rose-400 text-ink"
-                      : "grid size-7 shrink-0 place-items-center rounded-lg bg-white/15"
-                }
-              >
-                {toast.tone === "ok" ? (
-                  <Check className="size-4" strokeWidth={3} aria-hidden />
-                ) : toast.tone === "error" ? (
-                  <X className="size-4" strokeWidth={3} aria-hidden />
-                ) : (
-                  <Info className="size-4" strokeWidth={2.5} aria-hidden />
-                )}
-              </span>
-              <span className="text-[14px] font-medium">{toast.message}</span>
+              {toast.tone === "ok" ? (
+                <Check className="size-4 shrink-0" strokeWidth={2.5} aria-hidden />
+              ) : toast.tone === "error" ? (
+                <X className="size-4 shrink-0" strokeWidth={2.5} aria-hidden />
+              ) : (
+                <Info className="size-4 shrink-0" strokeWidth={2.25} aria-hidden />
+              )}
+              <span className="text-[15px]">{toast.message}</span>
               {toast.action && (
                 <button
                   type="button"
                   onClick={toast.action.run}
-                  className="pressable ml-1 inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-white/10 px-3 py-1.5 text-[13px] font-semibold hover:bg-white/20"
+                  className="pressable ml-1 inline-flex min-h-9 shrink-0 items-center rounded-lg border border-background/40 px-3 text-[14px] font-medium hover:bg-background/10"
                 >
                   {toast.action.label}
                 </button>

@@ -1,6 +1,5 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { Category, Dish, DishTag } from "@/lib/domain/types";
 import { DISH_TAGS } from "@/lib/domain/types";
@@ -8,6 +7,7 @@ import { useDemo } from "./demo-provider";
 import { MENU_LIMITS, validateDishForm, type DishFormErrors, type DishFormValues } from "@/lib/demo/menu-validation";
 import type { DishInput } from "@/lib/demo/state";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
+import { Button } from "@/components/ui/button";
 import { FieldError, inputClass } from "@/components/menu/reservation/controls";
 import { cn } from "@/lib/format";
 import { ImageUploader } from "./image-uploader";
@@ -84,16 +84,12 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
 
   const footer = values && (
     <div className="flex gap-3">
-      <button type="button" onClick={onClose} className="pressable h-13 flex-1 rounded-2xl bg-background font-semibold ring-1 ring-line">
+      <Button variant="secondary" size="lg" onClick={onClose} className="flex-1">
         Cancelar
-      </button>
-      <button
-        type="submit"
-        form="dish-form"
-        className="pressable h-13 flex-[1.4] rounded-2xl bg-brand font-display font-bold text-brand-fg shadow-brand"
-      >
+      </Button>
+      <Button type="submit" size="lg" form="dish-form" className="flex-1">
         {isEdit ? "Guardar cambios" : "Agregar plato"}
-      </button>
+      </Button>
     </div>
   );
 
@@ -102,7 +98,7 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
       open={!!target}
       onClose={onClose}
       label={isEdit ? "Editar plato" : "Nuevo plato"}
-      header={<h2 className="text-[22px] font-bold">{isEdit ? "Editar plato" : "Nuevo plato"}</h2>}
+      header={<h2 className="text-xl font-semibold">{isEdit ? "Editar plato" : "Nuevo plato"}</h2>}
       footer={footer}
       initialFocus="#dish-name"
     >
@@ -128,14 +124,14 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
               onChange={(e) => set("description", e.target.value)}
               aria-invalid={!!errors.description}
               aria-describedby={errors.description ? "dish-description-error" : undefined}
-              className={cn(inputClass, "h-auto resize-none py-3.5")}
+              className={cn(inputClass, "h-auto resize-none py-3")}
             />
           </FormField>
 
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Precio (ARS)" id="dish-price" error={errors.price}>
               <div className="relative">
-                <span aria-hidden className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 font-semibold text-muted">
+                <span aria-hidden className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-muted">
                   $
                 </span>
                 <input
@@ -170,8 +166,8 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
             // Comercio real: foto subida a Storage (la ruta se guarda con el plato). El valor anterior sigue
             // referenciado hasta que el guardado del plato se confirma.
             <div role="group" aria-labelledby="dish-image-label">
-              <p id="dish-image-label" className="mb-1.5 flex items-baseline justify-between px-1 text-[13px] font-semibold">
-                Foto del plato <span className="text-[12px] font-medium text-muted">Opcional</span>
+              <p id="dish-image-label" className="mb-1.5 flex items-baseline justify-between text-[14px] font-medium">
+                Foto del plato <span className="text-[13px] font-normal text-muted">Opcional</span>
               </p>
               <ImageUploader tenantId={live.tenantId} kind="dish" value={values.image || null} onChange={(path) => set("image", path ?? "")} />
               <FieldError id="dish-image-error">{errors.image}</FieldError>
@@ -193,7 +189,7 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
           )}
 
           <fieldset>
-            <legend className="mb-2 px-1 text-[13px] font-semibold">Etiquetas</legend>
+            <legend className="mb-2 text-[14px] font-medium">Etiquetas</legend>
             <div className="flex flex-wrap gap-2">
               {DISH_TAGS.map((tag) => {
                 const on = values.tags.includes(tag);
@@ -204,8 +200,8 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
                     aria-pressed={on}
                     onClick={() => set("tags", on ? values.tags.filter((t) => t !== tag) : [...values.tags, tag])}
                     className={cn(
-                      "pressable h-10 rounded-xl px-3.5 text-[13px] font-semibold ring-1",
-                      on ? "bg-brand text-brand-fg ring-brand" : "bg-surface ring-line",
+                      "pressable h-10 rounded-full px-4 text-[14px] ring-1",
+                      on ? "bg-brand font-medium text-brand-fg ring-brand" : "bg-surface ring-line-strong hover:bg-subtle",
                     )}
                   >
                     {TAG_LABEL[tag]}
@@ -215,39 +211,31 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
             </div>
           </fieldset>
 
-          <div className="flex items-center justify-between rounded-2xl bg-background p-4">
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-line p-4">
             <div>
-              <p id="dish-active-label" className="text-[14px] font-semibold">
+              <p id="dish-active-label" className="text-[15px] font-medium">
                 Disponible
               </p>
-              <p className="text-[12px] text-muted">Si lo desactivás, no aparece en el menú público.</p>
+              <p className="text-[14px] text-muted">Si lo desactivás, no aparece en el menú público.</p>
             </div>
             <Switch checked={values.active} onChange={() => set("active", !values.active)} labelledBy="dish-active-label" />
           </div>
 
           {isEdit &&
             (confirmDelete ? (
-              <div className="flex items-center gap-2 rounded-2xl bg-rose-50 p-3 text-[13px] text-rose-900">
-                <span className="flex-1 font-semibold">¿Eliminar este plato?</span>
-                <button
-                  type="button"
-                  onClick={() => lastTarget && onDelete(resolveId(lastTarget.categoryId), values.id!)}
-                  className="pressable h-9 rounded-xl bg-rose-700 px-3 font-semibold text-white"
-                >
+              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-danger/40 p-3 text-[14px]">
+                <span className="flex-1 font-medium text-danger">¿Eliminar este plato?</span>
+                <Button size="sm" variant="danger" onClick={() => lastTarget && onDelete(resolveId(lastTarget.categoryId), values.id!)}>
                   Eliminar
-                </button>
-                <button type="button" onClick={() => setConfirmDelete(false)} className="pressable h-9 rounded-xl px-3 font-semibold ring-1 ring-rose-200">
+                </Button>
+                <Button size="sm" variant="secondary" onClick={() => setConfirmDelete(false)}>
                   Cancelar
-                </button>
+                </Button>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(true)}
-                className="pressable inline-flex h-10 items-center gap-2 rounded-xl px-3 text-[13px] font-semibold text-rose-700 hover:bg-rose-50"
-              >
-                <Trash2 className="size-4" aria-hidden /> Eliminar plato
-              </button>
+              <Button variant="danger" size="sm" onClick={() => setConfirmDelete(true)}>
+                Eliminar plato
+              </Button>
             ))}
         </form>
       )}
@@ -272,10 +260,10 @@ function FormField({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 flex items-baseline justify-between px-1 text-[13px] font-semibold">
+      <label htmlFor={id} className="mb-1.5 flex items-baseline justify-between text-[14px] font-medium">
         {label}
         {(optional || counter) && (
-          <span className="text-[12px] font-medium text-muted">
+          <span className="text-[13px] font-normal text-muted">
             {optional && "Opcional"}
             {optional && counter && " · "}
             {counter}

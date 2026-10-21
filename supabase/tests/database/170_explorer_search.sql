@@ -21,24 +21,24 @@ select tests.as_anon();
 
 
 -- Visibilidad.
-select is(tests.names('{}'), array['bodegon-a', 'esquina-b'], 'solo se listan comercios aprobados y completos');
+select is(tests.names('{}'::jsonb), array['bodegon-a', 'esquina-b'], 'solo se listan comercios aprobados y completos');
 select is((select count(*)::int from jsonb_array_elements(public.explore_search('{"limit":500}') -> 'items') i where i ->> 'slug' not like 'prueba-%'), 2, 'el total cuenta solo listados');
-select is(tests.names('{"q":"oculto"}'), '{}'::text[], 'un comercio no aprobado no aparece ni buscándolo por nombre');
+select is(tests.names('{"q":"oculto"}'::jsonb), '{}'::text[], 'un comercio no aprobado no aparece ni buscándolo por nombre');
 
 -- Texto: nombre, localidad, tipo, cocina, plato, tolerancia a tildes y errores.
-select is(tests.names('{"q":"bodegon"}'), array['bodegon-a'], 'busca por nombre (sin tildes)');
-select is(tests.names('{"q":"rafaela"}'), array['bodegon-a'], 'busca por localidad');
-select is(tests.names('{"q":"parilla"}'), array['bodegon-a'], 'tolera un error de tipeo (parilla → parrilla)');
-select is(tests.names('{"q":"hamburguesas"}'), array['esquina-b'], 'busca por cocina');
-select is(tests.names('{"q":"provoleta"}'), array['bodegon-a'], 'busca por plato disponible');
-select is(tests.names('{"q":"agotado"}'), '{}'::text[], 'no encuentra platos no disponibles');
-select is(tests.names('{"q":"categoria oculta"}'), '{}'::text[], 'no encuentra platos de categorías ocultas');
+select is(tests.names('{"q":"bodegon"}'::jsonb), array['bodegon-a'], 'busca por nombre (sin tildes)');
+select is(tests.names('{"q":"rafaela"}'::jsonb), array['bodegon-a'], 'busca por localidad');
+select is(tests.names('{"q":"parilla"}'::jsonb), array['bodegon-a'], 'tolera un error de tipeo (parilla → parrilla)');
+select is(tests.names('{"q":"hamburguesas"}'::jsonb), array['esquina-b'], 'busca por cocina');
+select is(tests.names('{"q":"provoleta"}'::jsonb), array['bodegon-a'], 'busca por plato disponible');
+select is(tests.names('{"q":"agotado"}'::jsonb), '{}'::text[], 'no encuentra platos no disponibles');
+select is(tests.names('{"q":"categoria oculta"}'::jsonb), '{}'::text[], 'no encuentra platos de categorías ocultas');
 
 -- Filtros.
-select is(tests.names('{"locality_key":"palermo"}'), array['esquina-b'], 'filtra por localidad');
-select is(tests.names('{"business_types":["bar"]}'), array['esquina-b'], 'filtra por tipo de comercio');
-select is(tests.names('{"cuisines":["parrilla","pizza"]}'), array['bodegon-a'], 'filtra por cocina');
-select is(tests.names('{"price":["$$$"]}'), array['esquina-b'], 'filtra por rango de precio');
+select is(tests.names('{"locality_key":"palermo"}'::jsonb), array['esquina-b'], 'filtra por localidad');
+select is(tests.names('{"business_types":["bar"]}'::jsonb), array['esquina-b'], 'filtra por tipo de comercio');
+select is(tests.names('{"cuisines":["parrilla","pizza"]}'::jsonb), array['bodegon-a'], 'filtra por cocina');
+select is(tests.names('{"price":["$$$"]}'::jsonb), array['esquina-b'], 'filtra por rango de precio');
 select throws_ok($$ select public.explore_search('{"limit":9999}') $$, 'P0001', 'invalid_filter', 'límite acotado');
 select throws_ok($$ select public.explore_search('{"lat":-31}') $$, 'P0001', 'invalid_filter', 'lat sin lng rechazado');
 
@@ -60,8 +60,8 @@ select is(tests.names(jsonb_build_object('open_now', true, 'at', ((current_date 
   array['bodegon-a', 'esquina-b'], 'a las 21:00 abren ambos');
 
 -- Cercanía: distancia aproximada, orden y radio. El punto está cerca de B.
-select is(tests.names('{"lat":-34.59,"lng":-58.42,"sort":"distance"}'), array['esquina-b', 'bodegon-a'], 'ordena por cercanía');
-select is(tests.names('{"lat":-34.59,"lng":-58.42,"radius_km":20}'), array['esquina-b'], 'el radio excluye lo lejano');
+select is(tests.names('{"lat":-34.59,"lng":-58.42,"sort":"distance"}'::jsonb), array['esquina-b', 'bodegon-a'], 'ordena por cercanía');
+select is(tests.names('{"lat":-34.59,"lng":-58.42,"radius_km":20}'::jsonb), array['esquina-b'], 'el radio excluye lo lejano');
 select ok((public.explore_search('{"lat":-34.59,"lng":-58.42}') -> 'items' -> 0 ->> 'distance_m') is not null, 'devuelve distancia aproximada');
 
 select * from finish();

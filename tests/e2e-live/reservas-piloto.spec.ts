@@ -135,12 +135,20 @@ test.describe("panel del dueño: estados y contacto manual", () => {
     expect(new URL(rejectedHref).searchParams.get("text")).toContain("No podemos confirmar");
 
     // CANCELADA: el panel no tiene un botón para cancelar; se fuerza con la sesión del dueño por la API y llega en vivo.
+    // Precondición: el canal en vivo ya está unido. Sin eso el evento podría salir antes de que el panel escuche.
+    await expect(owner.getByText("En vivo")).toBeVisible({ timeout: 20_000 });
     const api = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
     expect((await api.auth.signInWithPassword({ email: "owner.bodegon@example.test", password: PASSWORD })).error).toBeNull();
     const cancel = await api.from("reservations").update({ status: "cancelled" }).eq("customer_name", who.confirmed.name).eq("status", "confirmed").select("id");
     expect(cancel.error).toBeNull();
     expect(cancel.data).toHaveLength(1);
-    await expect(row(who.confirmed.name).getByText("Cancelada", { exact: true })).toBeVisible({ timeout: 15_000 });
+    try {
+      await expect(row(who.confirmed.name).getByText("Cancelada", { exact: true })).toBeVisible({ timeout: 15_000 });
+    } catch (e) {
+      // Diagnóstico para CI: qué veía el panel del dueño cuando el evento no llegó.
+      await test.info().attach("panel-del-dueno", { body: await owner.locator("main").innerText(), contentType: "text/plain" });
+      throw e;
+    }
     const cancelledHref = (await row(who.confirmed.name).getByRole("link", { name: /WhatsApp con/ }).getAttribute("href"))!;
     expect(new URL(cancelledHref).searchParams.get("text")).toContain("figura como cancelada");
 

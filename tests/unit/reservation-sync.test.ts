@@ -83,3 +83,16 @@ describe("retryDelay", () => {
     expect(MAX_RESYNC_ATTEMPTS).toBeGreaterThan(0);
   });
 });
+
+describe("snapshot / restore", () => {
+  it("restore deshace una resincronización que el consumidor descartó, y el evento siguiente se vuelve a leer", () => {
+    const store = new ReservationSyncStore<{ id: string; updated_at: string }>();
+    store.apply({ id: "a", updated_at: "2026-10-21T10:00:00Z" });
+    const before = store.snapshot();
+    store.replaceAll([{ id: "a", updated_at: "2026-10-21T10:05:00Z" }]);
+    // Sin restore, la versión de las 10:05 figuraría como aplicada y su evento se ignoraría.
+    expect(store.needsFetch("a", "2026-10-21T10:05:00Z")).toBe(false);
+    store.restore(before);
+    expect(store.needsFetch("a", "2026-10-21T10:05:00Z")).toBe(true);
+  });
+});

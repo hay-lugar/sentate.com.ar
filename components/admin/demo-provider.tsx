@@ -227,9 +227,11 @@ export function AdminDemoProvider({
     [showToast, apply],
   );
   const onResync = useCallback(
-    (reservations: Reservation[]) => {
-      // Si hay escrituras pendientes, el refresh posterior trae la verdad; no se pisa la UI optimista.
-      if (inFlight.current === 0) apply({ type: "syncReservations", reservations });
+    (reservations: Reservation[]): boolean => {
+      // Con escrituras pendientes no se pisa la UI optimista: se descarta y el hook vuelve a leer.
+      if (inFlight.current > 0) return false;
+      apply({ type: "syncReservations", reservations });
+      return true;
     },
     [apply],
   );
@@ -417,7 +419,7 @@ function useLiveRealtime(
   live: LiveInfo | null,
   timeZone: string,
   onUpsert: (r: Reservation, isNew: boolean) => void,
-  onResync: (rs: Reservation[]) => void,
+  onResync: (rs: Reservation[]) => boolean,
 ): RealtimeStatus | null {
   const status = useReservationsRealtime({ tenantId: live?.tenantId ?? "", timeZone, onUpsert, onResync, enabled: !!live });
   return live ? status : null;

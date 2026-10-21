@@ -4,12 +4,10 @@ select plan(15);
 
 select tests.seed_two_tenants();
 create temp table ids as
-select (select id from public.menu_items where name = 'Provoleta') as prov,
-       (select id from public.menu_items where name = 'Plato agotado') as agot,
-       (select id from public.menu_items where name = 'Doble smash') as smash,
-       (select updated_at from public.menu_items where name = 'Provoleta') as v_prov,
-       (select updated_at from public.menu_items where name = 'Plato agotado') as v_agot,
-       (select updated_at from public.menu_items where name = 'Doble smash') as v_smash,
+select (select id from public.menu_items where name = 'Provoleta' and tenant_id = tests.tenant_id('bodegon-a')) as prov,
+       (select id from public.menu_items where name = 'Plato agotado' and tenant_id = tests.tenant_id('bodegon-a')) as agot,
+       (select id from public.menu_items where name = 'Doble smash' and tenant_id = tests.tenant_id('esquina-b')) as smash,
+       (select updated_at from public.menu_items where name = 'Doble smash' and tenant_id = tests.tenant_id('esquina-b')) as v_smash,
        tests.tenant_id('bodegon-a') as a;
 grant select on ids to authenticated;
 
@@ -28,7 +26,7 @@ select is((select price from public.menu_items where id = (select agot from ids)
 
 -- Versión vieja (otra pestaña cambió el plato): no se aplica nada.
 select throws_ok($$ select public.bulk_update_prices((select a from ids), jsonb_build_array(
-    jsonb_build_object('id', (select prov from ids), 'price', 1, 'expected', (select v_prov from ids)),
+    jsonb_build_object('id', (select prov from ids), 'price', 1, 'expected', (select updated_at from public.menu_items where id = (select prov from ids))),
     jsonb_build_object('id', (select agot from ids), 'price', 1, 'expected', now()))) $$, 'P0001', 'price_conflict', 'una versión vieja produce conflicto');
 select is((select price from public.menu_items where id = (select agot from ids)), 5500.00::numeric, 'todo o nada: el plato sin conflicto tampoco cambió');
 

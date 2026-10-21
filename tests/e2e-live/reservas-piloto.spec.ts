@@ -18,7 +18,7 @@ const uniquePhone = () => `11 ${String(Date.now()).slice(-8, -4)} ${String(++seq
 /** Pide una mesa desde la carta pública. Devuelve el diálogo con el resultado (éxito o error). */
 async function submitRequest(page: Page, slug: string, who: { name: string; phone: string }) {
   await page.goto(`/${slug}`);
-  await page.getByRole("button", { name: /Reservar mesa/ }).click();
+  await page.getByRole("button", { name: /Solicitar mesa/ }).click();
   const dialog = page.getByRole("dialog", { name: "Pedir una mesa" });
   await dialog.getByRole("button", { name: "Continuar" }).click();
   await dialog.getByRole("group", { name: "Elegí el día" }).locator("button:not([disabled])").nth(2).click();
@@ -67,8 +67,8 @@ test.describe("lo que ve el comensal", () => {
   test("el aviso del formulario aclara que el local responde por su cuenta", async ({ page }) => {
     await page.goto("/prueba-bodegon");
     // El botón de la carta no promete: pide y dice que el local revisa.
-    await expect(page.getByText("Solicitá tu mesa · el local la revisa")).toBeVisible();
-    await page.getByRole("button", { name: /Reservar mesa/ }).click();
+    await expect(page.getByRole("button", { name: /Solicitar mesa/ })).toBeVisible(); // pide una mesa: no promete reservarla
+    await page.getByRole("button", { name: /Solicitar mesa/ }).click();
     const dialog = page.getByRole("dialog", { name: "Pedir una mesa" });
     await dialog.getByRole("button", { name: "Continuar" }).click();
     await dialog.getByRole("group", { name: "Elegí el día" }).locator("button:not([disabled])").nth(2).click();

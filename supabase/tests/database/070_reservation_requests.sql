@@ -53,16 +53,19 @@ select throws_ok(format($$ select public.request_reservation(%L, %L, '20:00', 2,
 select throws_ok(format($$ select public.request_reservation(%L, %L, '20:00', 2, 'Ana', '1100001234', '', gen_random_uuid()) $$,
   gen_random_uuid(), (select d from ctx)), 'P0001', 'tenant_unavailable', 'comercio inexistente (mismo error)');
 
-select tests.as_postgres();
-insert into public.tenant_closures (tenant_id, service_date, reason) select tenant_a, d + 7, 'Feriado' from ctx;
-select tests.as_anon();
-select throws_ok(format($$ select public.request_reservation(%L, %L, '21:00', 2, 'Ana', '1100001234', '', gen_random_uuid()) $$,
-  (select tenant_a from ctx), (select d from ctx) + 7), 'P0001', 'tenant_closed', 'día de cierre puntual');
-
 -- Un usuario autenticado tampoco puede forzar otro estado (la firma no lo acepta y se fuerza pending).
 select tests.authenticate_as('outsider@test.local');
 select is(public.request_reservation((select tenant_a from ctx), (select d from ctx), '13:00', 2, 'Beto', '1100000000', '',
   gen_random_uuid()) ->> 'status', 'pending', 'usuario con sesión: también pending');
+
+-- Cierre puntual sobre el mismo día de servicio ya usado arriba (siempre dentro de la ventana de 14 días: `d` cae entre
+-- 2 y 8 días adelante, así que `d + 7` podía salirse de la ventana según el día de la semana en que corra la prueba).
+-- Va al final de las solicitudes para no cerrar el día antes de usarlo.
+select tests.as_postgres();
+insert into public.tenant_closures (tenant_id, service_date, reason) select tenant_a, d, 'Feriado' from ctx;
+select tests.as_anon();
+select throws_ok(format($$ select public.request_reservation(%L, %L, '21:00', 2, 'Ana', '1100001234', '', gen_random_uuid()) $$,
+  (select tenant_a from ctx), (select d from ctx)), 'P0001', 'tenant_closed', 'día de cierre puntual');
 
 select tests.as_postgres();
 select is((select count(*)::int from public.reservations r, ctx where r.idempotency_key = ctx.k1), 1,

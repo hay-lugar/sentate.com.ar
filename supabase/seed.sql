@@ -124,3 +124,18 @@ from (select (now() at time zone 'America/Argentina/Buenos_Aires')::date as toda
        ('22222222-2222-4222-8222-222222222222'::uuid, 0, 1, time '01:00', 3, 'Cliente Ficticio Cuatro', '+54 11 0000-0304', '', 'pending'),
        ('22222222-2222-4222-8222-222222222222'::uuid, 0, 0, time '22:30', 8, 'Cliente Ficticio Cinco', '+54 11 0000-0305', '', 'rejected')
      ) r(tenant_id, day_offset, calendar_shift, t, guests, name, phone, notes, status);
+
+-- Explorador (solo local/CI): perfil geográfico y aprobación de los fixtures. NUNCA se carga en el proyecto remoto.
+-- Bodegón (Almagro) y La Esquina (Palermo) quedan listados; Sakura (prueba vencida) y Casa Borrador (sin publicar) no.
+update public.tenants set business_type = 'parrilla', instagram_url = 'https://www.instagram.com/prueba.bodegon' where slug = 'prueba-bodegon';
+update public.tenants set business_type = 'bar' where slug = 'prueba-esquina';
+update public.tenants set business_type = 'restaurante' where slug = 'prueba-sakura';
+insert into public.tenant_cuisines (tenant_id, cuisine_code) values
+  ('11111111-1111-4111-8111-111111111111', 'parrilla'), ('11111111-1111-4111-8111-111111111111', 'argentina'),
+  ('22222222-2222-4222-8222-222222222222', 'hamburguesas'), ('33333333-3333-4333-8333-333333333333', 'japonesa');
+insert into public.tenant_locations (tenant_id, lat, lng, province_code, locality, locality_key, neighborhood, confirmed_at) values
+  ('11111111-1111-4111-8111-111111111111', -34.6075, -58.4210, 'caba', 'Almagro', 'almagro', 'Almagro', now()),
+  ('22222222-2222-4222-8222-222222222222', -34.5880, -58.4300, 'caba', 'Palermo', 'palermo', 'Palermo', now()),
+  ('33333333-3333-4333-8333-333333333333', -34.5810, -58.4380, 'caba', 'Palermo', 'palermo', 'Palermo Hollywood', now());
+update public.tenant_moderation set status = 'approved', reviewed_at = now()
+where tenant_id in ('11111111-1111-4111-8111-111111111111', '22222222-2222-4222-8222-222222222222', '33333333-3333-4333-8333-333333333333');

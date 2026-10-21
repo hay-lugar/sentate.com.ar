@@ -98,7 +98,7 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
       open={!!target}
       onClose={onClose}
       label={isEdit ? "Editar plato" : "Nuevo plato"}
-      header={<h2 className="text-xl font-semibold">{isEdit ? "Editar plato" : "Nuevo plato"}</h2>}
+      header={<h2 className="type-section">{isEdit ? "Editar plato" : "Nuevo plato"}</h2>}
       footer={footer}
       initialFocus="#dish-name"
     >
@@ -166,7 +166,7 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
             // Comercio real: foto subida a Storage (la ruta se guarda con el plato). El valor anterior sigue
             // referenciado hasta que el guardado del plato se confirma.
             <div role="group" aria-labelledby="dish-image-label">
-              <p id="dish-image-label" className="mb-1.5 flex items-baseline justify-between text-[14px] font-medium">
+              <p id="dish-image-label" className="mb-1.5 flex items-baseline justify-between type-label">
                 Foto del plato <span className="text-[13px] font-normal text-muted">Opcional</span>
               </p>
               <ImageUploader tenantId={live.tenantId} kind="dish" value={values.image || null} onChange={(path) => set("image", path ?? "")} />
@@ -189,7 +189,7 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
           )}
 
           <fieldset>
-            <legend className="mb-2 text-[14px] font-medium">Etiquetas</legend>
+            <legend className="mb-2 type-label">Etiquetas</legend>
             <div className="flex flex-wrap gap-2">
               {DISH_TAGS.map((tag) => {
                 const on = values.tags.includes(tag);
@@ -216,7 +216,7 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
               <p id="dish-active-label" className="text-[15px] font-medium">
                 Disponible
               </p>
-              <p className="text-[14px] text-muted">Si lo desactivás, no aparece en el menú público.</p>
+              <p className="type-help">Si lo desactivás, no aparece en el menú público.</p>
             </div>
             <Switch checked={values.active} onChange={() => set("active", !values.active)} labelledBy="dish-active-label" />
           </div>
@@ -260,7 +260,7 @@ function FormField({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 flex items-baseline justify-between text-[14px] font-medium">
+      <label htmlFor={id} className="mb-1.5 flex items-baseline justify-between type-label">
         {label}
         {(optional || counter) && (
           <span className="text-[13px] font-normal text-muted">

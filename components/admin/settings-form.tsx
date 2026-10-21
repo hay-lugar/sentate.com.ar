@@ -104,13 +104,13 @@ export function SettingsForm() {
         {liveInfo ? (
           <div className="mb-6 space-y-6 border-b border-line pb-6">
             <div role="group" aria-labelledby={id("logo-label")}>
-              <p id={id("logo-label")} className="mb-2 text-[14px] font-medium">
+              <p id={id("logo-label")} className="mb-2 type-label">
                 Logo <span className="text-[13px] font-normal text-muted">Opcional · se guarda con «Guardar cambios»</span>
               </p>
               <ImageUploader tenantId={liveInfo.tenantId} kind="logo" value={draft.logoUrl ?? null} onChange={(path) => set("logoUrl", path ?? undefined)} />
             </div>
             <div role="group" aria-labelledby={id("cover-label")}>
-              <p id={id("cover-label")} className="mb-2 text-[14px] font-medium">
+              <p id={id("cover-label")} className="mb-2 type-label">
                 Portada <span className="text-[13px] font-normal text-muted">Opcional · se guarda al subirla</span>
               </p>
               <CoverField live={liveInfo} />
@@ -135,7 +135,7 @@ export function SettingsForm() {
               )}
             </div>
           </div>
-          <p className="-mt-2 mb-4 text-[13px] text-muted">
+          <p className="-mt-2 mb-4 type-help">
             {live
               ? "La subida de logos llega en la próxima versión. Mientras tanto se muestran las iniciales."
               : "Opcional. PNG, JPG o WebP hasta 200 KB. Sin logo se muestran las iniciales."}
@@ -150,7 +150,7 @@ export function SettingsForm() {
           <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3">
             <TextField id={id("cuisine")} label="Tipo de cocina" value={draft.cuisine} onChange={(v) => set("cuisine", v)} error={errors.cuisine} />
             <div>
-              <label htmlFor={id("price")} className="mb-1.5 block text-[14px] font-medium">
+              <label htmlFor={id("price")} className="mb-1.5 block type-label">
                 Precios
               </label>
               <select
@@ -173,7 +173,7 @@ export function SettingsForm() {
       {/* Horarios */}
       <Card title="Horarios">
         <div>
-          <label htmlFor={id("tz")} className="mb-1.5 block text-[14px] font-medium">
+          <label htmlFor={id("tz")} className="mb-1.5 block type-label">
             Zona horaria del local
           </label>
           <select id={id("tz")} value={draft.timezone} onChange={(e) => set("timezone", e.target.value)} className={inputClass}>
@@ -183,7 +183,7 @@ export function SettingsForm() {
               </option>
             ))}
           </select>
-          <p className="mt-1.5 text-[13px] text-muted">Estado abierto/cerrado y calendario de reservas usan esta zona.</p>
+          <p className="mt-1.5 type-help">Estado abierto/cerrado y calendario de reservas usan esta zona.</p>
         </div>
 
         <div className="mt-5">
@@ -246,7 +246,7 @@ export function SettingsForm() {
       {(dirty || submitting) && (
         <div className="fixed inset-x-0 bottom-16 z-30 border-t border-line bg-background p-3 lg:bottom-0 lg:left-[248px]">
           <div className="mx-auto flex max-w-3xl items-center gap-3">
-            <span className="mr-auto text-[14px] text-muted" role="status">
+            <span className="mr-auto type-help" role="status">
               {submitting ? "Guardando…" : "Cambios sin guardar"}
             </span>
             <Button variant="quiet" disabled={submitting} onClick={discard}>
@@ -265,7 +265,7 @@ export function SettingsForm() {
 function Card({ title, className, children }: { title: string; className?: string; children: React.ReactNode }) {
   return (
     <section className={className}>
-      <h2 className="mb-4 border-b border-line pb-3 text-xl font-semibold">{title}</h2>
+      <h2 className="mb-4 border-b border-line pb-3 type-section">{title}</h2>
       {children}
     </section>
   );
@@ -290,7 +290,7 @@ function TextField({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 flex justify-between text-[14px] font-medium">
+      <label htmlFor={id} className="mb-1.5 flex justify-between type-label">
         {label}
         {optional && <span className="text-[13px] font-normal text-muted">Opcional</span>}
       </label>
@@ -311,7 +311,7 @@ function TextField({
 function ColorField({ id, label, value, onChange, error }: { id: string; label: string; value: string; onChange: (v: string) => void; error?: string }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-[14px] font-medium">
+      <label htmlFor={id} className="mb-1.5 block type-label">
         {label}
       </label>
       <div className="flex items-center gap-3">

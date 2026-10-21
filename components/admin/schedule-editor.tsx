@@ -50,7 +50,7 @@ export function ScheduleEditor({
     <div>
       <fieldset aria-describedby={errors.schedule ? id("schedule-error") : undefined}>
         <legend className="mb-1 text-[15px] font-medium">Horarios por día</legend>
-        <p className="mb-3 text-[14px] text-muted">
+        <p className="mb-3 type-help">
           Cada día puede tener turnos distintos. Si un turno cierra después de medianoche (ej. 20:00–00:30), esos horarios pertenecen
           al día en que abrió.
         </p>
@@ -73,7 +73,7 @@ export function ScheduleEditor({
                       setDay(day, open ? [] : [{ id: newShiftId(day), label: "Turno", open: "12:00", close: "16:00" }])
                     }
                     className={cn(
-                      "pressable h-10 rounded-full px-4 text-[14px] ring-1",
+                      "pressable h-11 rounded-full px-4 text-[14px] ring-1",
                       open ? "bg-brand font-medium text-brand-fg ring-brand" : "bg-surface text-muted ring-line-strong",
                     )}
                   >
@@ -83,7 +83,7 @@ export function ScheduleEditor({
                     <button
                       type="button"
                       onClick={() => copyToOpenDays(day)}
-                      className="pressable ml-auto inline-flex h-10 items-center gap-1.5 rounded-lg px-2.5 text-[14px] text-muted hover:bg-subtle hover:text-foreground"
+                      className="pressable ml-auto inline-flex h-11 items-center gap-1.5 rounded-lg px-2.5 type-help hover:bg-subtle hover:text-foreground"
                     >
                       Copiar a los días abiertos
                       <span className="sr-only"> (desde el {dayName})</span>
@@ -96,10 +96,10 @@ export function ScheduleEditor({
                     {shifts.map((s, i) => (
                       <li
                         key={s.id}
-                        className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-end gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
+                        className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-end gap-2 sm:grid-cols-[minmax(0,1fr)_8.5rem_8.5rem_2.75rem]"
                       >
                         <div className="col-span-3 sm:col-span-1">
-                          <label htmlFor={id(`d${day}-s${i}-label`)} className="mb-1 block text-[13px] text-muted">
+                          <label htmlFor={id(`d${day}-s${i}-label`)} className="mb-1 block type-help">
                             Nombre del turno
                           </label>
                           <input
@@ -138,7 +138,7 @@ export function ScheduleEditor({
                   <button
                     type="button"
                     onClick={() => setDay(day, [...shifts, { id: newShiftId(day), label: "Nuevo turno", open: "20:00", close: "23:30" }])}
-                    className="pressable mt-1 inline-flex h-10 items-center gap-1.5 rounded-lg px-2.5 text-[14px] font-medium hover:bg-subtle"
+                    className="pressable mt-1 inline-flex h-11 items-center gap-1.5 rounded-lg px-2.5 type-label hover:bg-subtle"
                   >
                     Agregar turno<span className="sr-only"> el {dayName}</span>
                   </button>
@@ -195,7 +195,7 @@ function ClosuresEditor({
   return (
     <fieldset className="mt-5" aria-describedby={error || localError ? id("error") : undefined}>
       <legend className="mb-1 text-[15px] font-medium">Cierres excepcionales</legend>
-      <p className="mb-3 text-[14px] text-muted">Feriados, vacaciones o eventos privados: ese día no se toman reservas.</p>
+      <p className="mb-3 type-help">Feriados, vacaciones o eventos privados: ese día no se toman reservas.</p>
       {upcoming.length > 0 && (
         <ul className="mb-2 space-y-1.5">
           {upcoming.map((c) => (
@@ -206,7 +206,7 @@ function ClosuresEditor({
                 type="button"
                 aria-label={`Quitar cierre del ${formatPlainDate(c.date, { weekday: "long", day: "numeric", month: "long" })}`}
                 onClick={() => onChange(closures.filter((x) => x.date !== c.date))}
-                className="pressable ml-auto grid size-10 shrink-0 place-items-center rounded-lg text-muted hover:bg-subtle hover:text-danger"
+                className="pressable ml-auto grid size-11 shrink-0 place-items-center rounded-lg text-muted hover:bg-subtle hover:text-danger"
               >
                 <Trash2 className="size-4" aria-hidden />
               </button>
@@ -216,13 +216,13 @@ function ClosuresEditor({
       )}
       <div className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-end">
         <div>
-          <label htmlFor={id("date")} className="mb-1 block text-[13px] text-muted">
+          <label htmlFor={id("date")} className="mb-1 block type-help">
             Fecha
           </label>
           <input id={id("date")} type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className={cn(inputClass, "h-11")} />
         </div>
         <div>
-          <label htmlFor={id("reason")} className="mb-1 block text-[13px] text-muted">
+          <label htmlFor={id("reason")} className="mb-1 block type-help">
             Motivo (opcional, lo ven los clientes)
           </label>
           <input
@@ -247,14 +247,14 @@ function TimeSelect({ id, label, value, onChange }: { id: string; label: string;
   const options = TIME_OPTIONS.includes(value) ? TIME_OPTIONS : [value, ...TIME_OPTIONS];
   return (
     <div className="min-w-0">
-      <label htmlFor={id} className="mb-1 block text-[13px] text-muted">
+      <label htmlFor={id} className="mb-1 block type-help">
         {label}
       </label>
       <select
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={cn(inputClass, "h-11 w-full min-w-0 px-3 tabular-nums sm:w-[6.5rem]")}
+        className={cn(inputClass, "h-11 w-full min-w-0 px-3 tabular-nums")}
       >
         {options.map((t) => (
           <option key={t} value={t}>

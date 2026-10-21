@@ -22,7 +22,7 @@ export function DemoBanner() {
       <div className="flex shrink-0 items-center gap-2 sm:ml-auto">
         {confirming ? (
           <>
-            <span className="text-[14px] font-medium">¿Borrar tus cambios?</span>
+            <span className="type-label">¿Borrar tus cambios?</span>
             <Button
               size="sm"
               onClick={() => {

@@ -2,6 +2,7 @@
 
 import { AlertTriangle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BRAND } from "@/lib/config/brand";
 import { describeSlot } from "@/lib/domain/schedule";
 import type { SubmittedSummary } from "./use-reservation-request";
 
@@ -25,7 +26,7 @@ export function SubmittedView({
         <Check className="size-6" aria-hidden />
       </span>
 
-      <h2 className="mt-4 text-2xl font-semibold">{live ? "Solicitud enviada" : "Solicitud simulada"}</h2>
+      <h2 className="mt-4 type-heading">{live ? "Solicitud enviada" : "Solicitud simulada"}</h2>
       <p className="mt-2 text-[15px] leading-relaxed text-muted">
         {live ? (
           <>
@@ -64,7 +65,7 @@ export function SubmittedView({
           <h3 className="text-[15px] font-semibold text-foreground">¿Cómo te enterás de la respuesta?</h3>
           <p className="mt-1.5">
             El local revisa las solicitudes por su cuenta y, si puede recibirte, se comunica con vos al teléfono que dejaste (llamada o WhatsApp).{" "}
-            <b className="font-semibold text-foreground">Sentate todavía no envía mensajes ni emails automáticos</b>, y no hay una pantalla para seguir el
+            <b className="font-semibold text-foreground">{BRAND.name} todavía no envía mensajes ni emails automáticos</b>, y no hay una pantalla para seguir el
             estado.
           </p>
           <p className="mt-1.5">
@@ -110,7 +111,7 @@ export function FailedView({
       <span className="mt-1 grid size-12 place-items-center rounded-full border border-danger/50 text-danger">
         <AlertTriangle className="size-6" aria-hidden />
       </span>
-      <h2 className="mt-4 text-2xl font-semibold">No pudimos enviar la solicitud</h2>
+      <h2 className="mt-4 type-heading">No pudimos enviar la solicitud</h2>
       <p className="mt-2 text-[15px] leading-relaxed text-muted">{message ?? "Algo salió mal."} Tus datos siguen cargados: podés reintentar.</p>
       <div className="mt-6 mb-2 flex gap-3">
         <Button variant="secondary" size="lg" onClick={onBack} className="flex-1">

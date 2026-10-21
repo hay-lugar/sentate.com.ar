@@ -112,6 +112,43 @@
   &:active { opacity: 0.7; }
 }
 
+/* Escala tipográfica: seis niveles. Las negritas quedan para los títulos; el resto es regular o medium. */
+@utility type-display {
+  font-size: 2.5rem;
+  line-height: 1.05;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  @media (min-width: 40rem) {
+    font-size: 3.75rem;
+  }
+}
+@utility type-title {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+@utility type-heading {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+}
+@utility type-section {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+}
+@utility type-label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+}
+@utility type-help {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--muted);
+}
+
 @utility pb-safe {
   padding-bottom: max(env(safe-area-inset-bottom), 1rem);
 }

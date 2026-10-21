@@ -18,7 +18,7 @@ export function SignupForm() {
       </AuthField>
       <FormMessage error={state.error} />
       <SubmitButton pendingLabel="Creando cuenta…">Crear cuenta</SubmitButton>
-      <p className="text-center text-[14px] text-muted">
+      <p className="text-center type-help">
         ¿Ya tenés cuenta?{" "}
         <Link href="/login" className="font-medium text-foreground underline underline-offset-4">
           Ingresá

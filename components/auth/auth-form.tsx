@@ -11,11 +11,11 @@ export { inputClass as authInputClass } from "@/components/menu/reservation/cont
 export function AuthField({ label, htmlFor, hint, children }: { label: string; htmlFor: string; hint?: string; children: ReactNode }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-1.5 block text-[14px] font-medium">
+      <label htmlFor={htmlFor} className="mb-1.5 block type-label">
         {label}
       </label>
       {children}
-      {hint && <p className="mt-1.5 text-[13px] text-muted">{hint}</p>}
+      {hint && <p className="mt-1.5 type-help">{hint}</p>}
     </div>
   );
 }

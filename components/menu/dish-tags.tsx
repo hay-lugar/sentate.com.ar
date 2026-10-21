@@ -15,7 +15,7 @@ export function DishTags({ tags, className }: { tags?: DishTag[]; className?: st
   return (
     <ul className={cn("flex flex-wrap gap-1.5", className)}>
       {tags.map((tag) => (
-        <li key={tag} className="rounded-md border border-line-strong px-1.5 py-0.5 text-[12px] leading-none text-muted">
+        <li key={tag} className="rounded-md border border-line-strong px-1.5 py-1 text-[13px] leading-none text-muted">
           {LABELS[tag]}
         </li>
       ))}

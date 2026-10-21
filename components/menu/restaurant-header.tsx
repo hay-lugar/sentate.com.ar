@@ -42,11 +42,11 @@ export function RestaurantHeader({
 
   return (
     <header>
-      <div className="relative h-48 overflow-hidden bg-subtle sm:h-56">
+      <div className="relative h-36 overflow-hidden bg-subtle sm:h-56">
         {tenant.coverImage && <Image src={tenant.coverImage} alt="" fill priority sizes="(max-width: 576px) 100vw, 576px" className="object-cover" />}
         <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-4 pt-[max(env(safe-area-inset-top),1rem)]">
           {demo ? (
-            <span className="rounded-md bg-black/70 px-2 py-1 text-[12px] font-medium text-white">
+            <span className="rounded-md bg-black/70 px-2 py-1 text-[13px] font-medium text-white">
               {localEdits ? "Demo · con tus cambios" : "Demo · local de ejemplo"}
             </span>
           ) : (
@@ -63,7 +63,7 @@ export function RestaurantHeader({
         </div>
       </div>
 
-      <div className="px-5 pt-5 pb-5">
+      <div className="px-5 pt-4 pb-4">
         <div className="flex items-start gap-4">
           <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className="size-16 rounded-xl text-xl ring-1 ring-line" />
           <div className="min-w-0">
@@ -72,14 +72,14 @@ export function RestaurantHeader({
           </div>
         </div>
 
-        <div className="mt-4 space-y-1.5">
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
           <OpenStatusPill state={status} />
-          <p className="text-[14px] text-muted">
+          <p className="type-help">
             {tenant.cuisine} · <span className="text-foreground">{tenant.priceRange}</span>
           </p>
         </div>
 
-        <ul className="mt-4 divide-y divide-line border-y border-line text-[15px]">
+        <ul className="mt-3 divide-y divide-line border-y border-line text-[15px]">
           <li>
             <a
               href={`https://maps.google.com/?q=${encodeURIComponent(tenant.address)}`}
@@ -99,9 +99,9 @@ export function RestaurantHeader({
             </a>
           </li>
           {weekLines.length > 0 && (
-            <li className="flex items-start gap-3 py-3">
+            <li className="flex items-start gap-3 py-2.5">
               <Clock3 className="mt-0.5 size-[18px] shrink-0 text-muted" aria-hidden />
-              <div className="text-[14px] text-muted">
+              <div className="type-help">
                 <span className="sr-only">Horarios: </span>
                 <ul aria-label="Horarios" className="space-y-0.5">
                   {weekLines.map((line) => (
@@ -132,7 +132,7 @@ export function CompactBar({ tenant, status, visible }: { tenant: PublicTenant; 
           <div className="flex h-14 items-center gap-3 px-5">
             <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className="size-8 rounded-lg text-[13px]" />
             <span className="truncate text-[16px] font-semibold">{tenant.name}</span>
-            <span className="ml-auto inline-flex shrink-0 items-center gap-1.5 text-[13px] text-muted">
+            <span className="ml-auto inline-flex shrink-0 items-center gap-1.5 type-help">
               <StatusDot open={status.open} />
               {status.open ? "Abierto" : "Cerrado"}
             </span>

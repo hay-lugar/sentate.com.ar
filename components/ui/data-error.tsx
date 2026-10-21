@@ -20,7 +20,7 @@ export function DataError({ error, reset, title = "No pudimos cargar esto" }: { 
   return (
     <main className="grid min-h-[60dvh] place-items-center px-6 py-16">
       <div role="alert" className="max-w-sm text-center">
-        <h1 className="text-2xl font-semibold">{title}</h1>
+        <h1 className="type-heading">{title}</h1>
         <p className="mt-2 text-[15px] text-muted">
           Puede ser un problema de conexión o una falla temporal. Tus datos no se perdieron.
         </p>
@@ -36,7 +36,7 @@ export function DataError({ error, reset, title = "No pudimos cargar esto" }: { 
         >
           {pending ? "Reintentando…" : "Reintentar"}
         </Button>
-        {error.digest && <p className="mt-4 text-[13px] text-muted">Código: {error.digest}</p>}
+        {error.digest && <p className="mt-4 type-help">Código: {error.digest}</p>}
       </div>
     </main>
   );

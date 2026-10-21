@@ -46,7 +46,7 @@ test("el perfil se guarda y se valida", async ({ page }) => {
   await page.getByLabel("Teléfono").fill("abc");
   await page.getByRole("button", { name: "Guardar" }).click();
   await expect(page.getByRole("alert").filter({ hasText: "teléfono válido" })).toBeVisible();
-  await page.getByLabel("Teléfono").fill("+54 11 4000-1234");
+  await page.getByLabel("Teléfono").fill("+54 11 0000-1234");
   await page.getByRole("button", { name: "Guardar" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Guardado." })).toBeVisible();
   await page.reload();

@@ -1,6 +1,6 @@
 -- Etapa D: reservas vinculadas a la sesión, historial, cancelación, favoritos, perfil y baja de cuenta.
 begin;
-select plan(38);
+select plan(39);
 
 select tests.seed_two_tenants();
 select tests.create_user('diner1@test.local');
@@ -37,8 +37,7 @@ select is((public.my_reservations() -> 'items' -> 0 ->> 'display_status'), 'pend
 select is((public.my_reservations() -> 'items' -> 0 -> 'tenant' ->> 'name'), 'Bodegón A', 'incluye el comercio');
 select is((public.my_reservations() -> 'items' -> 0 ->> 'can_cancel')::boolean, true, 'una pendiente futura se puede retirar');
 select is((select count(*)::int from public.reservations), 0, 'el rol comensal no lee la tabla de reservas');
-select is((with u as (update public.reservations set status = 'confirmed' returning 1) select count(*)::int from u), 0,
-  'un comensal no confirma reservas (RLS no le deja filas)');
+select lives_ok($$ update public.reservations set status = 'confirmed' $$, 'un comensal que intenta confirmar reservas no ve filas que tocar');
 
 select tests.authenticate_as('diner2@test.local');
 select is((public.my_reservations() ->> 'total')::int, 0, 'otro comensal no ve historial ajeno');
@@ -52,6 +51,8 @@ select throws_ok($$ select public.my_reservations() $$, '42501', null, 'anon no 
 
 -- ── Cancelación y reglas del comercio ──
 select tests.as_postgres();
+select is((select status::text from public.reservations where id = (select (res ->> 'reservation_id')::uuid from mine)), 'pending',
+  'el intento del comensal no cambió el estado');
 insert into public.reservations (tenant_id, starts_at, service_date, guests, customer_name, customer_phone, status, user_id) values
   ((select tenant_a from ctx), now() + interval '1 hour', (now() + interval '1 hour')::date, 2, 'Cerca Uno', '+54 11 0000-5003', 'confirmed', tests.uid('diner1@test.local')),
   ((select tenant_a from ctx), now() + interval '5 days', (now() + interval '5 days')::date, 2, 'Lejos Uno', '+54 11 0000-5004', 'confirmed', tests.uid('diner1@test.local')),

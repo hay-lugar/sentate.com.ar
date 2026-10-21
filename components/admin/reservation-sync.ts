@@ -8,15 +8,11 @@
  *   anterior con `snapshot`/`restore`: no puede dar por aplicado algo que la pantalla nunca recibió.
  */
 
+import { isNewer } from "@/lib/time/versions";
+
 export type Versioned = { id: string; updated_at: string };
 
-/** Compara marcas de tiempo ISO por instante (no por texto: la precisión fraccionaria varía). */
-export function isNewer(a: string, b: string): boolean {
-  const ta = Date.parse(a);
-  const tb = Date.parse(b);
-  if (Number.isNaN(ta) || Number.isNaN(tb)) return a > b;
-  return ta > tb;
-}
+export { isNewer };
 
 export class ReservationSyncStore<T extends Versioned> {
   private latest = new Map<string, T>();

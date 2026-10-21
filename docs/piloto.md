@@ -5,20 +5,20 @@ Fase 4, punto 7. Esta guía deja listo el piloto en `sentate.com.ar` **sin tocar
 ## Estado verificado (al escribir esto)
 
 - Rama predeterminada del repositorio: `main` (verificado por la API de GitHub).
-- Existe un proyecto de Vercel, pero **conectado a otro repositorio** y sin el código de Sentate desplegado (ver «Estado de Vercel»).
+- Hay un deploy de producción en https://sentate.vercel.app (ver «Estado de Vercel»).
 - Las migraciones `20261022000100` (Storage) y `20261022000200` (cupo por IP) **no están aplicadas** en el proyecto Supabase remoto.
 - Nada de esto se probó en un dominio real: lo verificado es build, pruebas locales y CI.
 
-## Estado de Vercel (verificado por la API)
+## Estado de Vercel (verificado por la API y desde afuera)
 
-- Proyecto `sentate.com.ar` (`prj_e0yII8gU89qvdYZu6CaVJ6o5pXM1`, equipo `geronimo-mendezs-projects`), framework Next.js, dominios `sentatecomar.vercel.app` (producción) y `…-git-main-…vercel.app`.
-- **Está conectado a `geromendez199/sentate.com.ar`, no a `hay-lugar/sentate.com.ar`.** El único deploy (`8a4cb60`, «Initial commit · Created from vercel.com/new») es de ese repo, **no es el código de Sentate**. Hasta reconectar, los pushes a `main` de `hay-lugar` no despliegan nada.
-- **Acción del titular (dashboard de Vercel):** *Settings → Git → Disconnect* y conectar `hay-lugar/sentate.com.ar` (hay que instalar la app de GitHub de Vercel con acceso a esa organización). **Posible traba:** el plan Hobby puede no permitir repositorios de una organización; si Vercel lo rechaza, las salidas son transferir el repo a tu cuenta personal o pasar a un plan de pago (decisión y costo tuyos; no se activó nada).
-- **Variables de producción cargadas por la API** (solo valores públicos): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `APP_URL=https://sentatecomar.vercel.app`, `RATE_LIMIT_IP_HEADER=x-real-ip`. Preview no tiene variables de Supabase (queda en demo).
-- **Falta `RATE_LIMIT_SECRET`** (a propósito: no genero secretos en el chat). Generalo con `openssl rand -hex 32` y cargalo en Vercel → Settings → Environment Variables → Production, tipo *Sensitive*. Sin él el formulario de reservas falla cerrado.
-- **Deployment Protection:** el proyecto tiene *Vercel Authentication* en «todo excepto dominios personalizados», así que `sentatecomar.vercel.app` pide iniciar sesión en Vercel. Para probar como público hay que bajarla a «solo previews» (Settings → Deployment Protection). No lo cambié.
-- Node: el proyecto figura en 24.x; el repo fija `22.x` en `engines`, que prevalece en el siguiente build.
-- **Plan Hobby:** es gratuito pero de uso **no comercial**. Cobrar $14.999 ARS por mes es uso comercial: antes de cobrar hay que pasar a un plan de pago.
+- Cuenta/equipo `Sentate` (`sentate1`), proyecto `sentate` (`prj_1LGnKKJjBFsxorw1iuUajy6yfD9W`), framework Next.js, conectado a `hay-lugar/sentate.com.ar`, rama de producción `main`.
+- **URL de producción: https://sentate.vercel.app** (alias sin protección de login). Los alias `sentate-sentate1.vercel.app` y `…-git-main-…` sí piden iniciar sesión en Vercel (*Vercel Authentication*).
+- Deploy de producción en READY: `dpl_Gh1CXq5pjMUSQ2QYCQs4Sf4WErVY`, SHA `c22b381` (el `main` de ese momento).
+- **Variables de producción** (cargadas por la API): `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (del proyecto Supabase del piloto), `APP_URL=https://sentate.vercel.app`, `RATE_LIMIT_IP_HEADER=x-real-ip`, `RATE_LIMIT_SECRET` (*Sensitive*). Preview no tiene variables propias de Sentate.
+- **Probado desde afuera sobre ese deploy** (sin sesión): landing con «$14.999 ARS por mes»; `/login`, `/registro`, `/recuperar` y las demos responden 200; `/admin/…` redirige a `/login` con `Cache-Control: private, no-store`; cabeceras de seguridad y `robots.txt` presentes; `/prueba-bodegon` da 404 (el remoto no tiene datos de prueba, correcto).
+- **Revisar:** la integración de Supabase de Vercel agregó variables que la app **no usa** y que son privilegiadas (`SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_SECRET_KEY`, `SUPABASE_JWT_SECRET`, `POSTGRES_*`). Conviene borrarlas desde Settings → Environment Variables (o desconectar la integración): el código no las lee, pero `npm run preflight` las marca y un día podrían filtrarse. No las borré.
+- **Plan Hobby:** gratuito pero de uso **no comercial**. Cobrar $14.999 ARS por mes es uso comercial: antes de cobrar hay que pasar a un plan de pago.
+- Node: el proyecto figura en 24.x; el repo fija `22.x` en `engines`, que prevalece en el próximo build.
 
 ## 1. Separación de entornos
 

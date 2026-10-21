@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
-import { expect, test } from "./fixtures";
+import { expect, newContextWithIp, test } from "./fixtures";
 
 // Cuenta del comensal contra Supabase LOCAL. «sin.local@example.test» es un usuario sin comercio (comensal puro);
 // «owner.esquina@example.test» opera La Esquina (una persona puede ser comensal y dueña con la misma identidad).
@@ -24,7 +24,7 @@ async function requestTable(page: Page, slug: string, name: string) {
   await dialog.getByRole("group", { name: "Elegí el día" }).locator("button:not([disabled])").nth(3).click();
   await dialog.getByRole("group", { name: "Elegí el horario" }).locator("button:not([disabled])").first().click();
   await dialog.getByRole("button", { name: "Continuar" }).click();
-  await dialog.getByLabel("Nombre").fill(name);
+  await dialog.getByLabel("Nombre", { exact: true }).fill(name);
   await dialog.getByLabel("Teléfono").fill(phone());
   await dialog.getByRole("button", { name: "Enviar solicitud", exact: true }).click();
   await expect(dialog.getByRole("heading", { name: "Solicitud enviada" })).toBeVisible();
@@ -32,7 +32,7 @@ async function requestTable(page: Page, slug: string, name: string) {
 
 test("sin sesión, /cuenta lleva al ingreso y vuelve", async ({ page }) => {
   await page.goto("/cuenta/reservas");
-  await expect(page).toHaveURL(/\/login\?next=%2Fcuenta/);
+  await expect(page).toHaveURL(/\/login\?next=(%2F|\/)cuenta/);
 });
 
 test("un proveedor no habilitado en Supabase no aparece como botón", async ({ page }) => {
@@ -42,7 +42,7 @@ test("un proveedor no habilitado en Supabase no aparece como botón", async ({ p
 
 test("el perfil se guarda y se valida", async ({ page }) => {
   await login(page, "sin.local@example.test");
-  await page.getByLabel("Nombre").fill("Comensal de Prueba");
+  await page.getByLabel("Nombre", { exact: true }).fill("Comensal de Prueba");
   await page.getByLabel("Teléfono").fill("abc");
   await page.getByRole("button", { name: "Guardar" }).click();
   await expect(page.getByRole("alert").filter({ hasText: "teléfono válido" })).toBeVisible();
@@ -50,16 +50,16 @@ test("el perfil se guarda y se valida", async ({ page }) => {
   await page.getByRole("button", { name: "Guardar" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Guardado." })).toBeVisible();
   await page.reload();
-  await expect(page.getByLabel("Nombre")).toHaveValue("Comensal de Prueba");
+  await expect(page.getByLabel("Nombre", { exact: true })).toHaveValue("Comensal de Prueba");
 });
 
 test("una reserva con sesión aparece en el historial y se puede retirar; la de invitado no", async ({ browser, baseURL }) => {
-  const guestCtx = await browser.newContext({ baseURL });
+  const guestCtx = await newContextWithIp(browser, baseURL!, "203.0.113.41");
   const guest = await guestCtx.newPage();
   await requestTable(guest, "prueba-esquina", `Invitado ${Date.now()}`);
   await guestCtx.close();
 
-  const ctx = await browser.newContext({ baseURL });
+  const ctx = await newContextWithIp(browser, baseURL!, "203.0.113.42");
   const page = await ctx.newPage();
   await login(page, "sin.local@example.test");
   const name = `Comensal ${Date.now()}`;
@@ -80,7 +80,7 @@ test("una reserva con sesión aparece en el historial y se puede retirar; la de 
 });
 
 test("nadie ve el detalle de una reserva ajena", async ({ browser, baseURL }) => {
-  const a = await browser.newContext({ baseURL });
+  const a = await newContextWithIp(browser, baseURL!, "203.0.113.43");
   const pa = await a.newPage();
   await login(pa, "sin.local@example.test");
   await requestTable(pa, "prueba-esquina", `Privada ${Date.now()}`);
@@ -101,7 +101,9 @@ test("favoritos: se guardan desde el explorador, son privados y se quitan", asyn
   const ctx = await browser.newContext({ baseURL });
   const page = await ctx.newPage();
   await login(page, "sin.local@example.test", "/explorar");
+  const saved = page.waitForResponse((r) => r.request().method() === "POST" && r.url().includes("/explorar"));
   await page.getByRole("button", { name: "Guardar La Esquina en favoritos" }).click();
+  await saved;
   await expect(page.getByRole("button", { name: "Quitar La Esquina de favoritos" })).toBeVisible();
 
   await page.goto("/cuenta/favoritos");

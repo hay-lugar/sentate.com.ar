@@ -18,7 +18,7 @@ async function bulk(page: Page, amount: string) {
   await page.getByLabel("Tipo").selectOption("amount");
   await page.getByLabel(/Monto en \$/).fill(amount);
   await page.getByRole("checkbox", { name: /^Entradas$/ }).check();
-  await expect(page.getByRole("listitem").filter({ hasText: "Provoleta a la parrilla" })).toContainText("→");
+  await expect(page.getByRole("region", { name: /Vista previa/ }).getByRole("listitem").filter({ hasText: "Provoleta a la parrilla" })).toContainText("→");
   await page.getByRole("button", { name: /Revisar y aplicar/ }).click();
   await page.getByRole("button", { name: "Confirmar", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: /Se actualizaron/ })).toBeVisible();

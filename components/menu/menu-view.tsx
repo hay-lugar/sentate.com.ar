@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { PublicDish, PublicTenant } from "@/lib/domain/types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { DIETARY_DISCLAIMER, DIETARY_TAGS, TAG_LABELS, type DishTag, type PublicDish, type PublicTenant } from "@/lib/domain/types";
 import { getOpenState } from "@/lib/domain/schedule";
 import { useZonedNow } from "@/lib/hooks/use-zoned-now";
 import type { ZonedNow } from "@/lib/time/zoned";
@@ -31,7 +31,18 @@ export function MenuView({
 }) {
   const now = useZonedNow(tenant.timezone, initialNow);
   const status = getOpenState(tenant.schedule, now);
-  const categories = tenant.categories;
+  // Filtro dietario (etiquetas que declara el local por plato). Solo aparece si la carta tiene alguna.
+  const [diet, setDiet] = useState<DishTag[]>([]);
+  const available = useMemo(() => DIETARY_TAGS.filter((t) => tenant.categories.some((c) => c.dishes.some((d) => d.tags?.includes(t)))), [tenant.categories]);
+  const categories = useMemo(
+    () =>
+      diet.length
+        ? tenant.categories
+            .map((c) => ({ ...c, dishes: c.dishes.filter((d) => diet.every((t) => d.tags?.includes(t))) }))
+            .filter((c) => c.dishes.length)
+        : tenant.categories,
+    [tenant.categories, diet],
+  );
 
   const [activeId, setActiveId] = useState(categories[0]?.id ?? "");
   const [compact, setCompact] = useState(false);
@@ -109,6 +120,27 @@ export function MenuView({
 
       {categories.length > 0 ? (
         <>
+          {available.length > 0 && (
+            <div className="px-4 pt-4">
+              <div role="group" aria-label="Filtrar por dieta" className="flex flex-wrap gap-2">
+                {available.map((t) => {
+                  const on = diet.includes(t);
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() => setDiet((d) => (on ? d.filter((x) => x !== t) : [...d, t]))}
+                      className={`pressable min-h-11 rounded-full border px-4 text-[15px] ${on ? "border-foreground bg-foreground text-background" : "border-line-strong hover:bg-subtle"}`}
+                    >
+                      {TAG_LABELS[t]}
+                    </button>
+                  );
+                })}
+              </div>
+              {diet.length > 0 && <p className="mt-2 type-help">{DIETARY_DISCLAIMER}</p>}
+            </div>
+          )}
           <div ref={tabsAnchor} />
           <CategoryTabs
             tabs={categories.map((c) => ({ id: c.id, name: c.name, count: c.dishes.length }))}
@@ -132,6 +164,15 @@ export function MenuView({
             ))}
           </main>
         </>
+      ) : diet.length > 0 ? (
+        <main className="px-4 pt-6">
+          <div role="status" className="rounded-xl border border-line px-6 py-10 text-center">
+            <h2 className="type-section">Ningún plato coincide</h2>
+            <button type="button" onClick={() => setDiet([])} className="pressable mt-3 min-h-11 rounded-full border border-line-strong px-4 text-[15px]">
+              Quitar filtros
+            </button>
+          </div>
+        </main>
       ) : (
         <main className="px-4 pt-6">
           <div className="rounded-xl border border-line px-6 py-10 text-center">

@@ -1,15 +1,16 @@
 "use client";
 
-import { Ban, Check, CheckCheck, Clock3, MessageCircle, Phone, Radio, WifiOff, X } from "lucide-react";
+import { Ban, Check, CheckCheck, Clock3, MessageCircle, Phone, Radio, Volume2, VolumeX, WifiOff, X } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Reservation, ReservationStatus } from "@/lib/domain/types";
 import { Button, buttonClass } from "@/components/ui/button";
 import { BRAND } from "@/lib/config/brand";
 import { cn, timeAgo } from "@/lib/format";
+import { playNewRequestSound, setSoundEnabled, soundEnabled } from "@/lib/admin/notify-sound";
 import { useZonedNow } from "@/lib/hooks/use-zoned-now";
 import { contactMessage, telLink, whatsappLink, whatsappTarget } from "@/lib/reservation/contact";
-import { zonedNow } from "@/lib/time/zoned";
+import { absoluteMinutes, zonedNow } from "@/lib/time/zoned";
 import { useDemo } from "./demo-provider";
 import { resolveReservationTime } from "./reservation-time";
 
@@ -69,6 +70,7 @@ export function ReservationsList({
             {mode === "demo" ? "Ejemplos ficticios. Una solicitud pendiente todavía no es una reserva confirmada." : "Una solicitud pendiente todavía no es una reserva confirmada."}
           </p>
           {realtime && <LiveIndicator status={realtime} />}
+          {mode === "live" && <SoundToggle />}
         </div>
       </div>
       {mode === "live" && (
@@ -100,7 +102,7 @@ export function ReservationsList({
         <ul className="mt-4 divide-y divide-line rounded-xl border border-line">
           {list.map(({ r, t }) => (
             <li key={r.id}>
-              <ReservationRow r={r} when={t} onAction={setStatus} contact={mode === "live" ? { tenantName: state.profile.name } : undefined} />
+              <ReservationRow r={r} tz={tz} when={t} onAction={setStatus} contact={mode === "live" ? { tenantName: state.profile.name } : undefined} />
             </li>
           ))}
         </ul>
@@ -125,14 +127,19 @@ function ReservationRow({
   when,
   onAction,
   contact,
+  tz,
 }: {
   r: Reservation;
+  tz: string;
   when: ReturnType<typeof resolveReservationTime>;
   onAction: (id: string, s: ReservationStatus) => void;
   /** Solo en modo real: la demo tiene teléfonos ficticios que podrían ser de alguien. */
   contact?: { tenantName: string };
 }) {
   const isNew = r.status === "pending" && r.receivedMinutesAgo <= 15;
+  const nowZ = useZonedNow(tz, zonedNow(tz));
+  // Se puede finalizar una reserva confirmada desde la hora en que empieza.
+  const started = when.sortKey <= absoluteMinutes(nowZ.date, nowZ.minutes);
 
   return (
     <div className="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] lg:items-start lg:gap-6">
@@ -169,11 +176,48 @@ function ReservationRow({
               Confirmar<span className="sr-only"> reserva de {r.name}</span>
             </Button>
           </>
+        ) : r.status === "confirmed" ? (
+          <>
+            <StatusBadge status={r.status} />
+            <Button variant="secondary" onClick={() => onAction(r.id, "cancelled")} className="lg:flex-none">
+              Cancelar<span className="sr-only"> reserva de {r.name}</span>
+            </Button>
+            {started && (
+              <Button onClick={() => onAction(r.id, "finished")} className="lg:flex-none">
+                Finalizar<span className="sr-only"> reserva de {r.name}</span>
+              </Button>
+            )}
+          </>
         ) : (
           <StatusBadge status={r.status} />
         )}
       </div>
     </div>
+  );
+}
+
+/** Aviso sonoro opcional de solicitudes nuevas (apagado por defecto; se activa con un gesto de la persona). */
+function SoundToggle() {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- preferencia local leída tras hidratar
+    setOn(soundEnabled());
+  }, []);
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      onClick={() => {
+        const next = !on;
+        setOn(next);
+        setSoundEnabled(next);
+        if (next) playNewRequestSound();
+      }}
+      className="pressable mt-1 ml-3 inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-[14px] text-muted hover:text-foreground"
+    >
+      {on ? <Volume2 className="size-4" aria-hidden /> : <VolumeX className="size-4" aria-hidden />}
+      Sonido de solicitudes: {on ? "activado" : "desactivado"}
+    </button>
   );
 }
 

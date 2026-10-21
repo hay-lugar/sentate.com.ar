@@ -1,13 +1,7 @@
-import type { DishTag } from "@/lib/domain/types";
+import { TAG_LABELS, type DishTag } from "@/lib/domain/types";
 import { cn } from "@/lib/format";
 
-const LABELS: Record<DishTag, string> = {
-  popular: "Popular",
-  nuevo: "Nuevo",
-  veggie: "Veggie",
-  picante: "Picante",
-  "sin-tacc": "Sin TACC",
-};
+const LABELS = TAG_LABELS;
 
 /** Etiquetas discretas: texto con borde fino, sin colores ni iconos. */
 export function DishTags({ tags, className }: { tags?: DishTag[]; className?: string }) {

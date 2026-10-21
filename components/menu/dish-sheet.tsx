@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { PublicDish } from "@/lib/domain/types";
+import { DIETARY_DISCLAIMER, DIETARY_TAGS, type PublicDish } from "@/lib/domain/types";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
@@ -24,6 +24,7 @@ export function DishSheet({ dish, onClose, onReserve }: { dish: PublicDish | nul
           )}
           <h2 className="mt-5 text-2xl leading-tight font-semibold [overflow-wrap:anywhere]">{shown.name}</h2>
           {shown.description && <p className="mt-2 text-[15px] leading-relaxed [overflow-wrap:anywhere] text-muted">{shown.description}</p>}
+          {shown.tags?.some((t) => DIETARY_TAGS.includes(t)) && <p className="mt-3 type-help">{DIETARY_DISCLAIMER}</p>}
 
           <div className="mt-6 flex items-center gap-4 border-t border-line pt-5">
             <p className="type-heading tabular-nums">{formatPrice(shown.price)}</p>

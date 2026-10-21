@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
-import { PLAN, planPriceLabel, trialLongLabel } from "@/lib/config/plan";
+import { PLAN, planPriceFullLabel, planPriceLabel, trialLongLabel } from "@/lib/config/plan";
 import { Reveal } from "@/components/ui/reveal";
 
 const INCLUDES = [
@@ -23,7 +23,7 @@ export function Pricing() {
             <span className="text-muted">Sin letra chica.</span>
           </h2>
           <p className="mt-5 max-w-md text-lg text-muted">
-            Empezás con {trialLongLabel}. Si te sirve, seguís por {planPriceLabel} por mes. Si no, no pagás nada.
+            Empezás con {trialLongLabel}. Si te sirve, seguís por {planPriceFullLabel}. Si no, no pagás nada.
           </p>
         </Reveal>
 

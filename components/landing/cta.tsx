@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
-import { PLAN, planPriceLabel, trialLongLabel } from "@/lib/config/plan";
+import { PLAN, planPriceFullLabel, trialLongLabel } from "@/lib/config/plan";
 
 /**
  * CTA final: lleva al alta real (/registro) y, para quien ya tiene cuenta, a /login.
@@ -9,7 +9,7 @@ import { PLAN, planPriceLabel, trialLongLabel } from "@/lib/config/plan";
 export function FinalCta() {
   const perks = [
     ...(PLAN.trialRequiresCard ? [] : ["Sin tarjeta para la prueba"]),
-    `${planPriceLabel} por mes, precio fijo`,
+    `${planPriceFullLabel}, precio fijo`,
     "Cancelás cuando quieras",
   ];
 
@@ -30,7 +30,7 @@ export function FinalCta() {
               <span className="text-brand">Tu fila, vacía.</span>
             </h2>
             <p className="mt-5 max-w-md text-lg text-white/80">
-              {trialLongLabel[0].toUpperCase() + trialLongLabel.slice(1)}. Después, {planPriceLabel} por mes y sin comisión por reserva.
+              {trialLongLabel[0].toUpperCase() + trialLongLabel.slice(1)}. Después, {planPriceFullLabel} y sin comisión por reserva.
             </p>
           </div>
 

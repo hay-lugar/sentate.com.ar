@@ -4,7 +4,7 @@ import { Reveal } from "@/components/ui/reveal";
 // Solo atributos del producto y del plan: nada de métricas sin evidencia.
 const ITEMS = [
   { value: `${PLAN.trialDays} días`, label: "de prueba gratis, sin tarjeta" },
-  { value: planPriceLabel, label: "por mes, precio único" },
+  { value: planPriceLabel, label: `${PLAN.currency} por mes, precio único` },
   { value: "0%", label: "de comisión por reserva" },
   { value: "1 link", label: "para menú y reservas" },
 ];

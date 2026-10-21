@@ -10,7 +10,7 @@ Hay **tres modos** que no se mezclan:
 | **Desarrollo / pruebas** | Supabase **local** (Docker) con `supabase/seed.sql` | Ficticios (`@example.test`, teléfonos `11 0000-NNNN`) | Local |
 | **Piloto** | Comercios reales en `sentate.com.ar` | Reales | Proyecto Supabase remoto |
 
-Prueba: **30 días sin tarjeta**, **$5.500 ARS por mes** (`lib/config/plan.ts`). Sin pagos online, sin WhatsApp ni email automáticos al comensal: una solicitud de mesa queda **pendiente** hasta que el local la acepta o rechaza a mano.
+Prueba: **30 días sin tarjeta**, **$14.999 ARS por mes** (`lib/config/plan.ts`). Sin pagos online, sin WhatsApp ni email automáticos al comensal: una solicitud de mesa queda **pendiente** hasta que el local la acepta o rechaza a mano.
 
 ## Requisitos
 

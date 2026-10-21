@@ -11,7 +11,7 @@ grant select on ctx to anon, authenticated;
 create or replace function tests.req(p_guests int, p_time time, p_n int) returns text language plpgsql set search_path = '' as $$
 begin
   return (public.request_reservation((select a from pg_temp.ctx), (select d from pg_temp.ctx), p_time, p_guests,
-    'Comensal ' || p_n, '+54 11 0000-' || lpad(p_n::text, 4, '0'), '', gen_random_uuid()) ->> 'reservation_id');
+    'Comensal ' || p_n, '+5411000' || lpad(p_n::text, 5, '0'), '', gen_random_uuid()) ->> 'reservation_id');
 exception when others then
   return 'ERR:' || sqlerrm;
 end $$;

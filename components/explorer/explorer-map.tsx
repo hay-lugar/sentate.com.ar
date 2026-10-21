@@ -138,7 +138,7 @@ export default function ExplorerMap({ markers, selectedId, onSelect, onViewChang
       fitted.current = true;
       const lngs = items.map((i) => i.lng);
       const lats = items.map((i) => i.lat);
-      map.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], { padding: 48, maxZoom: 15, duration: 0 });
+      map.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], { padding: { top: 56, left: 56, right: 56, bottom: 110 }, maxZoom: 15, duration: 0 });
     };
 
     return () => {

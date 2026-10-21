@@ -14,9 +14,10 @@ export type ResultItem = {
   neighborhood: string;
   open_now: boolean;
   distance_m: number | null;
+  featured?: boolean;
 };
 
-export type SearchResponse = { total: number; items: ResultItem[] };
+export type SearchResponse = { total: number; items: ResultItem[]; featured_items?: ResultItem[] };
 
 export type FacetData = {
   total: number;

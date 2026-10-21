@@ -60,8 +60,9 @@ export async function POST(request: Request) {
     console.error("[sentate] explorar", error.code, redact(error.message));
     return NextResponse.json({ error: "unavailable" }, { status: 503 });
   }
-  const result = data as { total: number; items: Item[] };
-  const signed = await signImagePaths(supabase, result.items.flatMap((i) => [i.cover_url, i.logo_url]));
-  const items = result.items.map((i) => ({ ...i, cover_url: resolveImageRef(signed, i.cover_url), logo_url: resolveImageRef(signed, i.logo_url) }));
-  return NextResponse.json({ total: result.total, items }, { headers: { "Cache-Control": "no-store" } });
+  const result = data as { total: number; items: Item[]; featured_items?: Item[] };
+  const featured = result.featured_items ?? [];
+  const signed = await signImagePaths(supabase, [...result.items, ...featured].flatMap((i) => [i.cover_url, i.logo_url]));
+  const sign = (i: Item) => ({ ...i, cover_url: resolveImageRef(signed, i.cover_url), logo_url: resolveImageRef(signed, i.logo_url) });
+  return NextResponse.json({ total: result.total, items: result.items.map(sign), featured_items: featured.map(sign) }, { headers: { "Cache-Control": "no-store" } });
 }

@@ -8,6 +8,7 @@
 --   owner.borrador@example.test → Casa Borrador (SIN publicar, prueba vigente): para probar avisos de carta no publicada
 --   sin.local@example.test      → usuario sin comercio
 --   recuperacion@example.test   → usuario sin comercio; lo usa la prueba de recuperación de contraseña
+--   superadmin@example.test     → SUPERADMINISTRADOR de desarrollo (fila en private.platform_admins, solo en este seed)
 
 do $$
 declare
@@ -17,7 +18,8 @@ declare
     {"email": "owner.sakura@example.test"},
     {"email": "owner.borrador@example.test"},
     {"email": "sin.local@example.test"},
-    {"email": "recuperacion@example.test"}
+    {"email": "recuperacion@example.test"},
+    {"email": "superadmin@example.test"}
   ]';
   u jsonb;
   v_id uuid;
@@ -138,4 +140,10 @@ insert into public.tenant_locations (tenant_id, lat, lng, province_code, localit
   ('22222222-2222-4222-8222-222222222222', -34.5880, -58.4300, 'caba', 'Palermo', 'palermo', 'Palermo', now()),
   ('33333333-3333-4333-8333-333333333333', -34.5810, -58.4380, 'caba', 'Palermo', 'palermo', 'Palermo Hollywood', now());
 update public.tenant_moderation set status = 'approved', reviewed_at = now()
-where tenant_id in ('11111111-1111-4111-8111-111111111111', '22222222-2222-4222-8222-222222222222', '33333333-3333-4333-8333-333333333333');
+where tenant_id in ('11111111-1111-4111-8111-111111111111', '22222222-2222-4222-8222-222222222222');
+-- Sakura queda EN REVISIÓN: es el comercio que aprueba la prueba E2E del superadmin.
+update public.tenant_moderation set status = 'pending_review', submitted_at = now() - interval '2 hours'
+where tenant_id = '33333333-3333-4333-8333-333333333333';
+
+-- Superadministrador de desarrollo. En producción el alta es manual y documentada (docs/superadmin.md).
+insert into private.platform_admins (user_id) select id from auth.users where email = 'superadmin@example.test';

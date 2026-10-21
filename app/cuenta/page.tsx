@@ -7,10 +7,11 @@ import { getMyTenantSlugs, supabaseServer } from "@/lib/data/live/queries";
 
 export default async function CuentaPage() {
   const supabase = await supabaseServer();
-  const [{ data: userData }, { data: profile }, tenants] = await Promise.all([
+  const [{ data: userData }, { data: profile }, tenants, adminRes] = await Promise.all([
     supabase.auth.getUser(),
     supabase.from("diner_profiles").select("display_name, phone").maybeSingle(),
     getMyTenantSlugs(),
+    supabase.rpc("am_i_platform_admin"),
   ]);
   const user = userData.user;
   const providers = (user?.identities ?? []).map((i) => i.provider);
@@ -55,6 +56,15 @@ export default async function CuentaPage() {
           <p className="mb-3 type-help">Iniciar sesión como comensal no da acceso a ningún local: tus permisos son los del local que administrás.</p>
           <Link href="/admin" className={buttonClass({ variant: "secondary" })}>
             Ir al panel
+          </Link>
+        </section>
+      )}
+
+      {adminRes.data === true && (
+        <section aria-labelledby="sa">
+          <h2 id="sa" className="mb-3 type-section">Plataforma</h2>
+          <Link href="/superadmin" className={buttonClass({ variant: "secondary" })}>
+            Ir al módulo de superadministración
           </Link>
         </section>
       )}

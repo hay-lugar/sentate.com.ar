@@ -78,3 +78,50 @@ export async function requestReservationAction(input: ReservationRequestInput | 
   const res = data as { reservation_id: string; service_date: string; starts_at: string; replayed: boolean };
   return { ok: true, reservationId: res.reservation_id, serviceDate: res.service_date, startsAt: res.starts_at, replayed: res.replayed };
 }
+
+export type LiveSlot = {
+  time: string;
+  starts_at: string | null;
+  shift_label: string;
+  after_midnight: boolean;
+  available: boolean;
+  reason: string | null;
+};
+export type LiveAvailability = { closed_reason: string | null; slots: LiveSlot[] };
+export type LiveReservationConfig = { accepts_reservations: boolean; max_party_size: number; slot_interval_minutes: number };
+
+/**
+ * Disponibilidad INFORMATIVA de un día para N personas (cupo real calculado en la base). No reserva nada: el pedido
+ * vuelve a validar y escribe de forma atómica, así que un horario libre acá puede estar completo al enviar.
+ */
+export async function reservationAvailabilityAction(tenantId: unknown, serviceDate: unknown, guests: unknown): Promise<{ ok: true; data: LiveAvailability } | { ok: false }> {
+  const parsed = z
+    .object({ tenantId: z.uuid(), serviceDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), guests: z.number().int().min(1).max(50) })
+    .safeParse({ tenantId, serviceDate, guests });
+  if (!parsed.success || !isSupabaseConfigured()) return { ok: false };
+  const supabase = createClient(await cookies());
+  const { data, error } = await supabase.rpc("reservation_availability", {
+    p_tenant_id: parsed.data.tenantId,
+    p_service_date: parsed.data.serviceDate,
+    p_guests: parsed.data.guests,
+  });
+  if (error || !data) {
+    console.error("[sentate] availability", error?.code, redact(error?.message));
+    return { ok: false };
+  }
+  return { ok: true, data: data as LiveAvailability };
+}
+
+/** Configuración pública de reservas del comercio (sin capacidad). Sin fila = valores por defecto. */
+export async function reservationConfigAction(tenantId: unknown): Promise<LiveReservationConfig> {
+  const fallback: LiveReservationConfig = { accepts_reservations: true, max_party_size: 8, slot_interval_minutes: 30 };
+  const id = z.uuid().safeParse(tenantId);
+  if (!id.success || !isSupabaseConfigured()) return fallback;
+  const supabase = createClient(await cookies());
+  const { data } = await supabase
+    .from("tenant_reservation_settings")
+    .select("accepts_reservations, max_party_size, slot_interval_minutes")
+    .eq("tenant_id", id.data)
+    .maybeSingle();
+  return data ? (data as LiveReservationConfig) : fallback;
+}

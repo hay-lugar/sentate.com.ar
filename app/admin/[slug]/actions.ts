@@ -34,6 +34,7 @@ function describe(error: PgError): MutationResult {
     case "23503":
       return fail("conflict", "La categoría elegida ya no existe. Actualizá la página.");
     case "23514":
+      if (error.message === "capacity_exceeded") return fail("conflict", "Ya no hay cupo para confirmar esta solicitud: otra reserva tomó el lugar.");
       if (error.message === "invalid_status_transition") return fail("stale", "Esta solicitud ya fue respondida en otra sesión.");
       if (error.message === "shift_too_long") return fail("invalid", "Un turno dura más de 16 horas.");
       return fail("invalid", "Algún dato no es válido. Revisá el formulario.");

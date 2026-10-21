@@ -37,13 +37,15 @@ export type ValidationContext = {
   schedule: Schedule;
   now: ZonedNow;
   isFull: (slot: Slot, guests: number) => boolean;
+  /** Máximo de personas por pedido (configurable por comercio). Por defecto, el de RESERVATION_LIMITS. */
+  maxGuests?: number;
 };
 
 const L = RESERVATION_LIMITS;
 
-export function validateGuests(guests: number): FieldErrors {
-  if (!Number.isInteger(guests) || guests < L.minGuests || guests > L.maxGuests) {
-    return { guests: `Elegí entre ${L.minGuests} y ${L.maxGuests} personas.` };
+export function validateGuests(guests: number, max: number = L.maxGuests): FieldErrors {
+  if (!Number.isInteger(guests) || guests < L.minGuests || guests > max) {
+    return { guests: `Elegí entre ${L.minGuests} y ${max} personas.` };
   }
   return {};
 }
@@ -86,7 +88,7 @@ export type ValidationResult = { ok: true; errors: FieldErrors } | { ok: false; 
 
 /** Revalidación completa previa al envío. */
 export function validateReservation(draft: ReservationDraft, ctx: ValidationContext): ValidationResult {
-  const errors = { ...validateGuests(draft.guests), ...validateSlot(draft, ctx), ...validateContact(draft) };
+  const errors = { ...validateGuests(draft.guests, ctx.maxGuests), ...validateSlot(draft, ctx), ...validateContact(draft) };
   return Object.keys(errors).length ? { ok: false, errors } : { ok: true, errors };
 }
 

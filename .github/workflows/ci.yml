@@ -54,7 +54,7 @@ jobs:
       - run: supabase db reset
       - run: supabase db lint --level warning
       - run: supabase test db
-      - run: node --test supabase/tests/api/data-api.test.mjs supabase/tests/api/realtime.test.mjs
+      - run: node --test --test-concurrency=1 supabase/tests/api/data-api.test.mjs supabase/tests/api/realtime.test.mjs supabase/tests/api/capacity-concurrency.test.mjs
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e:live
         env:

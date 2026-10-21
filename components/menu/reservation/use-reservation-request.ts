@@ -34,9 +34,11 @@ export type ReservationRequestOptions = {
   submitter: Submitter;
   /** Demo: disponibilidad ficticia. Comercio real: no se inventan cupos (todo es solicitud). */
   fakeAvailability: boolean;
+  /** Máximo de personas por pedido según la configuración del comercio. */
+  maxGuests?: number;
 };
 
-export function useReservationRequest(tenant: PublicTenant, open: boolean, { submitter, fakeAvailability }: ReservationRequestOptions) {
+export function useReservationRequest(tenant: PublicTenant, open: boolean, { submitter, fakeAvailability, maxGuests }: ReservationRequestOptions) {
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [draft, setDraft] = useState<ReservationDraft>(EMPTY_DRAFT);
@@ -56,8 +58,9 @@ export function useReservationRequest(tenant: PublicTenant, open: boolean, { sub
       schedule: tenant.schedule,
       now: zonedNow(tenant.timezone),
       isFull: (slot, guests) => fakeAvailability && isSlotFullMock(tenant.slug, slot, guests),
+      maxGuests,
     }),
-    [tenant, fakeAvailability],
+    [tenant, fakeAvailability, maxGuests],
   );
 
   // Al cerrar: cancela el envío en curso y descarta los datos tras la animación de salida.
@@ -105,7 +108,7 @@ export function useReservationRequest(tenant: PublicTenant, open: boolean, { sub
   }, [step]);
 
   const validateStep = (s: number): FieldErrors =>
-    s === 0 ? validateGuests(draft.guests) : s === 1 ? validateSlot(draft, context()) : validateContact(draft);
+    s === 0 ? validateGuests(draft.guests, maxGuests) : s === 1 ? validateSlot(draft, context()) : validateContact(draft);
 
   const next = () => {
     const stepErrors = validateStep(step);

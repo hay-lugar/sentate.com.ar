@@ -9,8 +9,8 @@ Documento vivo. Cada etapa lo actualiza con lo realmente implementado y verifica
 | A | Rol de plataforma, moderación, suspensión, visibilidad, auditoría | Integrada en main |
 | B | Perfil geográfico (PostGIS), catálogos, aprobación | Integrada en main |
 | C | `/explorar`, búsqueda, filtros, mapa | Integrada en main |
-| D | Perfil del comensal, favoritos, historial, OAuth | En curso |
-| E | Capacidad y reservas con disponibilidad real | Pendiente |
+| D | Perfil del comensal, favoritos, historial, OAuth | Integrada en main |
+| E | Capacidad y reservas con disponibilidad real | En curso |
 | F | Carta avanzada y administración del comercio | Pendiente |
 | G | Superadmin completo, validación integral | Pendiente |
 
@@ -103,3 +103,19 @@ Detalle y requisitos externos en `docs/auth-oauth.md`.
 - **Favoritos:** solo de comercios visibles; los que dejan de serlo salen de la lista sin borrar el vínculo; máximo 100; el corazón también está en las tarjetas del explorador (sin sesión lleva al ingreso y vuelve).
 - **Ingreso:** Google y Apple por Supabase Auth, visibles solo si el proveedor está habilitado.
 - **No incluido (honesto):** corazón dentro de la carta pública, reclamar solicitudes de invitado, y pantalla del comercio para el plazo de cancelación (hoy `diner_cancel_cutoff_hours` por SQL).
+
+## Etapa E — capacidad y reservas con disponibilidad real (implementado)
+
+**Modelo.** `tenant_reservation_settings` (capacidad de comensales simultáneos —null = sin tope, que es el comportamiento previo—, máximo por pedido, intervalo 15/30/60, duración de ocupación, anticipación mínima, corte de cocina, retención de pendientes) y `tenant_reservation_blocks` (bloqueos por horario). Cada reserva guarda `ends_at` (ocupación) y `hold_expires_at` (retención) **al crearse**: cambiar la configuración después no modifica ni cancela reservas existentes; solo afecta a los pedidos nuevos.
+
+**Política (decidida y visible en el panel).**
+- Capacidad = personas simultáneas; **no se promete una mesa física**.
+- La ocupación se evalúa por **solapamiento** de intervalos (no solo por igualdad de hora de inicio): la carga máxima se mide al inicio de la ventana y en cada inicio de otra reserva dentro de ella.
+- Una solicitud **pendiente retiene cupo** hasta que se responde o vence (`min(creación + pending_hold_minutes, inicio)`, 4 h por defecto). Rechazar, cancelar o vencer libera el cupo al instante.
+- El vencimiento se **calcula al leer** (`hold_expires_at > now()`), sin depender de ningún cron; además se marca `expired` de forma perezosa al pedir una reserva o abrir el panel. Si un programador se atrasa, el cupo igual se libera.
+- Confirmar una solicitud cuya retención ya venció se **revalida** como pedido nuevo (`capacity_exceeded` si otro tomó el lugar). Confirmar una retención vigente no falla: su cupo ya estaba contado, aunque se haya bajado la capacidad después.
+- Estados nuevos: `expired` (solo lo marca el sistema) y `finished` (el dueño finaliza una reserva cuyo horario ya empezó).
+
+**Concurrencia.** `request_reservation` valida el horario, calcula la capacidad y escribe **en una sola transacción bajo un bloqueo (advisory) por comercio**; la confirmación de una retención vencida toma el mismo bloqueo. La idempotencia por clave sigue funcionando. La consulta `reservation_availability` desde el navegador es **informativa**; la escritura vuelve a validar. Prueba: `supabase/tests/api/capacity-concurrency.test.mjs` dispara ráfagas paralelas contra la Data API real (12 pedidos de 2 personas con tope 10 → entran exactamente 5; ocupación solapada; misma clave en paralelo → una sola reserva; liberar al rechazar).
+
+**Interfaz.** La carta consulta el cupo real por día y cantidad de personas (los horarios completos/bloqueados se deshabilitan y se explican); el máximo por pedido sale de la configuración. El panel tiene `/admin/[slug]/reservas/capacidad` (cupo, retención, bloqueos). Limitación conocida: la grilla de horarios de la carta sigue siendo la de 30 minutos; con intervalo de 60 los horarios intermedios aparecen como «no disponible», y el panel ofrece solo 30 o 60.

@@ -122,6 +122,9 @@ export async function getLiveTenantRecord(slug: string): Promise<LiveResult<Live
   const accessInfo = access as { is_member: boolean; can_operate: boolean };
   if (!accessInfo.is_member) return { status: "forbidden" };
 
+  // Marca como vencidas las solicitudes cuya retención de cupo caducó (el cupo ya se liberaba al leer; esto actualiza el estado).
+  if (accessInfo.can_operate) await supabase.rpc("expire_stale_reservations", { p_tenant_id: tenant.id });
+
   const now = zonedNow(tenant.timezone);
   const [sub, shifts, closures, categories, items, reservations] = await Promise.all([
     supabase.from("tenant_subscriptions").select("status, trial_ends_at").eq("tenant_id", tenant.id).maybeSingle(),

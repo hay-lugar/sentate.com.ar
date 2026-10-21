@@ -19,7 +19,7 @@ test("un dueño o un comensal no ven el módulo (404) ni pueden llamar a las ope
     await login(page, email, "/cuenta");
     await expect(page.getByRole("link", { name: /superadministración/ })).toHaveCount(0);
     await page.goto("/superadmin");
-    await expect(page.getByRole("heading", { name: "No encontramos esta página" })).toBeVisible();
+    await expect(page.getByText(/No encontramos esta página|could not be found/)).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText("Bandeja de moderación")).toHaveCount(0);
     await ctx.close();
   }

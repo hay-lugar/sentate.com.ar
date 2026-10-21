@@ -13,6 +13,8 @@ const TABS: { id: string; label: string }[] = [
   { id: "all", label: "Todos" },
 ];
 
+const SUB_LABEL: Record<string, string> = { trialing: "en prueba", active: "activa", past_due: "en mora", canceled: "cancelada" };
+
 type Row = {
   id: string; slug: string; name: string; business_type: string | null; moderation: ModerationStatus; tenant_status: string; is_published: boolean;
   locality: string | null; location_confirmed: boolean; subscription: string | null; owner_email: string | null; submitted_at: string | null; featured: boolean;
@@ -33,7 +35,7 @@ export default async function BandejaPage({ searchParams }: { searchParams: Prom
       <form role="search" className="mb-4 flex gap-2">
         <input type="hidden" name="estado" value={estado} />
         <label htmlFor="q" className="sr-only">Buscar comercio</label>
-        <input id="q" name="q" defaultValue={q} placeholder="Nombre o dirección web" className="h-12 min-w-0 flex-1 rounded-xl bg-surface px-4 text-[16px] ring-1 ring-field outline-none focus:ring-2 focus:ring-foreground" />
+        <input id="q" name="q" defaultValue={q} placeholder="Nombre o dirección web (slug)" className="h-12 min-w-0 flex-1 rounded-xl bg-surface px-4 text-[16px] ring-1 ring-field outline-none focus:ring-2 focus:ring-foreground" />
         <button type="submit" className="pressable h-12 rounded-xl bg-foreground px-5 text-[15px] font-medium text-background">Buscar</button>
       </form>
       <nav aria-label="Estado" className="no-scrollbar -mx-4 mb-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
@@ -60,7 +62,7 @@ export default async function BandejaPage({ searchParams }: { searchParams: Prom
                   <Tag>{MODERATION_COPY[r.moderation].title}</Tag>
                   {r.tenant_status === "suspended" && <Tag danger>Suspendido</Tag>}
                   {!r.is_published && <Tag>Sin publicar</Tag>}
-                  {r.subscription && <Tag>Suscripción: {r.subscription}</Tag>}
+                  {r.subscription && <Tag>Suscripción: {SUB_LABEL[r.subscription] ?? r.subscription}</Tag>}
                   {r.featured && <Tag>Destacado</Tag>}
                 </span>
               </Link>

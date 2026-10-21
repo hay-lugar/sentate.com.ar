@@ -350,7 +350,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
                 <ViewToggle view={filters.view} onChange={(view) => go({ ...filters, view }, "replace")} mapDisabled={false} />
               </div>
             )}
-            <div className="relative h-[62dvh] overflow-hidden rounded-xl border border-line lg:sticky lg:top-20 lg:h-[calc(100dvh-6rem)]">
+            <div className="relative h-[62dvh] overflow-hidden rounded-xl border border-line lg:sticky lg:top-20 lg:h-[calc(100dvh-10rem)]">
               <ExplorerMap
                 markers={markers}
                 selectedId={selectedId}

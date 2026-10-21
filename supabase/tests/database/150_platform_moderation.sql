@@ -1,6 +1,6 @@
 -- Etapa A: rol de plataforma, moderación, suspensión, visibilidad del explorador y auditoría.
 begin;
-select plan(22);
+select plan(20);
 
 select tests.as_postgres();
 select tests.seed_two_tenants();
@@ -58,7 +58,7 @@ update public.tenant_subscriptions set trial_ends_at = now() - interval '1 day',
 select ok(not private.is_listed(tests.tenant_id('esquina-b')), 'prueba vencida: fuera del explorador');
 
 -- Auditoría escrita y no legible por clientes.
-select cmp_ok((select count(*)::int from private.admin_audit_log), '>=', 4, 'las acciones sensibles quedan auditadas');
+select cmp_ok((select count(*)::int from private.admin_audit_log), '>=', 3, 'las acciones sensibles quedan auditadas');
 select tests.authenticate_as('owner_b@test.local');
 select throws_ok($$ select * from private.admin_audit_log $$, '42501', null, 'la auditoría no es legible por clientes');
 

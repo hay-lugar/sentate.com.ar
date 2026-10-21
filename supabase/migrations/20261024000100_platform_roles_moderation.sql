@@ -18,6 +18,7 @@ create table private.platform_admins (
   user_id uuid primary key references auth.users (id) on delete cascade,
   created_at timestamptz not null default now()
 );
+alter table private.platform_admins enable row level security;
 revoke all on table private.platform_admins from anon, authenticated;
 
 create or replace function private.is_platform_admin()
@@ -255,7 +256,7 @@ begin
   if p_suspended and char_length(v_reason) not between 3 and 500 then
     raise exception using errcode = 'P0001', message = 'reason_required';
   end if;
-  update public.tenants set status = case when p_suspended then 'suspended' else 'active' end
+  update public.tenants set status = case when p_suspended then 'suspended'::public.tenant_status else 'active'::public.tenant_status end
   where id = p_tenant_id;
   if not found then
     raise exception using errcode = 'P0001', message = 'tenant_not_found';

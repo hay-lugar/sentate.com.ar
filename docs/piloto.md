@@ -5,19 +5,20 @@ Fase 4, punto 7. Esta guía deja listo el piloto en `sentate.com.ar` **sin tocar
 ## Estado verificado (al escribir esto)
 
 - Rama predeterminada del repositorio: `main` (verificado por la API de GitHub).
-- **No existe un proyecto de Vercel para Sentate** y **no pude crearlo**: la API de Vercel respondió `403 forbidden` («no tenés permiso para crear el proyecto») sobre el equipo `geronimo-mendezs-projects` (ver «Bloqueo actual»). No hay despliegue ni preview.
+- Existe un proyecto de Vercel, pero **conectado a otro repositorio** y sin el código de Sentate desplegado (ver «Estado de Vercel»).
 - Las migraciones `20261022000100` (Storage) y `20261022000200` (cupo por IP) **no están aplicadas** en el proyecto Supabase remoto.
 - Nada de esto se probó en un dominio real: lo verificado es build, pruebas locales y CI.
 
-## Bloqueo actual (Vercel)
+## Estado de Vercel (verificado por la API)
 
-Crear el proyecto con la conexión autorizada falló con `403`. No sé la causa exacta (la cuenta tenía una verificación pendiente). Lo mínimo que falta, **hecho por el titular en el dashboard de Vercel** (sin pasar contraseñas ni tokens por el chat):
-
-1. Completar la verificación de la cuenta si Vercel la sigue pidiendo.
-2. *Add New → Project → Import* `hay-lugar/sentate.com.ar` (rama de producción `main`; framework Next.js; Node 22, ya fijado en `package.json`). Cargar las variables de la sección 2.
-3. Avisarme la URL `https://<proyecto>.vercel.app`: con ella fijo `APP_URL`, configuro Auth y corro la prueba de humo.
-
-**Plan Hobby:** es gratuito, pero Vercel lo restringe a uso **no comercial**. Cobrar $14.999 ARS por mes a comercios es uso comercial: antes de cobrar hay que pasar a un plan de pago (decisión y costo tuyos; no se activó nada).
+- Proyecto `sentate.com.ar` (`prj_e0yII8gU89qvdYZu6CaVJ6o5pXM1`, equipo `geronimo-mendezs-projects`), framework Next.js, dominios `sentatecomar.vercel.app` (producción) y `…-git-main-…vercel.app`.
+- **Está conectado a `geromendez199/sentate.com.ar`, no a `hay-lugar/sentate.com.ar`.** El único deploy (`8a4cb60`, «Initial commit · Created from vercel.com/new») es de ese repo, **no es el código de Sentate**. Hasta reconectar, los pushes a `main` de `hay-lugar` no despliegan nada.
+- **Acción del titular (dashboard de Vercel):** *Settings → Git → Disconnect* y conectar `hay-lugar/sentate.com.ar` (hay que instalar la app de GitHub de Vercel con acceso a esa organización). **Posible traba:** el plan Hobby puede no permitir repositorios de una organización; si Vercel lo rechaza, las salidas son transferir el repo a tu cuenta personal o pasar a un plan de pago (decisión y costo tuyos; no se activó nada).
+- **Variables de producción cargadas por la API** (solo valores públicos): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `APP_URL=https://sentatecomar.vercel.app`, `RATE_LIMIT_IP_HEADER=x-real-ip`. Preview no tiene variables de Supabase (queda en demo).
+- **Falta `RATE_LIMIT_SECRET`** (a propósito: no genero secretos en el chat). Generalo con `openssl rand -hex 32` y cargalo en Vercel → Settings → Environment Variables → Production, tipo *Sensitive*. Sin él el formulario de reservas falla cerrado.
+- **Deployment Protection:** el proyecto tiene *Vercel Authentication* en «todo excepto dominios personalizados», así que `sentatecomar.vercel.app` pide iniciar sesión en Vercel. Para probar como público hay que bajarla a «solo previews» (Settings → Deployment Protection). No lo cambié.
+- Node: el proyecto figura en 24.x; el repo fija `22.x` en `engines`, que prevalece en el siguiente build.
+- **Plan Hobby:** es gratuito pero de uso **no comercial**. Cobrar $14.999 ARS por mes es uso comercial: antes de cobrar hay que pasar a un plan de pago.
 
 ## 1. Separación de entornos
 
@@ -33,7 +34,7 @@ Reglas: la clave de desarrollo `sentate-dev-only` y los usuarios del seed no exi
 
 ## 2. Vercel (acción tuya)
 
-1. Importar `hay-lugar/sentate.com.ar` en Vercel, rama de producción `main`. Framework: Next.js (sin `vercel.json`; el build es `npm run build`). Node 22.
+1. Conectar `hay-lugar/sentate.com.ar` al proyecto de Vercel, rama de producción `main`. Framework: Next.js (sin `vercel.json`; el build es `npm run build`). Node 22.
 2. Variables. Hay un solo proyecto Supabase (el del piloto): **cargá las variables de Supabase solo en Production**. Sin ellas, Preview corre en modo demo y no toca datos reales:
 
    | Variable | Valor |

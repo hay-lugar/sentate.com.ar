@@ -50,14 +50,14 @@ select public.submit_for_review(tests.tenant_id('bodegon-a'));
 select tests.authenticate_as('admin@test.local');
 select public.admin_review_tenant(tests.tenant_id('bodegon-a'), 'approve', '');
 select tests.as_anon();
-select is((select count(*)::int from public.tenant_locations), 1, 'anon ve la ubicación del comercio listado');
-select is((select count(*)::int from public.tenant_cuisines), 2, 'anon ve las cocinas del comercio listado');
+select is((select count(*)::int from public.tenant_locations where tenant_id = tests.tenant_id('bodegon-a')), 1, 'anon ve la ubicación del comercio listado');
+select is((select count(*)::int from public.tenant_cuisines where tenant_id = tests.tenant_id('bodegon-a')), 2, 'anon ve las cocinas del comercio listado');
 
 -- Mover el pin >200 m: vuelve a revisión y desaparece del público; la carta sigue.
 select tests.authenticate_as('owner_a@test.local');
 select public.save_explorer_profile(tests.tenant_id('bodegon-a'), '{"lat":-31.26,"lng":-61.49,"confirm":true}'::jsonb);
 select tests.as_anon();
-select is((select count(*)::int from public.tenant_locations), 0, 'tras mover el pin deja de ser público hasta nueva aprobación');
+select is((select count(*)::int from public.tenant_locations where tenant_id = tests.tenant_id('bodegon-a')), 0, 'tras mover el pin deja de ser público hasta nueva aprobación');
 select is((select count(*)::int from public.tenants where slug = 'bodegon-a'), 1, 'la carta sigue visible');
 
 -- Mover sin confirmar deja la ubicación sin confirmar.

@@ -10,7 +10,7 @@ test.describe("cabeceras de seguridad", () => {
       expect(headers["x-frame-options"]).toBe("DENY");
       expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
       expect(headers["permissions-policy"]).toContain("camera=()");
-      expect(headers["permissions-policy"]).toContain("geolocation=()");
+      expect(headers["permissions-policy"]).toContain("geolocation=(self)");
       expect(headers["x-powered-by"]).toBeUndefined();
     });
   }

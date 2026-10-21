@@ -37,6 +37,11 @@ export function MenuView({
   const [compact, setCompact] = useState(false);
   const [dish, setDish] = useState<PublicDish | null>(null);
   const [reserving, setReserving] = useState(false);
+  // Desde el explorador: /slug?mesa=1 abre directamente el pedido de mesa.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- parámetro de URL leído tras hidratar (la carta se sirve estática)
+    if (new URLSearchParams(window.location.search).get("mesa") === "1") setReserving(true);
+  }, []);
 
   const tabsAnchor = useRef<HTMLDivElement>(null);
   const lockSpy = useRef<number | null>(null);

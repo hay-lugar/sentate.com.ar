@@ -7,8 +7,8 @@ Documento vivo. Cada etapa lo actualiza con lo realmente implementado y verifica
 | Etapa | Contenido | Estado |
 |---|---|---|
 | A | Rol de plataforma, moderación, suspensión, visibilidad, auditoría | Integrada en main |
-| B | Perfil geográfico (PostGIS), catálogos, aprobación | En curso |
-| C | `/explorar`, búsqueda, filtros, mapa | Pendiente |
+| B | Perfil geográfico (PostGIS), catálogos, aprobación | Integrada en main |
+| C | `/explorar`, búsqueda, filtros, mapa | En curso |
 | D | Perfil del comensal, favoritos, historial, OAuth | Pendiente |
 | E | Capacidad y reservas con disponibilidad real | Pendiente |
 | F | Carta avanzada y administración del comercio | Pendiente |
@@ -65,3 +65,31 @@ Una solicitud pendiente **retiene** cupo hasta que el comercio responde o vence 
 - Panel: «Mapa» (`/admin/[slug]/explorador`) con estado de moderación visible para el dueño, faltantes, editor con pin (MapLibre, carga dinámica solo ahí), coordenadas manuales como alternativa accesible y «Solicitar aprobación».
 - Geocodificación opcional (`/api/geocode`, Geoapify): requiere `GEOAPIFY_API_KEY` y sesión; no guarda resultados; sin clave se oculta.
 - Teselas: `NEXT_PUBLIC_MAP_STYLE_URL` (por defecto OpenFreeMap Positron). Sin SLA: si no cargan, el formulario sigue usable con coordenadas escritas.
+
+## Etapa C — explorador, búsqueda y filtros (implementado)
+
+**Rutas:** `/explorar` (página), `POST /api/explorar` (búsqueda), RPC `public.explore_search(jsonb)` y `public.explore_facets()`. Las cartas `/[slug]` no cambian; `?mesa=1` abre el pedido de mesa (lo usa la tarjeta «Pedir mesa»).
+
+**Una sola regla de visibilidad:** ambas RPC son SECURITY INVOKER (corren con RLS del visitante) y filtran con `private.is_listed`, la misma que usan las políticas de `tenant_locations` y `tenant_cuisines`. Un comercio no listado no aparece en lista, mapa, búsqueda ni facetas, ni siquiera buscándolo por nombre. El contrato de salida es fijo: id, slug, nombre, descripción corta, tipo, cocinas, rango de precio, portada/logo, lat/lng confirmadas, localidad/barrio, abierto ahora y distancia aproximada. Nunca reservas, datos personales ni suscripción.
+
+**Fin de la prueba:** la carta sigue la política `private.settings.public_menu_when_access_lapsed` (hoy `visible`); el explorador **siempre** retira al comercio al vencer el acceso operativo (no promocionamos locales que ya no operan).
+
+**Búsqueda:** texto normalizado (sin tildes/mayúsculas) con `pg_trgm` (`word_similarity`, umbral 0.4, tolera errores de tipeo) sobre nombre, localidad, barrio, tipo, cocinas y platos disponibles de categorías visibles. Índices GIN trigram sobre nombre de comercio y de plato. Orden: relevancia, distancia (solo con ubicación) o nombre; paginación estable (desempate por nombre e id).
+
+**Interpretación sin LLM** (`lib/explorer/parse-query.ts`): reconoce localidades, tipos y cocinas del directorio, «abierto ahora» y «cerca de mí», y los convierte en chips visibles y editables. Lo ambiguo (p. ej. «parrilla» es tipo y cocina; una localidad homónima en dos provincias) no se aplica: se le pregunta a la persona. El resto queda como texto libre.
+
+**Filtros:** localidad, tipo, cocina, precio declarado ($/$$/$$$), abierto ahora (zona horaria del comercio, turnos por día, cruce de medianoche y cierres excepcionales: `private.is_open_now`), distancia máxima y «Buscar en esta zona».
+- *No implementados a propósito:* «cocina abierta» y «acepta reservas». Hoy no existe el dato (se agrega con la configuración de capacidad de la etapa E); mostrar un filtro que coincide con todo sería decorativo.
+- El precio es la categoría declarada, no un monto por persona.
+
+**Estado en la URL:** `q, loc, tipo, cocina, precio, abierto, cerca, radio, orden, vista, pagina`. Atrás/adelante funcionan y se conserva al volver de una carta. Cada petición cancela la anterior y la respuesta tardía de una vieja se descarta.
+
+**Ubicación del visitante:** solo por acción explícita («Usar mi ubicación»), con el motivo explicado antes; no se insiste si se deniega (alternativa: elegir localidad). Se redondea a ~100 m, viaja en el cuerpo de un POST (no en URL), no se guarda ni se registra, y nunca aparece en la URL compartida (solo `cerca=1`). `Permissions-Policy` pasó de `geolocation=()` a `geolocation=(self)`. La ubicación de los comercios es siempre la confirmada por el dueño.
+
+**Mapa:** MapLibre GL JS (carga dinámica solo en `/explorar` y en el editor del panel), clusters nativos, selección sincronizada con la lista, marcadores por zona visible (máximo 300, con aviso si hay más), sin reencuadre automático salvo el primero. Si falla WebGL o el proveedor, la lista sigue con los mismos filtros.
+- Teselas: OpenFreeMap (sin clave, uso comercial permitido, **sin SLA**, atribución visible en el mapa). `NEXT_PUBLIC_MAP_STYLE_URL` permite cambiar de proveedor sin tocar código.
+- Costo: $0. Riesgo: sin garantías de disponibilidad (mitigado por el fallback a lista).
+
+**Límites:** `/api/explorar` acota ritmo por conexión (best-effort por instancia, 90/min), tamaño de texto (80), listas (≤10), `limit` (≤300) y `offset` (≤10 000); la base valida de nuevo. Respuestas `no-store` (dependen de la hora por «abierto ahora»).
+
+**Pendiente de verificación manual:** el mapa con teselas reales y la geolocalización en un dispositivo físico (el CI corre en un Chromium sin GPU: allí el mapa puede degradar al fallback de lista).

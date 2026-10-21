@@ -6,6 +6,9 @@ export function Footer() {
     <footer className="border-t border-line">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-8 type-help sm:px-6">
         <p className="mr-auto">© {BRAND.name}</p>
+        <Link href="/explorar" className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-foreground">
+          Explorar
+        </Link>
         <Link href="/login" className="inline-flex min-h-11 min-w-11 items-center justify-center hover:text-foreground">
           Ingresar
         </Link>

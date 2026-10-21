@@ -17,8 +17,12 @@ insert into public.tenant_cuisines (tenant_id, cuisine_code) values
 update public.tenant_moderation set status = 'approved' where tenant_id in (tests.tenant_id('bodegon-a'), tests.tenant_id('esquina-b'));
 update public.tenants set business_type = 'bar', is_published = true where slug = 'oculto-u';
 
-select tests.as_anon();
+create or replace function tests.names(p jsonb) returns text[] language sql set search_path = '' as
+$$ select coalesce(array_agg(i ->> 'slug' order by ord), '{}') from pg_catalog.jsonb_array_elements(public.explore_search(p) -> 'items') with ordinality t(i, ord)
+   where i ->> 'slug' not like 'prueba-%' $$;
+grant execute on function tests.names(jsonb) to anon, authenticated;
 
+select tests.as_anon();
 
 -- Visibilidad.
 select is(tests.names('{}'::jsonb), array['bodegon-a', 'esquina-b'], 'solo se listan comercios aprobados y completos');

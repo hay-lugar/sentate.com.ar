@@ -45,6 +45,7 @@ export function ResultCard({ item, facets, selected, onSelect, compact, favorite
           {place}
           {distance ? ` · ${distance}` : ""}
         </p>
+        {item.featured && <p className="mt-1 inline-block rounded-md border border-line-strong px-1.5 py-1 text-[13px] leading-none font-medium">Destacado</p>}
         <p className={cn("mt-1 text-[13px] font-medium", item.open_now ? "text-success" : "text-muted")}>{item.open_now ? "Abierto ahora" : "Cerrado ahora"}</p>
         <div className="mt-2 flex flex-wrap gap-2">
           <Link href={`/${item.slug}`} className={buttonClass({ variant: "secondary", size: "sm" })}>

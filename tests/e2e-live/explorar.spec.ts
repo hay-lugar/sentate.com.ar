@@ -93,7 +93,7 @@ test("la búsqueda pública no filtra comercios ocultos ni datos privados", asyn
   const all = await (await request.post("/api/explorar", { data: { limit: 50, offset: 0 } })).json();
   for (const item of all.items as Record<string, unknown>[]) {
     expect(Object.keys(item).sort()).toEqual(
-      ["business_type", "cover_url", "cuisines", "distance_m", "id", "lat", "lng", "locality", "logo_url", "name", "neighborhood", "open_now", "price_range", "slug", "tagline"].sort(),
+      ["business_type", "cover_url", "cuisines", "distance_m", "featured", "id", "lat", "lng", "locality", "logo_url", "name", "neighborhood", "open_now", "price_range", "slug", "tagline"].sort(),
     );
   }
   expect((await request.post("/api/explorar", { data: { limit: 9999, offset: 0 } })).status()).toBe(400);

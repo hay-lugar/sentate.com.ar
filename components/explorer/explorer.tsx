@@ -140,6 +140,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
   const markers = markerRes.status === "ok" ? markerRes.data.items : NO_ITEMS;
   const listItems = list.status === "ok" ? list.data.items : NO_ITEMS;
   const total = list.status === "ok" ? list.data.total : null;
+  const featuredItems = list.status === "ok" ? (list.data.featured_items ?? NO_ITEMS) : NO_ITEMS;
   const pages = total === null ? 1 : Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   useEffect(() => {
@@ -303,6 +304,19 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
                 </>
               )}
             </div>
+          )}
+          {list.status === "ok" && featuredItems.length > 0 && (
+            <section aria-labelledby="destacados" className="mb-5">
+              <h2 id="destacados" className="mb-2 type-label">Destacados</h2>
+              <ul className="space-y-3">
+                {featuredItems.map((item) => (
+                  <li key={`f-${item.id}`}>
+                    <ResultCard item={item} facets={facets} favorite={favoriteFor(item.id)} selected={item.id === selectedId} />
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 type-help">Los destacados se muestran aparte del orden de los resultados.</p>
+            </section>
           )}
           {list.status === "ok" && total! > 0 && (
             <ul className="space-y-3">

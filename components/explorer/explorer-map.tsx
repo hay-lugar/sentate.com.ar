@@ -170,7 +170,8 @@ export default function ExplorerMap({ markers, selectedId, onSelect, onViewChang
 
   return (
     <div className="relative h-full min-h-[320px] w-full">
-      <div ref={box} role="application" aria-label="Mapa de comercios. La lista tiene la misma información." className="absolute inset-0" />
+      {/* Estilo en línea: el CSS de MapLibre (sin capa) pisaría las utilidades de Tailwind y el mapa quedaría sin alto. */}
+      <div ref={box} role="application" aria-label="Mapa de comercios. La lista tiene la misma información." style={{ position: "absolute", inset: 0 }} />
       <button type="button" onClick={goToMe} className="pressable absolute bottom-6 left-3 grid size-11 place-items-center rounded-full border border-line bg-background shadow-sm" aria-label="Mi ubicación">
         <LocateFixed className="size-5" aria-hidden />
       </button>

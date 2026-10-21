@@ -38,12 +38,16 @@ test.describe("landing", () => {
     expect(hidden).toBe(0);
   });
 
-  test("el logo se muestra con sus proporciones originales", async ({ page }) => {
+  test("el símbolo de los cubiertos se muestra con sus proporciones originales", async ({ page }) => {
     await page.goto("/");
-    const logo = page.getByRole("banner").getByRole("img", { name: "Sentate" });
-    await expect(logo).toBeVisible();
-    const { w, h, nw, nh } = await logo.evaluate((img: HTMLImageElement) => ({ w: img.width, h: img.height, nw: img.naturalWidth, nh: img.naturalHeight }));
-    expect(Math.abs(w / h - nw / nh)).toBeLessThan(0.02);
+    const symbol = page.getByRole("banner").locator('img[src*="cubiertos"]');
+    await expect(symbol).toBeVisible();
+    // Con el rectángulo real (fraccionario): `img.width` redondea a píxeles enteros y a 20 px de alto falsea la proporción.
+    const { w, h, nw, nh } = await symbol.evaluate((img: HTMLImageElement) => {
+      const r = img.getBoundingClientRect();
+      return { w: r.width, h: r.height, nw: img.naturalWidth, nh: img.naturalHeight };
+    });
+    expect(Math.abs(w / h - nw / nh)).toBeLessThan(0.01);
   });
 });
 
@@ -79,7 +83,7 @@ test.describe("sistema visual", () => {
     expect(tenant).toBe("rgb(184, 70, 27)"); // #B8461B, el color guardado de El Bodegón
     await page.goto("/admin/el-bodegon");
     const panel = await page.getByRole("button", { name: /Confirmar/ }).first().evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(panel).toBe("rgb(29, 29, 31)"); // la tinta de Sentate
+    expect(panel).toBe("rgb(29, 29, 31)"); // la tinta de la plataforma
   });
 
   for (const path of ["/", "/login", "/el-bodegon", "/admin/el-bodegon", "/admin/el-bodegon/menu", "/admin/el-bodegon/ajustes"]) {

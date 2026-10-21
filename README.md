@@ -1,5 +1,7 @@
 # Sentate
 
+> La marca visible es temporal: **«{Sin Nombre}»**, definida en `lib/config/brand.ts`. «Sentate» es el nombre del proyecto y del dominio, y no aparece en la interfaz.
+
 Menú digital y solicitudes de mesa para locales gastronómicos. Next.js 16 (App Router) + Supabase (Postgres con RLS, Auth, Realtime y Storage).
 
 Hay **tres modos** que no se mezclan:

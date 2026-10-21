@@ -51,10 +51,10 @@ test.describe("lo que ve el comensal", () => {
     await expect(dialog.getByText("Todavía no es una reserva")).toBeVisible();
     await expect(dialog.getByText(/no hay una mesa guardada para vos hasta que el local la confirme/)).toBeVisible();
 
-    // Cómo se entera: el local lo contacta por su cuenta; Sentate no notifica todavía.
+    // Cómo se entera: el local lo contacta por su cuenta; la plataforma no notifica todavía.
     await expect(dialog.getByText("¿Cómo te enterás de la respuesta?")).toBeVisible();
     await expect(dialog.getByText(/se comunica con vos al teléfono que dejaste \(llamada o WhatsApp\)/)).toBeVisible();
-    await expect(dialog.getByText("Sentate todavía no envía mensajes ni emails automáticos")).toBeVisible();
+    await expect(dialog.getByText("{Sin Nombre} todavía no envía mensajes ni emails automáticos")).toBeVisible();
     await expect(dialog.getByText(/no hay una pantalla para seguir el estado/)).toBeVisible();
 
     // Y puede llamar al local si no tiene novedades (el teléfono público de la carta).
@@ -74,7 +74,7 @@ test.describe("lo que ve el comensal", () => {
     await dialog.getByRole("group", { name: "Elegí el día" }).locator("button:not([disabled])").nth(2).click();
     await dialog.getByRole("group", { name: "Elegí el horario" }).locator("button:not([disabled])").first().click();
     await dialog.getByRole("button", { name: "Continuar" }).click();
-    await expect(dialog.getByText(/Sentate no envía mensajes automáticos/)).toBeVisible();
+    await expect(dialog.getByText("{Sin Nombre} no envía mensajes automáticos.", { exact: false })).toBeVisible();
   });
 });
 
@@ -99,7 +99,7 @@ test.describe("panel del dueño: estados y contacto manual", () => {
     const row = (name: string) => owner.getByRole("listitem").filter({ hasText: name });
 
     // Una nota que no es un mensaje enviado: el enlace solo abre WhatsApp.
-    await expect(owner.getByText(/lo enviás vos\. Sentate no manda mensajes a los comensales ni verifica el teléfono/)).toBeVisible();
+    await expect(owner.getByText("lo enviás vos. {Sin Nombre} no manda mensajes a los comensales ni verifica el teléfono", { exact: false })).toBeVisible();
 
     // PENDIENTE: etiqueta visible y mensaje que no la da por confirmada.
     const pending = row(who.pending.name);

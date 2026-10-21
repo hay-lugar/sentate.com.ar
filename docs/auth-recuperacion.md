@@ -44,7 +44,7 @@ Estos pasos los hace el usuario en el dashboard. No se aplicaron desde el repo.
     Para previews, agregar también su origen `https://<preview>/auth/callback`.
 - **Authentication → Email Templates → Reset password**
   - Pegar el contenido de `supabase/templates/recovery.html`.
-  - Asunto: `Recuperá tu contraseña de Sentate`.
+  - Asunto: `Recuperá tu contraseña de {Sin Nombre}` (nombre temporal, ver `lib/config/brand.ts`; si cambia el nombre, cambian también este asunto y el `<h2>` de la plantilla: son texto fijo porque Supabase no lee la configuración de la app).
   - El enlace debe usar `{{ .TokenHash }}` (no `{{ .ConfirmationURL }}`), porque el callback espera `token_hash`.
 - **Authentication → Providers → Email → Minimum password length**: `8` (en `supabase/config.toml` ya está en 8).
 - **Authentication → Rate limits**: el envío de emails de recuperación está limitado por proyecto.

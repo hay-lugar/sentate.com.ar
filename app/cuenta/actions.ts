@@ -21,20 +21,24 @@ const profile = z.object({
   phone: z.string().trim().refine((v) => v === "" || /^[0-9 ()+-]{8,24}$/.test(v), "Ingresá un teléfono válido o dejalo vacío."),
 });
 
-export async function saveProfileAction(_prev: AccountResult | null, form: FormData): Promise<AccountResult> {
-  const parsed = profile.safeParse({ displayName: form.get("displayName") ?? "", phone: form.get("phone") ?? "" });
-  if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Revisá los datos." };
+/** Resultado del formulario de perfil: devuelve lo escrito para que React no lo borre al terminar la acción. */
+export type ProfileState = (AccountResult & { fields: { displayName: string; phone: string } }) | null;
+
+export async function saveProfileAction(_prev: ProfileState, form: FormData): Promise<NonNullable<ProfileState>> {
+  const fields = { displayName: String(form.get("displayName") ?? ""), phone: String(form.get("phone") ?? "") };
+  const parsed = profile.safeParse(fields);
+  if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Revisá los datos.", fields };
   const s = await session();
-  if (!s) return SESSION_ERROR;
+  if (!s) return { ...SESSION_ERROR, fields };
   const { error } = await s.supabase
     .from("diner_profiles")
     .upsert({ user_id: s.uid, display_name: parsed.data.displayName, phone: parsed.data.phone }, { onConflict: "user_id" });
   if (error) {
     console.error("[sentate] perfil", error.code, redact(error.message));
-    return { ok: false, message: "No pudimos guardar. Probá de nuevo." };
+    return { ok: false, message: "No pudimos guardar. Probá de nuevo.", fields };
   }
   revalidatePath("/cuenta");
-  return { ok: true, message: "Guardado." };
+  return { ok: true, message: "Guardado.", fields: { displayName: parsed.data.displayName, phone: parsed.data.phone } };
 }
 
 export async function cancelReservationAction(id: unknown): Promise<AccountResult & { code?: string }> {

@@ -8,6 +8,7 @@ import { safeNext } from "@/lib/auth/redirects";
 import { authCallbackUrl } from "@/lib/auth/app-url";
 import { RECOVERY_NEUTRAL_MESSAGE, RECOVERY_NEW_PASSWORD_PATH, RECOVERY_PATH } from "@/lib/auth/recovery";
 import { passwordProblem } from "@/lib/auth/password";
+import { fetchEnabledProviders, isOAuthProvider } from "@/lib/auth/providers";
 
 export type FormState = { error?: string; info?: string; fields?: Record<string, string> };
 
@@ -137,4 +138,27 @@ export async function signOutAction() {
   const client = await supabase();
   await client.auth.signOut();
   redirect("/login");
+}
+
+/**
+ * Ingreso con Google/Apple. Solo si el proveedor está habilitado en Supabase. La vuelta pasa por /auth/callback con un
+ * `next` interno validado; Supabase vincula identidades únicamente por email VERIFICADO por el proveedor (nunca por un
+ * email que mande el cliente) y esta app no vincula cuentas por su cuenta.
+ */
+export async function signInWithOAuthAction(form: FormData): Promise<void> {
+  const provider = form.get("provider");
+  const next = safeNext(form.get("next")) ?? "/cuenta";
+  if (!isSupabaseConfigured() || !isOAuthProvider(provider) || !(await fetchEnabledProviders()).includes(provider)) {
+    redirect(`/login?error=proveedor&next=${encodeURIComponent(next)}`);
+  }
+  let redirectTo: string;
+  try {
+    redirectTo = authCallbackUrl(next);
+  } catch {
+    redirect(`/login?error=proveedor&next=${encodeURIComponent(next)}`);
+  }
+  const client = await supabase();
+  const { data, error } = await client.auth.signInWithOAuth({ provider, options: { redirectTo, skipBrowserRedirect: true } });
+  if (error || !data.url) redirect(`/login?error=proveedor&next=${encodeURIComponent(next)}`);
+  redirect(data.url);
 }

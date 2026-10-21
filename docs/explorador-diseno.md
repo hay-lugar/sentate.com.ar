@@ -8,8 +8,8 @@ Documento vivo. Cada etapa lo actualiza con lo realmente implementado y verifica
 |---|---|---|
 | A | Rol de plataforma, moderación, suspensión, visibilidad, auditoría | Integrada en main |
 | B | Perfil geográfico (PostGIS), catálogos, aprobación | Integrada en main |
-| C | `/explorar`, búsqueda, filtros, mapa | En curso |
-| D | Perfil del comensal, favoritos, historial, OAuth | Pendiente |
+| C | `/explorar`, búsqueda, filtros, mapa | Integrada en main |
+| D | Perfil del comensal, favoritos, historial, OAuth | En curso |
 | E | Capacidad y reservas con disponibilidad real | Pendiente |
 | F | Carta avanzada y administración del comercio | Pendiente |
 | G | Superadmin completo, validación integral | Pendiente |
@@ -93,3 +93,13 @@ Una solicitud pendiente **retiene** cupo hasta que el comercio responde o vence 
 **Límites:** `/api/explorar` acota ritmo por conexión (best-effort por instancia, 90/min), tamaño de texto (80), listas (≤10), `limit` (≤300) y `offset` (≤10 000); la base valida de nuevo. Respuestas `no-store` (dependen de la hora por «abierto ahora»).
 
 **Pendiente de verificación manual:** el mapa con teselas reales y la geolocalización en un dispositivo físico (el CI corre en un Chromium sin GPU: allí el mapa puede degradar al fallback de lista).
+
+## Etapa D — cuenta del comensal (implementado)
+
+Detalle y requisitos externos en `docs/auth-oauth.md`.
+
+- **Rutas:** `/cuenta` (perfil y baja), `/cuenta/reservas` y `/cuenta/reservas/[id]` (historial, detalle y cancelación), `/cuenta/favoritos`. Todas exigen sesión, llevan `noindex` y están en `robots.txt`.
+- **Base:** `reservations.user_id` (lo asigna un trigger con `auth.uid()`; no es columna escribible), `diner_profiles` y `favorites` con RLS «solo lo propio», y RPC `my_reservations`, `cancel_my_reservation`, `set_favorite`, `my_favorites`, `delete_my_account` (impl SECURITY DEFINER en `private` + wrapper INVOKER). Ver una reserva ajena o inexistente responde igual (`not_found`); los ids son UUID.
+- **Favoritos:** solo de comercios visibles; los que dejan de serlo salen de la lista sin borrar el vínculo; máximo 100; el corazón también está en las tarjetas del explorador (sin sesión lleva al ingreso y vuelve).
+- **Ingreso:** Google y Apple por Supabase Auth, visibles solo si el proveedor está habilitado.
+- **No incluido (honesto):** corazón dentro de la carta pública, reclamar solicitudes de invitado, y pantalla del comercio para el plazo de cancelación (hoy `diner_cancel_cutoff_hours` por SQL).

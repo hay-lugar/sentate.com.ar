@@ -79,7 +79,7 @@ function useRemoteSearch(body: Record<string, unknown> | null, delay = 0, enable
   return [state, () => setNonce((n) => n + 1)];
 }
 
-export function Explorer({ facets }: { facets: FacetData }) {
+export function Explorer({ facets, favorites }: { facets: FacetData; favorites: string[] | null }) {
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
@@ -190,6 +190,9 @@ export function Explorer({ facets }: { facets: FacetData }) {
     setArea(null);
     go({ ...DEFAULT_FILTERS, view: filters.view });
   };
+
+  const favoriteIds = useMemo(() => new Set(favorites ?? []), [favorites]);
+  const favoriteFor = (id: string) => ({ initial: favoriteIds.has(id), loginHref: favorites === null ? `/login?next=${encodeURIComponent(`${pathname}${spKey ? `?${spKey}` : ""}`)}` : null });
 
   const filtersUi = <FiltersPanel filters={filters} facets={facets} onChange={change} onLocate={locate} geo={geo} hasPoint={!!point} />;
 
@@ -305,7 +308,7 @@ export function Explorer({ facets }: { facets: FacetData }) {
             <ul className="space-y-3">
               {listItems.map((item) => (
                 <li key={item.id}>
-                  <ResultCard item={item} facets={facets} selected={item.id === selectedId} onSelect={(id) => (setSelectedId(id), go({ ...filters, view: "map" }, "replace"))} />
+                  <ResultCard item={item} facets={facets} favorite={favoriteFor(item.id)} selected={item.id === selectedId} onSelect={(id) => (setSelectedId(id), go({ ...filters, view: "map" }, "replace"))} />
                 </li>
               ))}
             </ul>
@@ -369,7 +372,7 @@ export function Explorer({ facets }: { facets: FacetData }) {
               {selected && (
                 <div className="absolute inset-x-3 bottom-16 z-10">
                   <div className="relative">
-                    <ResultCard item={selected} facets={facets} compact selected />
+                    <ResultCard item={selected} facets={facets} favorite={favoriteFor(selected.id)} compact selected />
                     <button type="button" onClick={() => setSelectedId(null)} aria-label="Cerrar" className="absolute top-1 right-1 grid size-11 place-items-center rounded-full text-muted hover:bg-subtle">
                       <X className="size-4" aria-hidden />
                     </button>

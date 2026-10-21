@@ -23,7 +23,7 @@ test.describe("indexación", () => {
     const body = await res.text();
     expect(body).toMatch(/User-Agent: \*/i);
     expect(body).toMatch(/^Allow: \/$/m);
-    for (const path of ["/admin", "/login", "/registro", "/recuperar", "/auth/"]) expect(body).toContain(`Disallow: ${path}`);
+    for (const path of ["/admin", "/login", "/registro", "/recuperar", "/auth/", "/cuenta", "/api/"]) expect(body).toContain(`Disallow: ${path}`);
   });
 
   for (const path of ["/login", "/registro", "/recuperar", "/admin/el-bodegon", "/el-bodegon"]) {

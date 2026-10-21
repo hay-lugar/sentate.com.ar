@@ -1,0 +1,61 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { z } from "zod";
+import { CancelReservation } from "@/components/account/cancel-reservation";
+import { getMyReservation } from "@/lib/account/queries";
+import { STATUS_HELP, STATUS_LABEL, formatWhen } from "@/lib/account/status";
+
+export const metadata = { title: "Reserva" };
+
+export default async function ReservaPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  if (!z.uuid().safeParse(id).success) notFound();
+  const r = await getMyReservation(id);
+  if (!r) notFound();
+  const phoneDigits = r.tenant.phone.replace(/[^0-9+]/g, "");
+
+  return (
+    <div className="max-w-xl space-y-6">
+      <Link href="/cuenta/reservas" className="inline-flex min-h-11 items-center text-[15px] text-muted hover:text-foreground">
+        ← Mis reservas
+      </Link>
+      <div>
+        <p className="type-label">{STATUS_LABEL[r.display_status]}</p>
+        <h2 className="type-heading">{r.tenant.name}</h2>
+        <p className="mt-1 text-[15px] text-muted">{STATUS_HELP[r.display_status]}</p>
+      </div>
+      <dl className="space-y-2 text-[15px]">
+        <Row label="Cuándo" value={formatWhen(r.starts_at, r.tenant.timezone)} />
+        <Row label="Personas" value={String(r.guests)} />
+        {r.tenant.address && <Row label="Dónde" value={r.tenant.address} />}
+        {r.notes && <Row label="Tu comentario" value={r.notes} />}
+        <Row label="Pedida el" value={formatWhen(r.created_at, r.tenant.timezone)} />
+      </dl>
+      {r.can_cancel && <CancelReservation id={r.id} pending={r.status === "pending"} cutoffHours={r.cancel_cutoff_hours} />}
+      {!r.can_cancel && (r.status === "pending" || r.status === "confirmed") && r.display_status !== "finished" && r.display_status !== "expired" && (
+        <p className="type-help">Falta poco para esta reserva: para cambiarla o cancelarla, comunicate con el local.</p>
+      )}
+      <div className="flex flex-wrap gap-4 text-[15px]">
+        {r.tenant.visible && (
+          <Link href={`/${r.tenant.slug}`} className="inline-flex min-h-11 items-center underline underline-offset-4">
+            Ver la carta
+          </Link>
+        )}
+        {phoneDigits && (
+          <a href={`tel:${phoneDigits}`} className="inline-flex min-h-11 items-center underline underline-offset-4">
+            Llamar al local
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex gap-2">
+      <dt className="w-28 shrink-0 text-muted">{label}</dt>
+      <dd className="min-w-0">{value}</dd>
+    </div>
+  );
+}

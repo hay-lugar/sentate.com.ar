@@ -6,7 +6,6 @@ import { Check, Clock3, MapPin, Phone, Share2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { PublicTenant } from "@/lib/domain/types";
 import { describeWeek, type OpenState } from "@/lib/domain/schedule";
-import { DemoBadge } from "@/components/ui/demo-badge";
 import { TenantLogo } from "@/components/ui/tenant-logo";
 import { OpenStatusPill, StatusDot } from "./open-status";
 
@@ -43,100 +42,97 @@ export function RestaurantHeader({
 
   return (
     <header>
-      <div className="relative h-56 overflow-hidden bg-brand/30 sm:h-60">
-        {tenant.coverImage && (
-          <Image src={tenant.coverImage} alt="" fill priority sizes="(max-width: 448px) 100vw, 448px" className="object-cover" />
-        )}
-        <div className="absolute inset-0 bg-linear-to-b from-ink/50 via-ink/5 to-ink/30" />
-        <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-4 pt-[max(env(safe-area-inset-top),1rem)]">
-          {demo ? <DemoBadge label={localEdits ? "Demo · con tus cambios" : "Demo · local de ejemplo"} /> : <span />}
+      <div className="relative h-48 overflow-hidden bg-subtle sm:h-56">
+        {tenant.coverImage && <Image src={tenant.coverImage} alt="" fill priority sizes="(max-width: 576px) 100vw, 576px" className="object-cover" />}
+        <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-4 pt-[max(env(safe-area-inset-top),1rem)]">
+          {demo ? (
+            <span className="rounded-md bg-black/70 px-2 py-1 text-[12px] font-medium text-white">
+              {localEdits ? "Demo · con tus cambios" : "Demo · local de ejemplo"}
+            </span>
+          ) : (
+            <span />
+          )}
           <button
             type="button"
             aria-label={copied ? "Enlace copiado" : "Compartir"}
             onClick={share}
-            className="pressable grid size-11 place-items-center rounded-full bg-white/20 text-white ring-1 ring-white/30 backdrop-blur-md hover:bg-white/30"
+            className="pressable grid size-11 place-items-center rounded-full bg-black/60 text-white hover:bg-black/70"
           >
             {copied ? <Check className="size-[18px]" /> : <Share2 className="size-[18px]" />}
           </button>
         </div>
       </div>
 
-      <div className="relative -mt-8 rounded-t-[2rem] bg-background px-5 pb-2">
-        <TenantLogo
-          name={tenant.name}
-          logoUrl={tenant.logoUrl}
-          className="-mt-9 size-[4.5rem] rounded-[1.4rem] text-2xl shadow-lift ring-4 ring-background"
-        />
-
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}>
-          <h1 className="mt-3 text-[1.85rem] leading-tight font-bold [overflow-wrap:anywhere]">{tenant.name}</h1>
-          {tenant.tagline && <p className="mt-1.5 text-[15px] text-muted">{tenant.tagline}</p>}
-
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <OpenStatusPill state={status} />
-            <span className="rounded-full bg-surface px-2.5 py-1 text-[12px] font-semibold text-muted shadow-soft ring-1 ring-line/70">
-              {tenant.cuisine} · <span className="text-foreground">{tenant.priceRange}</span>
-            </span>
+      <div className="px-5 pt-5 pb-5">
+        <div className="flex items-start gap-4">
+          <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className="size-16 rounded-xl text-xl ring-1 ring-line" />
+          <div className="min-w-0">
+            <h1 className="text-[1.65rem] leading-tight font-semibold [overflow-wrap:anywhere]">{tenant.name}</h1>
+            {tenant.tagline && <p className="mt-1 text-[15px] text-muted">{tenant.tagline}</p>}
           </div>
+        </div>
 
-          <div className="mt-4 grid grid-cols-[1fr_auto] gap-2 text-[13px]">
+        <div className="mt-4 space-y-1.5">
+          <OpenStatusPill state={status} />
+          <p className="text-[14px] text-muted">
+            {tenant.cuisine} · <span className="text-foreground">{tenant.priceRange}</span>
+          </p>
+        </div>
+
+        <ul className="mt-4 divide-y divide-line border-y border-line text-[15px]">
+          <li>
             <a
               href={`https://maps.google.com/?q=${encodeURIComponent(tenant.address)}`}
               target="_blank"
               rel="noreferrer"
-              className="pressable flex min-w-0 items-center gap-2.5 rounded-2xl bg-surface p-2.5 shadow-soft ring-1 ring-line/70"
+              className="pressable flex min-h-12 items-center gap-3 py-2"
             >
-              <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">
-                <MapPin className="size-4" aria-hidden />
-              </span>
-              <span className="truncate font-medium">{tenant.address}</span>
+              <MapPin className="size-[18px] shrink-0 text-muted" aria-hidden />
+              <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{tenant.address}</span>
               <span className="sr-only">(abre Google Maps)</span>
             </a>
-            <a
-              href={`tel:${tenant.phone.replace(/[^\d+]/g, "")}`}
-              aria-label={`Llamar a ${tenant.name}`}
-              className="pressable grid aspect-square place-items-center rounded-2xl bg-surface shadow-soft ring-1 ring-line/70"
-            >
-              <span className="grid size-8 place-items-center rounded-xl bg-brand-soft text-brand">
-                <Phone className="size-4" aria-hidden />
-              </span>
+          </li>
+          <li>
+            <a href={`tel:${tenant.phone.replace(/[^\d+]/g, "")}`} aria-label={`Llamar a ${tenant.name}`} className="pressable flex min-h-12 items-center gap-3 py-2">
+              <Phone className="size-[18px] shrink-0 text-muted" aria-hidden />
+              <span className="tabular-nums">{tenant.phone}</span>
             </a>
-          </div>
+          </li>
           {weekLines.length > 0 && (
-            <div className="mt-3 flex items-start gap-1.5 px-1 text-[12px] text-muted">
-              <Clock3 className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-              <div>
+            <li className="flex items-start gap-3 py-3">
+              <Clock3 className="mt-0.5 size-[18px] shrink-0 text-muted" aria-hidden />
+              <div className="text-[14px] text-muted">
                 <span className="sr-only">Horarios: </span>
-                <ul aria-label="Horarios">
+                <ul aria-label="Horarios" className="space-y-0.5">
                   {weekLines.map((line) => (
                     <li key={line}>{line}</li>
                   ))}
                 </ul>
               </div>
-            </div>
+            </li>
           )}
-        </motion.div>
+        </ul>
       </div>
     </header>
   );
 }
 
-/** Barra compacta que aparece al scrollear: nombre + estado, como un nav bar nativo. */
+/** Barra compacta que aparece al scrollear: nombre y estado. */
 export function CompactBar({ tenant, status, visible }: { tenant: PublicTenant; status: OpenState; visible: boolean }) {
   return (
     <AnimatePresence>
       {visible && (
         <motion.div
-          initial={{ y: "-100%" }}
-          animate={{ y: 0 }}
-          exit={{ y: "-100%" }}
-          transition={{ type: "spring", damping: 30, stiffness: 400 }}
-          className="fixed inset-x-0 top-0 z-40 mx-auto max-w-md bg-background/95 pt-[env(safe-area-inset-top)] backdrop-blur-xl"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-x-0 top-0 z-40 mx-auto max-w-xl border-b border-line bg-background pt-[env(safe-area-inset-top)]"
         >
           <div className="flex h-14 items-center gap-3 px-5">
-            <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className="size-8 rounded-[0.65rem] text-[13px]" />
-            <span className="truncate font-display text-[17px] font-bold">{tenant.name}</span>
-            <span className="ml-auto inline-flex shrink-0 items-center gap-1.5 text-[12px] font-semibold text-muted">
+            <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className="size-8 rounded-lg text-[13px]" />
+            <span className="truncate text-[16px] font-semibold">{tenant.name}</span>
+            <span className="ml-auto inline-flex shrink-0 items-center gap-1.5 text-[13px] text-muted">
               <StatusDot open={status.open} />
               {status.open ? "Abierto" : "Cerrado"}
             </span>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { UtensilsCrossed } from "lucide-react";
 import type { PublicDish, PublicTenant } from "@/lib/domain/types";
 import { getOpenState } from "@/lib/domain/schedule";
 import { useZonedNow } from "@/lib/hooks/use-zoned-now";
@@ -98,7 +97,7 @@ export function MenuView({
   const closeReservation = useCallback(() => setReserving(false), []);
 
   return (
-    <div className="relative mx-auto min-h-dvh max-w-md bg-background pb-36 sm:shadow-lift">
+    <div className="relative mx-auto min-h-dvh max-w-xl bg-background pb-28 sm:border-x sm:border-line">
       <CompactBar tenant={tenant} status={status} visible={compact} />
       <RestaurantHeader tenant={tenant} status={status} demo={source === "demo"} localEdits={localEdits} />
 
@@ -109,15 +108,14 @@ export function MenuView({
             tabs={categories.map((c) => ({ id: c.id, name: c.name, count: c.dishes.length }))}
             activeId={activeId}
             onSelect={scrollToCategory}
-            elevated={compact}
           />
           <main className="px-4">
             {categories.map((category) => (
-              <section key={category.id} id={`cat-${category.id}`} aria-labelledby={`h-${category.id}`} className="pt-6">
-                <h2 id={`h-${category.id}`} tabIndex={-1} className="mb-3 px-1 text-[22px] font-bold [overflow-wrap:anywhere] outline-none">
+              <section key={category.id} id={`cat-${category.id}`} aria-labelledby={`h-${category.id}`} className="pt-7">
+                <h2 id={`h-${category.id}`} tabIndex={-1} className="text-xl font-semibold [overflow-wrap:anywhere] outline-none">
                   {category.name}
                 </h2>
-                <ul className="space-y-3">
+                <ul className="mt-1 divide-y divide-line">
                   {category.dishes.map((d) => (
                     <li key={d.id}>
                       <DishCard dish={d} onSelect={setDish} />
@@ -130,22 +128,15 @@ export function MenuView({
         </>
       ) : (
         <main className="px-4 pt-6">
-          <div className="flex flex-col items-center rounded-3xl border-2 border-dashed border-line px-6 py-12 text-center">
-            <span className="grid size-14 place-items-center rounded-2xl bg-brand-soft text-brand">
-              <UtensilsCrossed className="size-6" aria-hidden />
-            </span>
-            <h2 className="mt-4 text-xl font-bold">La carta todavía no está publicada</h2>
-            <p className="mt-1 max-w-xs text-[14px] text-muted">Podés consultar por teléfono o pedir una mesa igual desde el botón de abajo.</p>
+          <div className="rounded-xl border border-line px-6 py-10 text-center">
+            <h2 className="text-xl font-semibold">La carta todavía no está publicada</h2>
+            <p className="mx-auto mt-2 max-w-xs text-[15px] text-muted">Podés consultar por teléfono o pedir una mesa igual desde el botón de abajo.</p>
           </div>
         </main>
       )}
 
-      <p className="mt-10 px-6 text-center text-[12px] text-muted">
-        {source === "demo"
-          ? "Precios de ejemplo en pesos argentinos. Esta es una demo: los datos son ficticios."
-          : "Precios en pesos argentinos."}
-        <br />
-        Menú digital por <span className="font-display font-bold text-foreground">sentate.</span>
+      <p className="mt-10 px-6 text-center text-[13px] text-muted">
+        {source === "demo" ? "Demo: precios y datos de ejemplo, en pesos argentinos." : "Precios en pesos argentinos."} Carta digital por Sentate.
       </p>
 
       <ReserveBar onReserve={() => setReserving(true)} />

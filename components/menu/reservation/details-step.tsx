@@ -1,6 +1,5 @@
 "use client";
 
-import { ShieldCheck } from "lucide-react";
 import type { PlainDate, WallTime } from "@/lib/domain/types";
 import { RESERVATION_LIMITS, type FieldErrors, type ReservationDraft } from "@/lib/reservation/validation";
 import { capitalize, formatPlainDate } from "@/lib/time/zoned";
@@ -22,18 +21,16 @@ export function DetailsStep({ draft, errors, update, onEdit, live = false }: Pro
       <Summary guests={draft.guests} serviceDate={draft.serviceDate} time={draft.time} onEdit={onEdit} />
 
       {live ? (
-        <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-background p-3 text-[12px] leading-snug text-muted ring-1 ring-line/70">
-          <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
+        <div className="mt-4 rounded-xl bg-subtle p-3 text-[13px] leading-snug text-muted">
           <span>
             Tu nombre y teléfono se comparten solo con este local para gestionar la solicitud. El local te responde por su cuenta (teléfono o WhatsApp):
             Sentate no envía mensajes automáticos.
           </span>
         </div>
       ) : (
-        <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-amber-50 p-3 text-[12px] leading-snug text-amber-900">
-          <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
+        <div className="mt-4 rounded-xl bg-subtle p-3 text-[13px] leading-snug text-muted">
           <span>
-            <b className="font-semibold">Modo demo:</b> no se guarda ni se envía nada. Podés usar datos inventados.
+            <b className="font-semibold text-foreground">Modo demo:</b> no se guarda ni se envía nada. Podés usar datos inventados.
           </span>
         </div>
       )}
@@ -84,7 +81,7 @@ export function DetailsStep({ draft, errors, update, onEdit, live = false }: Pro
             placeholder="Cumpleaños, silla de bebé, alergias…"
             aria-invalid={!!errors.notes}
             aria-describedby={errors.notes ? "err-notes" : undefined}
-            className={cn(inputClass, "h-auto resize-none py-3.5")}
+            className={cn(inputClass, "h-auto resize-none py-3")}
           />
         </Field>
       </div>
@@ -111,10 +108,10 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-1.5 flex items-baseline justify-between px-1 text-[13px] font-semibold">
+      <label htmlFor={htmlFor} className="mb-1.5 flex items-baseline justify-between text-[14px] font-medium">
         {label}
         {(optional || counter) && (
-          <span className="text-[12px] font-medium text-muted">
+          <span className="text-[13px] font-normal text-muted">
             {optional && "Opcional"}
             {counter && ` · ${counter}`}
           </span>
@@ -129,7 +126,7 @@ function Field({
 function Summary({ guests, serviceDate, time, onEdit }: { guests: number; serviceDate: PlainDate | null; time: WallTime | null; onEdit: (step: number) => void }) {
   const day = serviceDate ? capitalize(formatPlainDate(serviceDate, { weekday: "short", day: "numeric" })) : "—";
   return (
-    <div className="flex divide-x divide-line rounded-3xl bg-background ring-1 ring-line/70">
+    <div className="flex divide-x divide-line rounded-xl border border-line">
       <SummaryItem label="Personas" value={String(guests)} onClick={() => onEdit(0)} />
       <SummaryItem label="Día" value={day} onClick={() => onEdit(1)} />
       <SummaryItem label="Hora" value={time ?? "—"} onClick={() => onEdit(1)} />
@@ -139,10 +136,10 @@ function Summary({ guests, serviceDate, time, onEdit }: { guests: number; servic
 
 function SummaryItem({ label, value, onClick }: { label: string; value: string; onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick} aria-label={`Cambiar ${label.toLowerCase()}: ${value}`} className="pressable flex-1 rounded-3xl px-3 py-3 text-center">
-      <span className="block text-[11px] font-medium text-muted">{label}</span>
-      <span className="mt-0.5 block font-display text-[17px] font-bold">{value}</span>
-      <span className="block text-[11px] font-semibold text-brand">Cambiar</span>
+    <button type="button" onClick={onClick} aria-label={`Cambiar ${label.toLowerCase()}: ${value}`} className="pressable flex-1 px-3 py-3 text-center">
+      <span className="block text-[13px] text-muted">{label}</span>
+      <span className="mt-0.5 block text-[17px] font-semibold">{value}</span>
+      <span className="block text-[13px] underline underline-offset-2">Cambiar</span>
     </button>
   );
 }

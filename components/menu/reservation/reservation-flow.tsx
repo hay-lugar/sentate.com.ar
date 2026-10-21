@@ -2,11 +2,12 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo } from "react";
-import { ArrowLeft, LoaderCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import type { PublicTenant } from "@/lib/domain/types";
 import { zonedNow } from "@/lib/time/zoned";
 import { useZonedNow } from "@/lib/hooks/use-zoned-now";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/format";
 import { DateTimeStep } from "./date-time-step";
 import { DetailsStep } from "./details-step";
@@ -39,10 +40,10 @@ export function ReservationFlow({
   const header =
     r.phase === "submitted" || r.phase === "failed" ? null : (
       <div>
-        <p className="text-[12px] font-semibold tracking-wide text-brand uppercase">
+        <p className="text-[13px] text-muted">
           Paso {r.step + 1} de {STEP_COUNT}
         </p>
-        <h2 className="mt-0.5 text-[22px] font-bold">{TITLES[r.step]}</h2>
+        <h2 className="mt-0.5 text-xl font-semibold">{TITLES[r.step]}</h2>
         <div
           className="mt-3 flex gap-1.5"
           role="progressbar"
@@ -52,14 +53,7 @@ export function ReservationFlow({
           aria-valuenow={r.step + 1}
         >
           {TITLES.map((t, i) => (
-            <div key={t} className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
-              <motion.div
-                className="h-full rounded-full bg-brand"
-                initial={false}
-                animate={{ width: i <= r.step ? "100%" : "0%" }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              />
-            </div>
+            <div key={t} className={cn("h-1 flex-1 rounded-full", i <= r.step ? "bg-brand" : "bg-line")} />
           ))}
         </div>
       </div>
@@ -69,35 +63,13 @@ export function ReservationFlow({
     r.phase === "form" || r.phase === "submitting" ? (
       <div className="flex gap-3">
         {r.canGoBack && (
-          <button
-            type="button"
-            onClick={() => r.goTo(r.step - 1)}
-            aria-label="Paso anterior"
-            className="pressable grid size-14 shrink-0 place-items-center rounded-2xl bg-background text-foreground ring-1 ring-line"
-          >
+          <Button variant="secondary" size="lg" onClick={() => r.goTo(r.step - 1)} aria-label="Paso anterior" className="px-4">
             <ArrowLeft className="size-5" aria-hidden />
-          </button>
+          </Button>
         )}
-        <button
-          type="button"
-          disabled={submitting}
-          aria-busy={submitting}
-          onClick={() => (r.isLastStep ? r.submit() : r.next())}
-          className={cn(
-            "pressable flex h-14 flex-1 items-center justify-center gap-2 rounded-2xl font-display text-[16px] font-bold",
-            "bg-brand text-brand-fg shadow-brand disabled:opacity-70 disabled:active:scale-100",
-          )}
-        >
-          {submitting ? (
-            <>
-              <LoaderCircle className="size-5 animate-spin" aria-hidden /> Enviando solicitud…
-            </>
-          ) : r.isLastStep ? (
-            live ? "Enviar solicitud" : "Enviar solicitud (demo)"
-          ) : (
-            "Continuar"
-          )}
-        </button>
+        <Button size="lg" pending={submitting} onClick={() => (r.isLastStep ? r.submit() : r.next())} className="flex-1">
+          {submitting ? "Enviando solicitud…" : r.isLastStep ? (live ? "Enviar solicitud" : "Enviar solicitud (demo)") : "Continuar"}
+        </Button>
       </div>
     ) : undefined;
 
@@ -115,14 +87,14 @@ export function ReservationFlow({
               custom={r.direction}
               disabled={submitting}
               variants={{
-                enter: (d: number) => ({ x: d * 48, opacity: 0 }),
-                center: { x: 0, opacity: 1 },
-                exit: (d: number) => ({ x: d * -48, opacity: 0 }),
+                enter: { opacity: 0 },
+                center: { opacity: 1 },
+                exit: { opacity: 0 },
               }}
               initial="enter"
               animate="center"
               exit="exit"
-              transition={{ type: "spring", stiffness: 380, damping: 36 }}
+              transition={{ duration: 0.15 }}
               className="min-w-0 px-6 pt-4 pb-6"
             >
               <legend className="sr-only">{TITLES[r.step]}</legend>

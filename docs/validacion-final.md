@@ -40,7 +40,7 @@ pgTAP, Data API, Realtime, Storage y las E2E live **requieren Docker** (Supabase
 ## Lo que NO está verificado
 
 - **Nada se probó en `sentate.com.ar`** ni en Vercel: no hay proyecto desplegado. Faltan la prueba de humo de `docs/piloto.md`, el header de IP de Vercel y el envío real de emails (SMTP).
-- **Migraciones remotas:** `20261022000100` y `20261022000200` no están aplicadas en el Supabase remoto; todo lo anterior se probó contra Supabase **local**.
+- **Migraciones remotas:** ya están aplicadas las 11 (ver `docs/piloto.md`), pero **todo lo anterior se probó contra Supabase local**: no se corrieron las E2E contra el proyecto remoto ni se creó ninguna cuenta ahí.
 - **Teléfono real:** el QR se decodifica por software y el enlace de WhatsApp se comprueba por su `href`; no se escaneó ni se abrió WhatsApp en un teléfono.
 - **A11y:** axe detecta solo una parte de los problemas; no hubo prueba con lector de pantalla ni auditoría manual.
 - **Carga y denegación de servicio:** el cupo por conexión se probó funcionalmente, no con tráfico; riesgos residuales en `docs/reservas-piloto.md`.

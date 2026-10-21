@@ -6,7 +6,7 @@ Fase 4, punto 7. Esta guía deja listo el piloto en `sentate.com.ar` **sin tocar
 
 - Rama predeterminada del repositorio: `main` (verificado por la API de GitHub).
 - Hay un deploy de producción en https://sentate.vercel.app (ver «Estado de Vercel»).
-- Las migraciones `20261022000100` (Storage) y `20261022000200` (cupo por IP) **no están aplicadas** en el proyecto Supabase remoto.
+- **Migraciones remotas: las 11 del repo están aplicadas** en el proyecto Supabase del piloto (`nemeftbwnxymjdqinjtj`), con las mismas versiones que los archivos de `supabase/migrations/` (aplicadas el 2026-10-21; verificado por lectura del historial y de los objetos creados). Antes solo estaban las 8 primeras.
 - Nada de esto se probó en un dominio real: lo verificado es build, pruebas locales y CI.
 
 ## Estado de Vercel (verificado por la API y desde afuera)
@@ -53,14 +53,15 @@ Reglas: la clave de desarrollo `sentate-dev-only` y los usuarios del seed no exi
 
 Cabeceras de seguridad (`nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`) y `robots.txt` salen de `next.config.ts` y `app/robots.ts`, sin configuración en Vercel. **No hay CSP**: es una decisión pendiente (requiere probarla contra Next, framer-motion y las imágenes firmadas de Storage).
 
-## 3. Supabase remoto (acción tuya)
+## 3. Supabase remoto
 
-**Migraciones.** Comparar antes con `npx -y supabase@2.121.0 migration list` (con el proyecto enlazado) y aplicar solo las que falten, en orden:
+**Migraciones: aplicadas.** `20261022000100_tenant_images_storage` (bucket privado `tenant-images`, 4 políticas, constraints de rutas, `tenant_image_orphans`), `20261022000200_reservation_ip_budget` (cupo por conexión, tabla con RLS y sin políticas) y `20261023000100_plan_price_14999` (precio en la base: 14999). La base estaba vacía (0 comercios, 0 usuarios, 0 buckets), así que no había datos que proteger; no se cargó seed ni usuarios de desarrollo. Para migraciones futuras: comparar antes con `npx -y supabase@2.121.0 migration list` (con el proyecto enlazado) y aplicar solo las que falten, en orden.
 
-```
-20261022000100_tenant_images_storage.sql      (bucket privado tenant-images, políticas, constraints)
-20261022000200_reservation_ip_budget.sql      (cupo de solicitudes por conexión)
-```
+Notas de la aplicación:
+- Se aplicó con la herramienta de migraciones del conector de Supabase, que registra versiones propias; se corrigieron en `supabase_migrations.schema_migrations` para que coincidan con los archivos (así `db push` no las ve como pendientes).
+- El conector pide confirmación en `UPDATE`/`DELETE` sin `WHERE` y se queda esperando (expira a los 60 s sin aplicar nada); el `UPDATE` del precio se aplicó con `where id = true`, equivalente (la tabla tiene una sola fila).
+- Verificado tras aplicar: el bucket es privado (2 MiB, webp/jpeg/png); `anon` puede llamar a `consume_reservation_ip_budget` y **no** puede leer `private.rate_limit_hits`; no hay funciones `SECURITY DEFINER` en `public`; el cupo responde (`allowed`, `remaining: 11`) y la clave inválida se rechaza. Advisors de seguridad: solo INFO `rls_enabled_no_policy` en 3 tablas del esquema `private` (intencional).
+- **Quedaron 2 filas de prueba** en `private.rate_limit_hits` (clave `aaaa…a`, 1 uso cada una, ventana del 2026-10-21). Son inofensivas y la función las limpia sola cuando vencen; se pueden borrar con `delete from private.rate_limit_hits where key = repeat('a', 64);`.
 
 Las anteriores (`20261020…`, `20261021…`) deben figurar ya aplicadas; verificalo, no lo asumas. Hacer backup (o confirmar el de Supabase) antes de `db push`. Después correr los advisors de seguridad y performance del dashboard.
 
@@ -106,7 +107,7 @@ En orden; cada una con una cuenta de prueba creada a propósito (no con datos de
 
 ## 7. Decisiones y pendientes
 
-Acciones tuyas: crear el proyecto de Vercel y el dominio; cargar variables; aplicar las dos migraciones; configurar Auth (URLs, plantilla, SMTP); rotar `service_role`; borrar las ramas remotas `fase-4-imagenes`, `fase-4-qr` y `fase-4-reservas` si siguen existiendo; probar el QR con un teléfono.
+Acciones tuyas: crear el proyecto de Vercel y el dominio; cargar variables; configurar Auth (URLs, plantilla, SMTP); rotar `service_role`; borrar las ramas remotas `fase-4-imagenes`, `fase-4-qr` y `fase-4-reservas` si siguen existiendo; probar el QR con un teléfono.
 
 Decisiones abiertas: notificar al comensal (email/WhatsApp), desafío anti-bots, cerrar la RPC pública de solicitudes, CSP, números del cupo con tráfico real, proveedor SMTP.
 

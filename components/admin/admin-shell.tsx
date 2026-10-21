@@ -2,25 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  Bell,
-  CalendarDays,
-  ExternalLink,
-  LogOut,
-  LayoutDashboard,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Settings,
-  UtensilsCrossed,
-  QrCode,
-  type LucideIcon,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { CalendarDays, ExternalLink, LayoutDashboard, LogOut, PanelLeftClose, PanelLeftOpen, QrCode, Settings, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Logo } from "@/components/ui/logo";
 import { TenantLogo } from "@/components/ui/tenant-logo";
-import { ThemeScope } from "@/components/ui/theme-scope";
 import { cn } from "@/lib/format";
+import { themeStyle } from "@/lib/theme";
 import { useDemo } from "./demo-provider";
 import { DemoBanner } from "./demo-banner";
 import { TrialBanner } from "./trial-banner";
@@ -30,6 +18,10 @@ type NavItem = { href: string; label: string; icon: LucideIcon; badge?: number }
 
 const STORAGE_KEY = "sentate:sidebar-collapsed";
 
+/**
+ * Estructura del panel. La interfaz es la de Sentate (neutra): el color del comercio solo aparece en su propio
+ * logo cuando no subió uno, y en la vista previa de Ajustes.
+ */
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { state, mode, live } = useDemo();
@@ -63,128 +55,104 @@ export function AdminShell({ children }: { children: ReactNode }) {
   ];
   const isActive = (href: string) => (href === base ? pathname === base : pathname.startsWith(href));
 
+  const logo = (className: string) => (
+    <span style={themeStyle(state.profile.theme)} className="contents">
+      <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className={className} />
+    </span>
+  );
+
   return (
-    <ThemeScope theme={state.profile.theme} className="min-h-dvh bg-background lg:flex">
+    <div className="min-h-dvh bg-background lg:flex">
       {/* ── Sidebar desktop ── */}
       <motion.aside
         initial={false}
-        animate={{ width: collapsed ? 92 : 280 }}
-        transition={{ type: "spring", stiffness: 380, damping: 38 }}
-        className="sticky top-0 hidden h-dvh shrink-0 flex-col p-3 lg:flex print:hidden!"
+        animate={{ width: collapsed ? 76 : 248 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-line bg-background p-3 lg:flex print:hidden!"
       >
-        <div className="flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-surface p-3 shadow-soft ring-1 ring-line/70">
-          <div className="flex h-12 items-center justify-between pl-2">
-            <AnimatePresence initial={false} mode="popLayout">
-              {!collapsed && (
-                <motion.div key="logo" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <Link href="/">
-                    <Logo className="h-9" />
-                  </Link>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <button
-              type="button"
-              onClick={toggle}
-              aria-label={collapsed ? "Expandir menú" : "Colapsar menú"}
-              className={cn(
-                "pressable grid size-10 shrink-0 place-items-center rounded-xl text-muted hover:bg-background hover:text-foreground",
-                collapsed && "mx-auto -translate-x-1",
-              )}
-            >
-              {collapsed ? <PanelLeftOpen className="size-5" /> : <PanelLeftClose className="size-5" />}
-            </button>
-          </div>
-
-          {/* Tenant */}
-          <div className={cn("mt-4 flex items-center gap-3 rounded-2xl bg-background p-2", collapsed && "justify-center bg-transparent p-0")}>
-            <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className="size-11 rounded-[0.9rem] text-[15px] shadow-brand" />
-            {!collapsed && (
-              <div className="min-w-0 leading-tight">
-                <p className="truncate font-display font-bold">{tenant.name}</p>
-                <p className="truncate text-[12px] text-muted">{tenant.cuisine}</p>
-              </div>
-            )}
-          </div>
-
-          <nav className="mt-6 flex flex-col gap-1">
-            {items.map((item) => (
-              <SidebarLink key={item.href} item={item} active={isActive(item.href)} collapsed={collapsed} />
-            ))}
-          </nav>
-
-          <div className="mt-auto space-y-2">
-            <Link
-              href={`/${tenant.slug}`}
-              target="_blank"
-              title="Ver menú público"
-              className={cn(
-                "pressable flex h-12 items-center gap-3 rounded-2xl px-3.5 text-[14px] font-semibold text-muted ring-1 ring-line hover:text-foreground",
-                collapsed && "justify-center px-0",
-              )}
-            >
-              <ExternalLink className="size-[18px] shrink-0" aria-hidden />
-              {collapsed ? <span className="sr-only">Ver menú público (nueva pestaña)</span> : "Ver menú público"}
+        <div className="flex h-12 items-center justify-between">
+          {!collapsed && (
+            <Link href="/" aria-label="Sentate, inicio" className="pl-1">
+              <Logo size="sm" />
             </Link>
-            {live && (
-              <form action={signOutAction}>
-                <button
-                  type="submit"
-                  title={`Cerrar sesión (${live.email})`}
-                  className={cn(
-                    "pressable flex h-12 w-full items-center gap-3 rounded-2xl px-3.5 text-[14px] font-semibold text-muted hover:bg-background hover:text-foreground",
-                    collapsed && "justify-center px-0",
-                  )}
-                >
-                  <LogOut className="size-[18px] shrink-0" aria-hidden />
-                  {collapsed ? <span className="sr-only">Cerrar sesión</span> : "Cerrar sesión"}
-                </button>
-              </form>
-            )}
-          </div>
+          )}
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={collapsed ? "Expandir menú" : "Colapsar menú"}
+            className={cn("pressable grid size-10 shrink-0 place-items-center rounded-lg text-muted hover:bg-subtle hover:text-foreground", collapsed && "mx-auto")}
+          >
+            {collapsed ? <PanelLeftOpen className="size-5" /> : <PanelLeftClose className="size-5" />}
+          </button>
+        </div>
+
+        <div className={cn("mt-4 flex items-center gap-3 border-y border-line py-3", collapsed && "justify-center")}>
+          {logo("size-10 rounded-lg text-[14px]")}
+          {!collapsed && (
+            <div className="min-w-0 leading-tight">
+              <p className="truncate font-semibold">{tenant.name}</p>
+              <p className="truncate text-[13px] text-muted">{tenant.cuisine}</p>
+            </div>
+          )}
+        </div>
+
+        <nav aria-label="Panel" className="mt-4 flex flex-col gap-0.5">
+          {items.map((item) => (
+            <SidebarLink key={item.href} item={item} active={isActive(item.href)} collapsed={collapsed} />
+          ))}
+        </nav>
+
+        <div className="mt-auto space-y-0.5">
+          <Link
+            href={`/${tenant.slug}`}
+            target="_blank"
+            title="Ver menú público"
+            className={cn("pressable flex h-10 items-center gap-3 rounded-lg px-3 text-[15px] text-muted hover:bg-subtle hover:text-foreground", collapsed && "justify-center px-0")}
+          >
+            <ExternalLink className="size-[18px] shrink-0" aria-hidden />
+            {collapsed ? <span className="sr-only">Ver menú público (nueva pestaña)</span> : "Ver menú público"}
+          </Link>
+          {live && (
+            <form action={signOutAction}>
+              <button
+                type="submit"
+                title={`Cerrar sesión (${live.email})`}
+                className={cn("pressable flex h-10 w-full items-center gap-3 rounded-lg px-3 text-[15px] text-muted hover:bg-subtle hover:text-foreground", collapsed && "justify-center px-0")}
+              >
+                <LogOut className="size-[18px] shrink-0" aria-hidden />
+                {collapsed ? <span className="sr-only">Cerrar sesión</span> : "Cerrar sesión"}
+              </button>
+            </form>
+          )}
         </div>
       </motion.aside>
 
-      {/* ── Top bar mobile ── */}
-      <header className="sticky top-0 z-30 flex h-16 items-center gap-3 bg-background/85 px-4 backdrop-blur-xl lg:hidden print:hidden!">
-        <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className="size-10 rounded-xl text-[14px] shadow-brand" />
+      {/* ── Barra superior mobile ── */}
+      <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-background px-4 lg:hidden print:hidden!">
+        {logo("size-9 rounded-lg text-[13px]")}
         <div className="min-w-0 leading-tight">
-          <p className="truncate font-display font-bold">{tenant.name}</p>
-          <p className="text-[12px] text-muted">{mode === "demo" ? "Panel · demo" : "Panel"}</p>
+          <p className="truncate font-semibold">{tenant.name}</p>
+          {mode === "demo" && <p className="text-[13px] text-muted">Panel de la demo</p>}
         </div>
-        <Link
-          href={`${base}/reservas`}
-          aria-label={`Solicitudes pendientes: ${pending}`}
-          className="pressable relative ml-auto grid size-11 place-items-center rounded-2xl bg-surface shadow-soft ring-1 ring-line/70"
-        >
-          <Bell className="size-5" aria-hidden />
-          {pending > 0 && (
-            <span className="absolute -top-1 -right-1 grid h-5 min-w-5 place-items-center rounded-full bg-brand px-1 text-[11px] font-bold text-brand-fg ring-2 ring-background">
-              {pending}
-            </span>
-          )}
-        </Link>
         {live && (
-          <form action={signOutAction}>
-            <button
-              type="submit"
-              aria-label="Cerrar sesión"
-              className="pressable grid size-11 place-items-center rounded-2xl bg-surface shadow-soft ring-1 ring-line/70"
-            >
+          <form action={signOutAction} className="ml-auto">
+            <button type="submit" aria-label="Cerrar sesión" className="pressable grid size-11 place-items-center rounded-lg text-muted hover:bg-subtle hover:text-foreground">
               <LogOut className="size-5" aria-hidden />
             </button>
           </form>
         )}
       </header>
 
-      <main className="min-w-0 flex-1 px-4 pt-2 pb-36 sm:px-6 lg:px-8 lg:py-8 print:p-0">
-        <div className="print:hidden">{mode === "demo" ? <DemoBanner /> : <TrialBanner />}</div>
-        {children}
+      <main className="min-w-0 flex-1 px-4 pt-5 pb-28 sm:px-6 lg:px-10 lg:py-8 print:p-0">
+        <div className="mx-auto max-w-5xl">
+          <div className="print:hidden">{mode === "demo" ? <DemoBanner /> : <TrialBanner />}</div>
+          {children}
+        </div>
       </main>
 
-      {/* ── Bottom nav mobile ── */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 px-3 pb-safe lg:hidden print:hidden!">
-        <div className="mx-auto flex max-w-md items-center justify-around rounded-[1.6rem] bg-surface/90 p-1.5 shadow-lift ring-1 ring-line/70 backdrop-blur-xl">
+      {/* ── Navegación inferior mobile ── */}
+      <nav aria-label="Panel" className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-background pb-[env(safe-area-inset-bottom)] lg:hidden print:hidden!">
+        <div className="mx-auto flex max-w-md">
           {items.map((item) => {
             const active = isActive(item.href);
             const Icon = item.icon;
@@ -195,32 +163,26 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 aria-current={active ? "page" : undefined}
                 aria-label={item.badge ? `${item.label} (${item.badge} pendientes)` : undefined}
                 className={cn(
-                  "pressable relative flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2 text-[11px] font-semibold",
-                  active ? "text-brand" : "text-muted",
+                  "pressable relative flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[12px]",
+                  active ? "font-semibold text-foreground" : "text-muted",
                 )}
               >
-                {active && (
-                  <motion.span
-                    layoutId="bottom-nav-pill"
-                    className="absolute inset-0 rounded-2xl bg-brand-soft"
-                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                  />
-                )}
+                {active && <span aria-hidden className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-foreground" />}
                 <span className="relative" aria-hidden>
-                  <Icon className="size-[22px]" strokeWidth={active ? 2.5 : 2} />
+                  <Icon className="size-[22px]" strokeWidth={active ? 2.25 : 1.75} />
                   {!!item.badge && (
-                    <span className="absolute -top-1.5 -right-2.5 grid h-4 min-w-4 place-items-center rounded-full bg-brand px-1 text-[10px] font-bold text-brand-fg">
+                    <span className="absolute -top-1.5 -right-3 grid h-4 min-w-4 place-items-center rounded-full bg-foreground px-1 text-[11px] font-semibold text-background">
                       {item.badge}
                     </span>
                   )}
                 </span>
-                <span className="relative">{item.label}</span>
+                <span>{item.label}</span>
               </Link>
             );
           })}
         </div>
       </nav>
-    </ThemeScope>
+    </div>
   );
 }
 
@@ -233,28 +195,17 @@ function SidebarLink({ item, active, collapsed }: { item: NavItem; active: boole
       aria-current={active ? "page" : undefined}
       aria-label={collapsed || item.badge ? `${item.label}${item.badge ? ` (${item.badge} pendientes)` : ""}` : undefined}
       className={cn(
-        "pressable relative flex h-12 items-center gap-3 rounded-2xl px-3.5 text-[15px] font-semibold",
-        active ? "text-brand-fg" : "text-muted hover:bg-background hover:text-foreground",
+        "pressable relative flex h-10 items-center gap-3 rounded-lg px-3 text-[15px]",
+        active ? "bg-subtle font-semibold text-foreground" : "text-muted hover:bg-subtle hover:text-foreground",
         collapsed && "justify-center px-0",
       )}
     >
-      {active && (
-        <motion.span
-          layoutId="sidebar-pill"
-          className="absolute inset-0 rounded-2xl bg-brand shadow-brand"
-          transition={{ type: "spring", stiffness: 420, damping: 36 }}
-        />
-      )}
-      <Icon className="relative size-5 shrink-0" strokeWidth={active ? 2.5 : 2} aria-hidden />
-      {!collapsed && <span className="relative truncate">{item.label}</span>}
+      <Icon className="size-[18px] shrink-0" strokeWidth={active ? 2.25 : 1.75} aria-hidden />
+      {!collapsed && <span className="truncate">{item.label}</span>}
       {!!item.badge && (
         <span
           aria-hidden
-          className={cn(
-            "relative grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[11px] font-bold",
-            active ? "bg-white/25 text-brand-fg" : "bg-brand text-brand-fg",
-            collapsed ? "absolute! top-1.5 right-3" : "ml-auto",
-          )}
+          className={cn("grid h-5 min-w-5 place-items-center rounded-full bg-foreground px-1.5 text-[12px] font-semibold text-background", collapsed ? "absolute top-0.5 right-2" : "ml-auto")}
         >
           {item.badge}
         </span>

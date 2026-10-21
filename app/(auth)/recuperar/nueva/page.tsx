@@ -11,12 +11,12 @@ export default async function NewPasswordPage() {
   if (!(await getCurrentUser())) {
     return (
       <>
-        <h1 className="text-2xl font-bold">No pudimos validar el enlace</h1>
-        <p role="alert" className="mt-4 rounded-2xl bg-rose-50 p-3 text-[13px] leading-snug text-rose-800">
+        <h1 className="text-2xl font-semibold">No pudimos validar el enlace</h1>
+        <p role="alert" className="mt-4 rounded-xl border border-danger/40 bg-danger/5 p-3 text-[14px] leading-snug text-danger">
           {RECOVERY_LINK_ERROR}
         </p>
         <p className="mt-6 text-center text-[14px] text-muted">
-          <Link href="/recuperar" className="font-semibold text-brand underline-offset-4 hover:underline">
+          <Link href="/recuperar" className="font-medium text-foreground underline underline-offset-4">
             Pedir un enlace nuevo
           </Link>
         </p>
@@ -25,8 +25,7 @@ export default async function NewPasswordPage() {
   }
   return (
     <>
-      <h1 className="text-2xl font-bold">Elegí una contraseña nueva</h1>
-      <p className="mt-1 mb-6 text-[14px] text-muted">Después de guardarla, entrás directo a tu panel.</p>
+      <h1 className="mb-6 text-2xl font-semibold">Contraseña nueva</h1>
       <NewPasswordForm />
     </>
   );

@@ -1,6 +1,7 @@
 // Estado de la demo del panel: reducer puro (testeable, sin React ni storage).
 
 import type { Category, Dish, Reservation, ReservationStatus, TenantProfile } from "@/lib/domain/types";
+import { isNewer } from "@/lib/time/versions";
 
 export type DemoState = {
   slug: string;
@@ -58,7 +59,8 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
       const incoming = action.reservation;
       const current = state.reservations.find((r) => r.id === incoming.id);
       if (current) {
-        if (current.version && incoming.version && incoming.version <= current.version) return state;
+        // Por instante, no por texto: ver lib/time/versions.ts.
+        if (current.version && incoming.version && !isNewer(incoming.version, current.version)) return state;
         return { ...state, reservations: state.reservations.map((r) => (r.id === incoming.id ? incoming : r)) };
       }
       return { ...state, reservations: [...state.reservations, incoming] };

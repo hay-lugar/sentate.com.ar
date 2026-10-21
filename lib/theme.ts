@@ -46,7 +46,7 @@ export function tint(hex: string, amount: number) {
 export type ContrastCheck = { label: string; ratio: number; ok: boolean };
 
 /** Pares de color que usa la UI con texto. AA: 4.5 para texto normal. */
-export function themeContrastReport(theme: TenantTheme, background = "#fbf8f4"): ContrastCheck[] {
+export function themeContrastReport(theme: TenantTheme, background = "#ffffff"): ContrastCheck[] {
   const pairs: [string, string, string][] = [
     ["Texto sobre botón", theme.primaryForeground, theme.primary],
     ["Texto de acento", theme.accentForeground, theme.accent],

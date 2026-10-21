@@ -1,8 +1,8 @@
 "use client";
 
-import { AlertTriangle, Check, Copy, Download, ExternalLink, Printer } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { Button, buttonClass } from "@/components/ui/button";
 import { cn } from "@/lib/format";
 import { QR_PRINT_MIN_CM } from "@/lib/qr/config";
 import { qrPngDataUrl, qrSvg, svgDataUrl } from "@/lib/qr/generate";
@@ -10,8 +10,6 @@ import { displayUrl, isPilotOrigin, publicMenuUrl, qrFileName } from "@/lib/qr/u
 import { useDemo } from "./demo-provider";
 
 const SCAN_TEXT = "Escaneá para ver la carta y solicitar una mesa";
-const buttonClass =
-  "pressable inline-flex h-12 items-center justify-center gap-2 rounded-2xl px-4 text-[14px] font-semibold ring-1 ring-line disabled:opacity-60";
 
 function save(blob: Blob, filename: string) {
   const href = URL.createObjectURL(blob);
@@ -64,12 +62,9 @@ export function QrSection({ origin }: { origin: string | null }) {
 
   if (!origin || !url) {
     return (
-      <p role="alert" className="flex items-start gap-3 rounded-[1.75rem] bg-amber-50 p-5 text-[14px] leading-snug text-amber-950 ring-1 ring-amber-200">
-        <AlertTriangle className="mt-0.5 size-5 shrink-0" aria-hidden />
-        <span>
-          No se puede generar el QR: falta configurar <code className="font-semibold">APP_URL</code>, la dirección pública de la app (por ejemplo
-          https://sentate.com.ar). Sin ella no hay forma segura de armar un enlace que funcione fuera de este equipo.
-        </span>
+      <p role="alert" className="rounded-xl border border-warning/50 bg-subtle p-4 text-[15px] leading-snug">
+        No se puede generar el QR: falta configurar <code className="font-semibold">APP_URL</code>, la dirección pública de la app (por ejemplo
+        https://sentate.com.ar). Sin ella no hay forma segura de armar un enlace que funcione fuera de este equipo.
       </p>
     );
   }
@@ -107,39 +102,37 @@ export function QrSection({ origin }: { origin: string | null }) {
     }
   };
 
+  const notice_ = "rounded-xl border border-warning/50 bg-subtle p-4 text-[15px] leading-snug";
+
   return (
     <>
-      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 pb-24 lg:grid-cols-2 print:hidden">
+      <div className="max-w-3xl space-y-10 pb-24 print:hidden">
         {(!published || !pilot || mode === "demo") && (
-          <div className="space-y-3 lg:col-span-2">
+          <div className="space-y-3">
             {!published && (
-              <p role="status" className="flex items-start gap-3 rounded-2xl bg-amber-50 p-4 text-[14px] leading-snug text-amber-950 ring-1 ring-amber-200">
-                <AlertTriangle className="mt-0.5 size-5 shrink-0" aria-hidden />
-                <span>
-                  Tu carta todavía no está publicada: quien escanee este QR va a ver «no encontrado» hasta que la publiques.{" "}
-                  <Link href={`/admin/${slug}`} className="font-semibold underline underline-offset-2">
-                    Ir a Inicio para publicarla
-                  </Link>
-                  .
-                </span>
+              <p role="status" className={notice_}>
+                Tu carta todavía no está publicada: quien escanee este QR va a ver «no encontrado» hasta que la publiques.{" "}
+                <Link href={`/admin/${slug}`} className="font-medium underline underline-offset-2">
+                  Ir a Inicio para publicarla
+                </Link>
+                .
               </p>
             )}
             {!pilot && (
-              <p role="status" className="flex items-start gap-3 rounded-2xl bg-amber-50 p-4 text-[14px] leading-snug text-amber-950 ring-1 ring-amber-200">
-                <AlertTriangle className="mt-0.5 size-5 shrink-0" aria-hidden />
-                <span>
-                  Este QR apunta a <strong className="font-semibold">{origin}</strong>, un entorno de prueba. No lo imprimas ni lo pegues en tu local: en
-                  producción el enlace usa tu dirección pública con https. Los archivos descargados llevan «-prueba» en el nombre.
-                </span>
+              <p role="status" className={notice_}>
+                Este QR apunta a <strong className="font-semibold">{origin}</strong>, un entorno de prueba. No lo imprimas ni lo pegues en tu local: en
+                producción el enlace usa tu dirección pública con https. Los archivos descargados llevan «-prueba» en el nombre.
               </p>
             )}
-            {mode === "demo" && <p className="px-1 text-[13px] text-muted">Demo: este QR abre la carta de ejemplo.</p>}
+            {mode === "demo" && <p className="text-[14px] text-muted">Demo: este QR abre la carta de ejemplo.</p>}
           </div>
         )}
 
-        <section className="rounded-[1.75rem] bg-surface p-5 shadow-soft ring-1 ring-line/70 lg:col-span-2">
-          <h2 className="mb-1 text-lg font-bold">Enlace de tu carta</h2>
-          <p className="mb-4 text-[13px] text-muted">Es la dirección que abre el QR. Compartila también por WhatsApp o redes.</p>
+        <section aria-labelledby="qr-enlace">
+          <h2 id="qr-enlace" className="text-xl font-semibold">
+            Enlace de tu carta
+          </h2>
+          <p className="mt-1 mb-4 text-[15px] text-muted">Es la dirección que abre el QR. Compartila también por WhatsApp o redes.</p>
           <label htmlFor="public-link" className="sr-only">
             Enlace público de tu carta
           </label>
@@ -149,63 +142,61 @@ export function QrSection({ origin }: { origin: string | null }) {
             readOnly
             value={url}
             onFocus={(e) => e.currentTarget.select()}
-            className="h-13 w-full rounded-2xl bg-background px-4 text-[15px] text-foreground ring-1 ring-line outline-none focus:ring-2 focus:ring-brand"
+            className="h-12 w-full rounded-xl bg-surface px-4 text-[16px] text-foreground ring-1 ring-field outline-none focus:ring-2 focus:ring-foreground"
           />
           <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" onClick={copy} className={cn(buttonClass, "bg-background")}>
-              <Copy className="size-4" aria-hidden /> Copiar enlace
-            </button>
-            <a href={url} target="_blank" rel="noopener noreferrer" className={cn(buttonClass, "bg-background")}>
-              <ExternalLink className="size-4" aria-hidden /> Abrir mi carta
+            <Button variant="secondary" onClick={copy}>
+              Copiar enlace
+            </Button>
+            <a href={url} target="_blank" rel="noopener noreferrer" className={buttonClass({ variant: "secondary" })}>
+              Abrir mi carta
             </a>
           </div>
         </section>
 
-        <section className="rounded-[1.75rem] bg-surface p-5 shadow-soft ring-1 ring-line/70">
-          <h2 className="mb-4 text-lg font-bold">Código QR</h2>
-          <div className="mx-auto grid aspect-square w-full max-w-[17rem] place-items-center overflow-hidden rounded-2xl bg-white ring-1 ring-line">
+        <section aria-labelledby="qr-codigo">
+          <h2 id="qr-codigo" className="text-xl font-semibold">
+            Código QR
+          </h2>
+          <div className="mt-4 grid aspect-square w-full max-w-[17rem] place-items-center overflow-hidden rounded-xl bg-white ring-1 ring-line-strong">
             {svg ? (
               // eslint-disable-next-line @next/next/no-img-element -- SVG generado en el navegador (data URL), no hay nada que optimizar
               <img src={svgDataUrl(svg)} alt={`Código QR que abre ${displayUrl(url)}`} className="size-full" />
             ) : (
-              <span className="text-[13px] text-muted" role="status">
+              <span className="text-[14px] text-muted" role="status">
                 Generando el código…
               </span>
             )}
           </div>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            <button type="button" onClick={downloadSvg} disabled={!svg} className={cn(buttonClass, "bg-background")}>
-              <Download className="size-4" aria-hidden /> Descargar SVG
-            </button>
-            <button type="button" onClick={downloadPng} disabled={!svg || busy} className={cn(buttonClass, "bg-background")}>
-              <Download className="size-4" aria-hidden /> Descargar PNG
-            </button>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button variant="secondary" onClick={downloadSvg} disabled={!svg}>
+              Descargar SVG
+            </Button>
+            <Button variant="secondary" onClick={downloadPng} disabled={!svg} pending={busy}>
+              Descargar PNG
+            </Button>
           </div>
-          <p className="mt-3 text-[12px] text-muted">
+          <p className="mt-3 text-[14px] text-muted">
             SVG para imprenta: no pierde nitidez a ningún tamaño. PNG de 1200 px (10 cm a 300 dpi) para Word, redes o impresión casera.
           </p>
         </section>
 
-        <section className="rounded-[1.75rem] bg-surface p-5 shadow-soft ring-1 ring-line/70">
-          <h2 className="mb-1 text-lg font-bold">Calcomanía para imprimir</h2>
-          <p className="mb-4 text-[13px] text-muted">
+        <section aria-labelledby="qr-imprimir">
+          <h2 id="qr-imprimir" className="text-xl font-semibold">
+            Calcomanía para imprimir
+          </h2>
+          <p className="mt-1 mb-4 text-[15px] text-muted">
             Una hoja A4 con el nombre de tu local, el QR de 11 cm y el texto «{SCAN_TEXT}».
           </p>
-          <button
-            type="button"
-            onClick={() => window.print()}
-            disabled={!pilot}
-            aria-describedby={pilot ? undefined : "print-blocked"}
-            className={cn(buttonClass, "w-full bg-brand text-brand-fg ring-transparent")}
-          >
-            <Printer className="size-4" aria-hidden /> Imprimir calcomanía
-          </button>
+          <Button onClick={() => window.print()} disabled={!pilot} aria-describedby={pilot ? undefined : "print-blocked"}>
+            Imprimir calcomanía
+          </Button>
           {!pilot && (
-            <p id="print-blocked" className="mt-2 text-[12px] text-muted">
+            <p id="print-blocked" className="mt-2 text-[14px] text-muted">
               Imprimir está bloqueado mientras el enlace apunte a un entorno de prueba.
             </p>
           )}
-          <ul className="mt-4 list-disc space-y-1.5 pl-5 text-[13px] text-muted">
+          <ul className="mt-4 list-disc space-y-1.5 pl-5 text-[14px] text-muted">
             <li>Imprimila al 100 %, sin «ajustar a la página». El QR no debe bajar de {QR_PRINT_MIN_CM} cm de lado.</li>
             <li>Usá papel claro y mate. Evitá el brillo y los reflejos frente al QR.</li>
             <li>Dejá el margen blanco alrededor: sin él algunos teléfonos no lo leen.</li>
@@ -213,8 +204,7 @@ export function QrSection({ origin }: { origin: string | null }) {
           </ul>
         </section>
 
-        <p role="status" aria-live="polite" className={cn("lg:col-span-2 min-h-5 px-1 text-[13px] font-medium", notice ? "text-emerald-700" : "sr-only")}>
-          {notice && <Check className="mr-1 inline size-4" aria-hidden />}
+        <p role="status" aria-live="polite" className={cn("min-h-5 text-[14px] font-medium text-success", !notice && "sr-only")}>
           {notice}
         </p>
       </div>

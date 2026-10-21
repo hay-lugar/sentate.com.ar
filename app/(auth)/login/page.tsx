@@ -13,8 +13,7 @@ export default async function LoginPage({ searchParams }: Props) {
   if (await getCurrentUser()) redirect(safeNext(next) ?? "/admin");
   return (
     <>
-      <h1 className="text-2xl font-bold">Ingresá a tu panel</h1>
-      <p className="mt-1 mb-6 text-[14px] text-muted">Gestioná tu carta y las solicitudes de mesa.</p>
+      <h1 className="mb-6 text-2xl font-semibold">Ingresar</h1>
       <LoginForm
         next={safeNext(next) ?? undefined}
         initialError={error === "confirmacion" ? "El enlace de confirmación no es válido o venció. Ingresá o pedí uno nuevo." : undefined}

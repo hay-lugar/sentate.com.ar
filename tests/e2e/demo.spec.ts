@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 async function openReservation(page: Page) {
-  const trigger = page.getByRole("button", { name: /Reservar mesa/ });
+  const trigger = page.getByRole("button", { name: /Solicitar mesa/ });
   await trigger.focus();
   await page.keyboard.press("Enter");
   const dialog = page.getByRole("dialog", { name: "Pedir una mesa" });
@@ -27,7 +27,7 @@ test.describe("slugs", () => {
   test("/no-existe responde 404", async ({ page }) => {
     const res = await page.goto("/no-existe");
     expect(res?.status()).toBe(404);
-    await expect(page.getByRole("heading", { name: "Esta mesa no existe" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "No encontramos esta página" })).toBeVisible();
   });
 
   // Sin sesión no se distingue un slug inexistente de un local real sin publicar: se pide login

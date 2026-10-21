@@ -18,7 +18,7 @@ const uniquePhone = () => `11 ${String(Date.now()).slice(-8, -4)} ${String(++seq
 /** Pide una mesa desde la carta pública. Devuelve el diálogo con el resultado (éxito o error). */
 async function submitRequest(page: Page, slug: string, who: { name: string; phone: string }) {
   await page.goto(`/${slug}`);
-  await page.getByRole("button", { name: /Reservar mesa/ }).click();
+  await page.getByRole("button", { name: /Solicitar mesa/ }).click();
   const dialog = page.getByRole("dialog", { name: "Pedir una mesa" });
   await dialog.getByRole("button", { name: "Continuar" }).click();
   await dialog.getByRole("group", { name: "Elegí el día" }).locator("button:not([disabled])").nth(2).click();
@@ -67,8 +67,8 @@ test.describe("lo que ve el comensal", () => {
   test("el aviso del formulario aclara que el local responde por su cuenta", async ({ page }) => {
     await page.goto("/prueba-bodegon");
     // El botón de la carta no promete: pide y dice que el local revisa.
-    await expect(page.getByText("Solicitá tu mesa · el local la revisa")).toBeVisible();
-    await page.getByRole("button", { name: /Reservar mesa/ }).click();
+    await expect(page.getByRole("button", { name: /Solicitar mesa/ })).toBeVisible(); // pide una mesa: no promete reservarla
+    await page.getByRole("button", { name: /Solicitar mesa/ }).click();
     const dialog = page.getByRole("dialog", { name: "Pedir una mesa" });
     await dialog.getByRole("button", { name: "Continuar" }).click();
     await dialog.getByRole("group", { name: "Elegí el día" }).locator("button:not([disabled])").nth(2).click();
@@ -135,12 +135,20 @@ test.describe("panel del dueño: estados y contacto manual", () => {
     expect(new URL(rejectedHref).searchParams.get("text")).toContain("No podemos confirmar");
 
     // CANCELADA: el panel no tiene un botón para cancelar; se fuerza con la sesión del dueño por la API y llega en vivo.
+    // Precondición: el canal en vivo ya está unido. Sin eso el evento podría salir antes de que el panel escuche.
+    await expect(owner.getByText("En vivo")).toBeVisible({ timeout: 20_000 });
     const api = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
     expect((await api.auth.signInWithPassword({ email: "owner.bodegon@example.test", password: PASSWORD })).error).toBeNull();
     const cancel = await api.from("reservations").update({ status: "cancelled" }).eq("customer_name", who.confirmed.name).eq("status", "confirmed").select("id");
     expect(cancel.error).toBeNull();
     expect(cancel.data).toHaveLength(1);
-    await expect(row(who.confirmed.name).getByText("Cancelada", { exact: true })).toBeVisible({ timeout: 15_000 });
+    try {
+      await expect(row(who.confirmed.name).getByText("Cancelada", { exact: true })).toBeVisible({ timeout: 15_000 });
+    } catch (e) {
+      // Diagnóstico para CI: qué veía el panel del dueño cuando el evento no llegó.
+      await test.info().attach("panel-del-dueno", { body: await owner.locator("main").innerText(), contentType: "text/plain" });
+      throw e;
+    }
     const cancelledHref = (await row(who.confirmed.name).getByRole("link", { name: /WhatsApp con/ }).getAttribute("href"))!;
     expect(new URL(cancelledHref).searchParams.get("text")).toContain("figura como cancelada");
 

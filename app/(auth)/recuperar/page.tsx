@@ -10,8 +10,7 @@ export default async function RecoverPage({ searchParams }: Props) {
   const { error } = await searchParams;
   return (
     <>
-      <h1 className="text-2xl font-bold">Recuperá tu contraseña</h1>
-      <p className="mt-1 mb-6 text-[14px] text-muted">Ingresá el email de tu cuenta y te mandamos el enlace.</p>
+      <h1 className="mb-6 text-2xl font-semibold">Recuperar contraseña</h1>
       <RecoverForm initialError={error === "enlace" ? RECOVERY_LINK_ERROR : undefined} />
     </>
   );

@@ -36,7 +36,7 @@ export function PublicMenu({
   }, [serverTenant.slug, source]);
 
   return (
-    <ThemeScope theme={tenant.theme} className="min-h-dvh bg-[color-mix(in_oklch,var(--brand)_7%,var(--background))]">
+    <ThemeScope theme={tenant.theme} className="min-h-dvh bg-background">
       <MenuView tenant={tenant} source={source} initialNow={initialNow} localEdits={localEdits} />
     </ThemeScope>
   );

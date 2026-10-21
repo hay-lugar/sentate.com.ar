@@ -15,7 +15,7 @@ export function TenantLogo({ name, logoUrl, className }: { name: string; logoUrl
     <span
       className={cn(
         "grid shrink-0 place-items-center overflow-hidden font-display font-bold",
-        showImage ? "bg-surface" : "bg-brand text-brand-fg bg-[radial-gradient(120%_120%_at_20%_10%,rgb(255_255_255/0.28),transparent_55%)]",
+        showImage ? "bg-surface" : "bg-brand text-brand-fg",
         className,
       )}
     >

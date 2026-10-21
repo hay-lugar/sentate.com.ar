@@ -138,6 +138,19 @@ describe("realtime en el reducer", () => {
     expect(s.reservations.find((r) => r.id === id(2))?.status).toBe("confirmed");
   });
 
+  it("compara versiones por instante: una más nueva dentro del mismo segundo no se descarta por su formato", () => {
+    // Mismo segundo, distinta precisión y zona. Como texto, «…15.5Z» > «…15.51+00:00» y la más nueva se ignoraba.
+    const older = "2026-10-20T12:00:15.5Z";
+    const newer = "2026-10-20T12:00:15.510000+00:00";
+    expect(older > newer).toBe(true); // el defecto: el orden de texto contradice el orden real
+    let s = demoReducer(state(), { type: "upsertReservation", reservation: reservation({ id: id(2), status: "confirmed", version: older }) });
+    s = demoReducer(s, { type: "upsertReservation", reservation: reservation({ id: id(2), status: "cancelled", version: newer }) });
+    expect(s.reservations.find((r) => r.id === id(2))?.status).toBe("cancelled");
+    // Y al revés: la más vieja que llega tarde sigue ignorándose.
+    s = demoReducer(s, { type: "upsertReservation", reservation: reservation({ id: id(2), status: "confirmed", version: older }) });
+    expect(s.reservations.find((r) => r.id === id(2))?.status).toBe("cancelled");
+  });
+
   it("resincronizar reemplaza la lista por la de la base", () => {
     const s = demoReducer(state(), { type: "syncReservations", reservations: [reservation({ id: id(3) })] });
     expect(s.reservations.map((r) => r.id)).toEqual([id(3)]);

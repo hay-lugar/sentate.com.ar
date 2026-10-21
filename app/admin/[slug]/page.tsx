@@ -10,8 +10,10 @@ export default async function DashboardPage({ params }: { params: Promise<{ slug
     <>
       <DashboardHeader />
       <StatCards />
-      <div className="mt-4 grid grid-cols-[minmax(0,1fr)] items-start gap-4 2xl:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="mt-8">
         <ReservationsList limit={6} seeAllHref={`/admin/${slug}/reservas`} />
+      </div>
+      <div className="mt-8">
         <TodayAgenda />
       </div>
     </>

@@ -13,7 +13,8 @@ type Options = {
   tenantId: string;
   timeZone: string;
   onUpsert: (reservation: Reservation, isNew: boolean) => void;
-  onResync: (reservations: Reservation[]) => void;
+  /** Devuelve false si descartó la lectura (p. ej. hay una escritura en curso): el hook la repite. */
+  onResync: (reservations: Reservation[]) => boolean;
   /** false en la demo: no se abre ningún canal. */
   enabled?: boolean;
 };
@@ -68,8 +69,12 @@ export function useReservationsRealtime({ tenantId, timeZone, onUpsert, onResync
         if (attempt < MAX_RESYNC_ATTEMPTS) later(() => void resync(attempt + 1), retryDelay(attempt));
         return;
       }
+      const before = store.snapshot();
       const rows = store.replaceAll(data as ReservationRow[]);
-      handlers.current.onResync(rows.map(toDomain));
+      if (handlers.current.onResync(rows.map(toDomain))) return;
+      // La pantalla no la tomó: se deshace y se vuelve a leer, así un evento perdido no queda sin recuperar.
+      store.restore(before);
+      if (attempt < MAX_RESYNC_ATTEMPTS) later(() => void resync(attempt + 1), retryDelay(attempt));
     };
 
     const fetchOne = async (id: string, version: string, attempt = 0): Promise<void> => {

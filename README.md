@@ -76,6 +76,7 @@ El CI (`.github/workflows/ci.yml`) corre en cada PR: typecheck, lint, Vitest, bu
 |---|---|
 | **Operar el piloto** (Vercel, dominio, Supabase, humo, rollback) | [`docs/piloto.md`](docs/piloto.md) |
 | Demo, fechas y horarios, arquitectura, accesibilidad | [`docs/demo-y-arquitectura.md`](docs/demo-y-arquitectura.md) |
+| Sistema visual (tokens, componentes, reglas) | [`docs/diseno.md`](docs/diseno.md) |
 | Modelo de datos y RLS | [`docs/fase-2-modelo-de-datos.md`](docs/fase-2-modelo-de-datos.md) |
 | Auth y datos reales | [`docs/fase-3-auth-y-datos.md`](docs/fase-3-auth-y-datos.md), [`docs/fase-3.1-estabilizacion.md`](docs/fase-3.1-estabilizacion.md) |
 | Recuperación de contraseña | [`docs/auth-recuperacion.md`](docs/auth-recuperacion.md) |

@@ -1,11 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ArrowDown, ArrowUp, Check, Pencil, Plus, Trash2, UtensilsCrossed, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import type { Category } from "@/lib/domain/types";
 import { MENU_LIMITS, validateCategoryName } from "@/lib/demo/menu-validation";
 import { cn, formatPrice } from "@/lib/format";
+import { Button } from "@/components/ui/button";
 import { FieldError, inputClass } from "@/components/menu/reservation/controls";
 import { useDemo } from "./demo-provider";
 import { DishFormSheet, type DishFormTarget } from "./dish-form-sheet";
@@ -30,8 +30,8 @@ export function MenuManager() {
 
   return (
     <>
-      <form onSubmit={addCategory} noValidate className="mb-4 rounded-[1.75rem] bg-surface p-4 shadow-soft ring-1 ring-line/70">
-        <label htmlFor="new-category" className="mb-2 block px-1 text-[13px] font-semibold">
+      <form onSubmit={addCategory} noValidate className="mb-6 rounded-xl border border-line p-4">
+        <label htmlFor="new-category" className="mb-2 block text-[14px] font-medium">
           Nueva categoría
         </label>
         <div className="flex gap-2">
@@ -46,25 +46,22 @@ export function MenuManager() {
             aria-invalid={!!newError}
             aria-describedby={newError ? "new-category-error" : undefined}
             placeholder="Ej: Sugerencias del día"
-            className={cn(inputClass, "h-12")}
+            className={inputClass}
           />
-          <button type="submit" className="pressable inline-flex h-12 shrink-0 items-center gap-1.5 rounded-2xl bg-brand px-4 text-[14px] font-semibold text-brand-fg shadow-brand">
-            <Plus className="size-4" aria-hidden /> Crear
-          </button>
+          <Button type="submit" size="lg" className="shrink-0">
+            Crear
+          </Button>
         </div>
         <FieldError id="new-category-error">{newError ?? undefined}</FieldError>
       </form>
 
       {categories.length === 0 ? (
-        <div className="flex flex-col items-center rounded-[1.75rem] border-2 border-dashed border-line px-6 py-14 text-center">
-          <span className="grid size-14 place-items-center rounded-2xl bg-brand-soft text-brand">
-            <UtensilsCrossed className="size-6" aria-hidden />
-          </span>
-          <p className="mt-4 font-display text-lg font-bold">Tu carta está vacía</p>
-          <p className="mt-1 text-[14px] text-muted">Creá una categoría para empezar a cargar platos.</p>
+        <div className="rounded-xl border border-line px-6 py-10 text-center">
+          <p className="text-[17px] font-semibold">Tu carta está vacía</p>
+          <p className="mt-1 text-[15px] text-muted">Creá una categoría para empezar a cargar platos.</p>
         </div>
       ) : (
-        <ol className="grid grid-cols-[minmax(0,1fr)] gap-4 xl:grid-cols-2">
+        <ol className="space-y-6">
           {categories.map((cat, index) => (
             <CategoryCard
               key={cat.id}
@@ -133,8 +130,8 @@ function CategoryCard({
   };
 
   return (
-    <motion.li layout transition={{ type: "spring", stiffness: 400, damping: 36 }} className="rounded-[1.75rem] bg-surface p-2 shadow-soft ring-1 ring-line/70" aria-labelledby={headingId}>
-      <div className="flex flex-wrap items-center gap-2 px-3 pt-3 pb-3">
+    <li className="rounded-xl border border-line" aria-labelledby={headingId}>
+      <div className="flex flex-wrap items-center gap-2 px-4 pt-4 pb-2">
         {renaming ? (
           <form onSubmit={saveName} noValidate className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
             <label htmlFor={`rename-${cat.id}`} className="sr-only">
@@ -156,7 +153,7 @@ function CategoryCard({
               }}
               aria-invalid={!!error}
               aria-describedby={error ? `rename-${cat.id}-error` : undefined}
-              className={cn(inputClass, "h-10 min-w-0 flex-1 rounded-xl")}
+              className={cn(inputClass, "h-10 min-w-0 flex-1")}
             />
             <IconButton label="Guardar nombre" type="submit">
               <Check className="size-4" />
@@ -177,13 +174,10 @@ function CategoryCard({
           </form>
         ) : (
           <>
-            <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-background text-[12px] font-bold text-muted tabular-nums" aria-hidden>
-              {index + 1}
-            </span>
-            <h2 id={headingId} className="min-w-0 flex-1 truncate text-lg font-bold">
+            <h2 id={headingId} className="min-w-0 flex-1 truncate text-lg font-semibold">
               {cat.name}
             </h2>
-            <span className="rounded-lg bg-background px-2 py-0.5 text-[12px] font-semibold text-muted">
+            <span className="text-[14px] text-muted">
               {active}/{cat.dishes.length} visibles
             </span>
           </>
@@ -191,7 +185,7 @@ function CategoryCard({
       </div>
 
       {!renaming && (
-        <div className="flex flex-wrap items-center gap-1 px-2 pb-2">
+        <div className="flex flex-wrap items-center gap-1 px-3 pb-3">
           <IconButton label={`Subir ${cat.name}`} disabled={index === 0} onClick={() => move(-1)}>
             <ArrowUp className="size-4" />
           </IconButton>
@@ -208,56 +202,52 @@ function CategoryCard({
             <Pencil className="size-4" />
           </IconButton>
           {confirmDelete ? (
-            <span className="flex items-center gap-1.5 rounded-xl bg-rose-50 py-1 pr-1 pl-3 text-[12px] font-semibold text-rose-900">
+            <span className="flex items-center gap-2 rounded-lg border border-danger/40 py-1 pr-1 pl-3 text-[14px] text-danger">
               {cat.dishes.length ? `Borra ${cat.dishes.length} platos.` : "¿Eliminar?"}
-              <button
-                type="button"
+              <Button
+                size="sm"
+                variant="danger"
                 onClick={() => {
                   dispatch({ type: "deleteCategory", categoryId: cat.id }, `Categoría “${cat.name}” eliminada`, "neutral");
                 }}
-                className="pressable h-8 rounded-lg bg-rose-700 px-2.5 text-white"
               >
                 Eliminar
-              </button>
-              <button type="button" onClick={() => setConfirmDelete(false)} className="pressable h-8 rounded-lg px-2.5 ring-1 ring-rose-200">
+              </Button>
+              <Button size="sm" variant="quiet" onClick={() => setConfirmDelete(false)}>
                 No
-              </button>
+              </Button>
             </span>
           ) : (
             <IconButton label={`Eliminar ${cat.name}`} onClick={() => setConfirmDelete(true)}>
               <Trash2 className="size-4" />
             </IconButton>
           )}
-          <button
-            type="button"
-            onClick={onAddDish}
-            className="pressable ml-auto inline-flex h-10 items-center gap-1 rounded-xl px-3 text-[13px] font-semibold text-brand hover:bg-brand-soft"
-          >
+          <Button size="sm" variant="secondary" onClick={onAddDish} className="ml-auto">
             <Plus className="size-4" aria-hidden /> Plato<span className="sr-only"> en {cat.name}</span>
-          </button>
+          </Button>
         </div>
       )}
 
       {cat.dishes.length === 0 ? (
-        <p className="mx-2 mb-2 rounded-2xl border-2 border-dashed border-line px-4 py-6 text-center text-[13px] text-muted">
+        <p className="mx-4 mb-4 rounded-lg bg-subtle px-4 py-5 text-center text-[14px] text-muted">
           Sin platos todavía. Esta categoría no se muestra en el menú público.
         </p>
       ) : (
-        <ul className="space-y-1">
+        <ul className="divide-y divide-line border-t border-line">
           {cat.dishes.map((d) => (
-            <li key={d.id} className="flex items-center gap-3 rounded-2xl p-2 hover:bg-background">
+            <li key={d.id} className="flex items-center gap-3 px-4 py-3">
               {/* Sin opacidad sobre el texto: un plato no disponible se marca con etiqueta (contraste AA). */}
-              <span className={cn("relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-background text-muted", !d.active && "opacity-50 grayscale")}>
+              <span className={cn("relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-lg bg-subtle text-muted", !d.active && "opacity-50 grayscale")}>
                 <DishThumb image={d.image} />
               </span>
               <div className="min-w-0 flex-1 leading-tight">
-                <p className="truncate text-[14px] font-semibold" title={d.name}>
+                <p className="truncate text-[15px] font-medium" title={d.name}>
                   {d.name}
                 </p>
-                <p className="mt-0.5 font-display text-[13px] font-bold text-muted">
+                <p className="mt-0.5 text-[14px] text-muted tabular-nums">
                   {formatPrice(d.price)}
                   {!d.active && (
-                    <span className="ml-2 rounded-md bg-amber-50 px-1.5 py-0.5 font-sans text-[11px] font-semibold text-amber-900">No disponible</span>
+                    <span className="ml-2 rounded-md border border-line-strong px-1.5 py-0.5 text-[12px] text-foreground">No disponible</span>
                   )}
                 </p>
               </div>
@@ -273,7 +263,7 @@ function CategoryCard({
           ))}
         </ul>
       )}
-    </motion.li>
+    </li>
   );
 }
 
@@ -290,7 +280,7 @@ function IconButton({
       aria-label={label}
       title={label}
       className={cn(
-        "pressable grid size-10 shrink-0 place-items-center rounded-xl text-muted hover:bg-background hover:text-foreground disabled:opacity-30 disabled:active:scale-100",
+        "pressable grid size-10 shrink-0 place-items-center rounded-lg text-muted hover:bg-subtle hover:text-foreground disabled:opacity-30",
         className,
       )}
       {...props}

@@ -32,7 +32,7 @@ async function ownerPage(browser: Browser, email: string, path: string) {
 /** Pide una mesa desde la carta pública y devuelve el nombre usado. */
 async function requestTable(page: Page, slug: string, name = `Comensal ${Date.now()}`) {
   await page.goto(`/${slug}`);
-  await page.getByRole("button", { name: /Reservar mesa/ }).click();
+  await page.getByRole("button", { name: /Solicitar mesa/ }).click();
   const dialog = page.getByRole("dialog", { name: "Pedir una mesa" });
   await dialog.getByRole("button", { name: "Continuar" }).click();
   await dialog.getByRole("group", { name: "Elegí el día" }).locator("button:not([disabled])").nth(2).click();

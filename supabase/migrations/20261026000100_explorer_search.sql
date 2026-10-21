@@ -17,6 +17,9 @@ as $$ select pg_catalog.lower(extensions.unaccent('extensions.unaccent'::regdict
 revoke all on function private.norm(text) from public;
 grant execute on function private.norm(text) to anon, authenticated;
 
+-- Las RPC (SECURITY INVOKER) calculan distancias con la columna generada: mismo dato que lat/lng, ya públicos para listados.
+grant select (geog) on table public.tenant_locations to anon, authenticated;
+
 create index tenants_name_trgm_idx on public.tenants using gin (private.norm(name) extensions.gin_trgm_ops);
 create index menu_items_name_trgm_idx on public.menu_items using gin (private.norm(name) extensions.gin_trgm_ops);
 create index tenant_locations_latlng_idx on public.tenant_locations (lat, lng);

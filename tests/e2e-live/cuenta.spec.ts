@@ -101,7 +101,7 @@ test("favoritos: se guardan desde el explorador, son privados y se quitan", asyn
   const ctx = await browser.newContext({ baseURL });
   const page = await ctx.newPage();
   await login(page, "sin.local@example.test", "/explorar");
-  const saved = page.waitForResponse((r) => r.request().method() === "POST" && r.url().includes("/explorar"));
+  const saved = page.waitForResponse((r) => r.request().method() === "POST" && new URL(r.url()).pathname === "/explorar");
   await page.getByRole("button", { name: "Guardar La Esquina en favoritos" }).click();
   await saved;
   await expect(page.getByRole("button", { name: "Quitar La Esquina de favoritos" })).toBeVisible();

@@ -77,7 +77,8 @@ create trigger diner_profiles_set_updated_at before update on public.diner_profi
   for each row execute function private.set_updated_at();
 alter table public.diner_profiles enable row level security;
 revoke all on table public.diner_profiles from anon, authenticated;
-grant select, insert (user_id, display_name, phone), update (display_name, phone) on table public.diner_profiles to authenticated;
+-- update incluye user_id porque un upsert (ON CONFLICT DO UPDATE) lo vuelve a escribir; la política WITH CHECK impide cambiarlo.
+grant select, insert (user_id, display_name, phone), update (user_id, display_name, phone) on table public.diner_profiles to authenticated;
 grant select, insert, update, delete on table public.diner_profiles to service_role;
 create policy diner_profiles_select_own on public.diner_profiles for select to authenticated using (user_id = (select auth.uid()));
 create policy diner_profiles_insert_own on public.diner_profiles for insert to authenticated with check (user_id = (select auth.uid()));

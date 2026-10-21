@@ -7,7 +7,7 @@ import { Chip, FieldError } from "./controls";
 
 const { minGuests, maxGuests } = RESERVATION_LIMITS;
 
-export function GuestsStep({ guests, onChange, phone, error }: { guests: number; onChange: (n: number) => void; phone: string; error?: string }) {
+export function GuestsStep({ guests, onChange, phone, error, max = maxGuests }: { guests: number; onChange: (n: number) => void; phone: string; error?: string; max?: number }) {
   return (
     <div>
       <div className="flex items-center justify-between gap-4 py-2">
@@ -18,13 +18,13 @@ export function GuestsStep({ guests, onChange, phone, error }: { guests: number;
           <span className="block text-6xl leading-none font-semibold tabular-nums">{guests}</span>
           <span className="mt-2 block type-help">{guests === 1 ? "persona" : "personas"}</span>
         </div>
-        <Button variant="secondary" aria-label="Una persona más" disabled={guests >= maxGuests} onClick={() => onChange(guests + 1)} className="size-12 px-0">
+        <Button variant="secondary" aria-label="Una persona más" disabled={guests >= max} onClick={() => onChange(guests + 1)} className="size-12 px-0">
           <Plus className="size-5" aria-hidden />
         </Button>
       </div>
 
       <div className="mt-5 grid grid-cols-4 gap-2" role="group" aria-label="Cantidad de personas">
-        {Array.from({ length: maxGuests }, (_, i) => i + 1).map((n) => (
+        {Array.from({ length: Math.min(max, 12) }, (_, i) => i + 1).map((n) => (
           <Chip key={n} selected={guests === n} onClick={() => onChange(n)} className="h-12 text-[15px]" aria-label={`${n} ${n === 1 ? "persona" : "personas"}`}>
             {n}
           </Chip>
@@ -33,7 +33,7 @@ export function GuestsStep({ guests, onChange, phone, error }: { guests: number;
       <FieldError id="err-guests">{error}</FieldError>
 
       <p className="mt-6 border-t border-line pt-4 type-help">
-        ¿Son más de {maxGuests}? Llamá al local para grupos grandes:{" "}
+        ¿Son más de {max}? Llamá al local para grupos grandes:{" "}
         <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="font-medium text-foreground underline underline-offset-4">
           {phone}
         </a>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Ban, Check, MessageCircle, Phone, Radio, WifiOff, X } from "lucide-react";
+import { Ban, Check, CheckCheck, Clock3, MessageCircle, Phone, Radio, WifiOff, X } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { Reservation, ReservationStatus } from "@/lib/domain/types";
@@ -20,6 +20,8 @@ const FILTERS: { id: Filter; label: string }[] = [
   { id: "confirmed", label: "Confirmadas" },
   { id: "rejected", label: "Rechazadas" },
   { id: "cancelled", label: "Canceladas" },
+  { id: "finished", label: "Finalizadas" },
+  { id: "expired", label: "Vencidas" },
   { id: "all", label: "Todas" },
 ];
 
@@ -39,7 +41,7 @@ export function ReservationsList({
   const [filter, setFilter] = useState<Filter>("pending");
 
   const counts = useMemo(() => {
-    const c: Record<Filter, number> = { pending: 0, confirmed: 0, rejected: 0, cancelled: 0, all: reservations.length };
+    const c: Record<Filter, number> = { pending: 0, confirmed: 0, rejected: 0, cancelled: 0, expired: 0, finished: 0, all: reservations.length };
     reservations.forEach((r) => c[r.status]++);
     return c;
   }, [reservations]);
@@ -213,6 +215,8 @@ const BADGES = {
   confirmed: { label: "Reserva confirmada", Icon: Check },
   rejected: { label: "Solicitud rechazada", Icon: X },
   cancelled: { label: "Cancelada", Icon: Ban },
+  expired: { label: "Vencida sin respuesta", Icon: Clock3 },
+  finished: { label: "Finalizada", Icon: CheckCheck },
 } as const;
 
 function StatusBadge({ status }: { status: Exclude<ReservationStatus, "pending"> }) {

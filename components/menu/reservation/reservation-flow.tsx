@@ -1,7 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { reservationConfigAction, type LiveReservationConfig } from "@/app/[slug]/actions";
 import { ArrowLeft } from "lucide-react";
 import type { PublicTenant } from "@/lib/domain/types";
 import { zonedNow } from "@/lib/time/zoned";
@@ -32,7 +33,17 @@ export function ReservationFlow({
 }) {
   const live = source === "live" && !!tenant.id;
   const submitter = useMemo(() => (live ? liveSubmitter(tenant.id!) : demoSubmitter), [live, tenant.id]);
-  const r = useReservationRequest(tenant, open, { submitter, fakeAvailability: !live });
+  const [config, setConfig] = useState<LiveReservationConfig | null>(null);
+  useEffect(() => {
+    if (!live || !open) return;
+    let cancelled = false;
+    reservationConfigAction(tenant.id).then((c) => !cancelled && setConfig(c)).catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [live, open, tenant.id]);
+  const maxGuests = live ? config?.max_party_size : undefined;
+  const r = useReservationRequest(tenant, open, { submitter, fakeAvailability: !live, maxGuests });
   // "Ahora" para pintar horarios (se refresca cada 30 s); el envío revalida contra la hora real.
   const now = useZonedNow(tenant.timezone, zonedNow(tenant.timezone));
   const submitting = r.phase === "submitting";
@@ -99,7 +110,7 @@ export function ReservationFlow({
             >
               <legend className="sr-only">{TITLES[r.step]}</legend>
               {r.step === 0 && (
-                <GuestsStep guests={r.draft.guests} onChange={(g) => r.update("guests", g)} phone={tenant.phone} error={r.errors.guests} />
+                <GuestsStep guests={r.draft.guests} onChange={(g) => r.update("guests", g)} phone={tenant.phone} error={r.errors.guests} max={maxGuests} />
               )}
               {r.step === 1 && (
                 <DateTimeStep
@@ -107,6 +118,7 @@ export function ReservationFlow({
                   now={now}
                   guests={r.draft.guests}
                   fakeAvailability={!live}
+                  liveTenantId={live ? tenant.id : undefined}
                   serviceDate={r.draft.serviceDate}
                   time={r.draft.time}
                   onDate={(d) => r.update("serviceDate", d)}

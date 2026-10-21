@@ -88,5 +88,9 @@ export function contactMessage(c: ContactContext): string {
       return `${intro} No podemos confirmar tu solicitud de mesa para ${slot}. ¿Querés que veamos otro día u horario?`;
     case "cancelled":
       return `${intro} Tu reserva para ${slot} figura como cancelada. Si querés, buscamos otro día u horario.`;
+    case "expired":
+      return `${intro} No llegamos a responder tu solicitud de mesa para ${slot}. Si querés, buscamos otro día u horario.`;
+    case "finished":
+      return `${intro} ¡Gracias por visitarnos! Esperamos verte de nuevo.`;
   }
 }

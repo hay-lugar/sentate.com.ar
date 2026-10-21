@@ -17,7 +17,7 @@ export function toLiveMutation(s: DemoState, action: DemoAction): LiveMutation |
   switch (action.type) {
     case "setReservationStatus": {
       const r = s.reservations.find((x) => x.id === action.id);
-      if (!r || (r.status !== "pending" && r.status !== "confirmed") || action.status === "pending") return null;
+      if (!r || (r.status !== "pending" && r.status !== "confirmed") || action.status === "pending" || action.status === "expired") return null;
       return { type: "setReservationStatus", id: r.id, status: action.status, expectedStatus: r.status };
     }
     case "saveDish": {

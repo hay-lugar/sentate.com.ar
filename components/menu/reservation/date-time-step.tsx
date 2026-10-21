@@ -1,7 +1,8 @@
 "use client";
 
 import { CalendarDays, Clock3, Moon } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { reservationAvailabilityAction, type LiveAvailability } from "@/app/[slug]/actions";
 import type { PlainDate, PublicTenant, WallTime } from "@/lib/domain/types";
 import { bookableDays, isSlotPast, shiftsOn, slotsForServiceDate, type Slot } from "@/lib/domain/schedule";
 import { isSlotFullMock } from "@/lib/reservation/availability";
@@ -16,6 +17,8 @@ type Props = {
   guests: number;
   /** Solo demo: marca horarios como "completos" de forma ficticia. */
   fakeAvailability: boolean;
+  /** Comercio real: consulta el cupo en la base para cada día y cantidad de personas. */
+  liveTenantId?: string;
   serviceDate: PlainDate | null;
   time: WallTime | null;
   onDate: (d: PlainDate) => void;
@@ -23,17 +26,47 @@ type Props = {
   errors: { serviceDate?: string; time?: string };
 };
 
-type SlotState = "free" | "past" | "full";
+type SlotState = "free" | "past" | "full" | "blocked" | "unavailable";
+type Remote = { status: "idle" } | { status: "loading" } | { status: "error" } | { status: "ok"; times: Map<string, { available: boolean; reason: string | null }>; closed: string | null };
 
-export function DateTimeStep({ tenant, now, guests, fakeAvailability, serviceDate, time, onDate, onTime, errors }: Props) {
+export function DateTimeStep({ tenant, now, guests, fakeAvailability, liveTenantId, serviceDate, time, onDate, onTime, errors }: Props) {
   const days = useMemo(
     () => bookableDays(tenant.schedule, now, RESERVATION_LIMITS.windowDays, RESERVATION_LIMITS.leadMinutes),
     [tenant.schedule, now],
   );
 
+  // Cupo real (solo comercios reales): se pide al elegir día y cada vez que cambia la cantidad de personas.
+  const [remote, setRemote] = useState<{ key: string; state: Remote }>({ key: "", state: { status: "idle" } });
+  const remoteKey = liveTenantId && serviceDate ? `${liveTenantId}|${serviceDate}|${guests}` : "";
+  useEffect(() => {
+    if (!remoteKey) return;
+    let cancelled = false;
+    const [tenantId, date] = remoteKey.split("|");
+    reservationAvailabilityAction(tenantId, date, guests)
+      .then((res) => {
+        if (cancelled) return;
+        if (!res.ok) return setRemote({ key: remoteKey, state: { status: "error" } });
+        const data: LiveAvailability = res.data;
+        setRemote({ key: remoteKey, state: { status: "ok", closed: data.closed_reason, times: new Map(data.slots.map((s) => [s.time, { available: s.available, reason: s.reason }])) } });
+      })
+      .catch(() => !cancelled && setRemote({ key: remoteKey, state: { status: "error" } }));
+    return () => {
+      cancelled = true;
+    };
+  }, [remoteKey, guests]);
+  const remoteState: Remote = !remoteKey ? { status: "idle" } : remote.key === remoteKey ? remote.state : { status: "loading" };
+
   const slots = useMemo(() => (serviceDate ? slotsForServiceDate(tenant.schedule, serviceDate) : []), [tenant.schedule, serviceDate]);
-  const stateOf = (slot: Slot): SlotState =>
-    isSlotPast(slot, now, RESERVATION_LIMITS.leadMinutes) ? "past" : fakeAvailability && isSlotFullMock(tenant.slug, slot, guests) ? "full" : "free";
+  const stateOf = (slot: Slot): SlotState => {
+    if (isSlotPast(slot, now, RESERVATION_LIMITS.leadMinutes)) return "past";
+    if (fakeAvailability) return isSlotFullMock(tenant.slug, slot, guests) ? "full" : "free";
+    if (remoteState.status === "loading") return "unavailable";
+    if (remoteState.status !== "ok") return "free"; // sin consulta: la base valida al enviar
+    const entry = remoteState.times.get(slot.time);
+    if (!entry) return remoteState.closed ? "unavailable" : "unavailable";
+    if (entry.available) return "free";
+    return entry.reason === "slot_blocked" ? "blocked" : entry.reason === "slot_too_soon" ? "past" : "full";
+  };
 
   const groups = (serviceDate ? shiftsOn(tenant.schedule, serviceDate) : [])
     .map((shift) => ({ shift, items: slots.filter((s) => s.shiftId === shift.id) }))
@@ -76,7 +109,11 @@ export function DateTimeStep({ tenant, now, guests, fakeAvailability, serviceDat
       <SectionLabel icon={Clock3} className="mt-6" id="lbl-hora">
         Elegí el horario
       </SectionLabel>
-      {!serviceDate ? (
+      {liveTenantId && remoteState.status === "loading" ? (
+        <div role="status" aria-busy="true" className="grid h-28 place-items-center rounded-xl border border-line px-4 text-center type-help">
+          Consultando disponibilidad…
+        </div>
+      ) : !serviceDate ? (
         <div className="grid h-28 place-items-center rounded-xl border border-line px-4 text-center type-help">
           Primero elegí un día
         </div>
@@ -94,7 +131,7 @@ export function DateTimeStep({ tenant, now, guests, fakeAvailability, serviceDat
               <div className="grid grid-cols-4 gap-2">
                 {items.map((slot) => {
                   const state = stateOf(slot);
-                  const reason = state === "past" ? "ya pasó" : state === "full" ? "completo" : "";
+                  const reason = state === "past" ? "ya pasó" : state === "full" ? "completo" : state === "blocked" ? "sin reservas" : state === "unavailable" ? "no disponible" : "";
                   return (
                     <Chip
                       key={slot.time}
@@ -124,7 +161,9 @@ export function DateTimeStep({ tenant, now, guests, fakeAvailability, serviceDat
       <p className="mt-4 type-help">
         {fakeAvailability
           ? "Disponibilidad ficticia de la demo."
-          : "Es una solicitud: el local la confirma según su disponibilidad."}{" "}
+          : remoteState.status === "error"
+            ? "No pudimos consultar el cupo ahora: lo validamos al enviar. "
+            : "Es una solicitud: el local la confirma. El cupo que ves es informativo y se confirma al enviar. "}{" "}
         Horarios del local ({tenant.timezone === "America/Argentina/Buenos_Aires" ? "hora de Argentina" : tenant.timezone}).
       </p>
     </div>

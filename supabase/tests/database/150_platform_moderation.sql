@@ -1,6 +1,6 @@
 -- Etapa A: rol de plataforma, moderación, suspensión, visibilidad del explorador y auditoría.
 begin;
-select plan(20);
+select plan(22);
 
 select tests.as_postgres();
 select tests.seed_two_tenants();
@@ -25,7 +25,11 @@ select throws_ok($$ select public.admin_set_suspension(tests.tenant_id('bodegon-
 select throws_ok($$ update public.tenant_moderation set status = 'approved' where tenant_id = tests.tenant_id('bodegon-a') $$,
   '42501', null, 'el dueño no escribe la moderación');
 
--- Envío a revisión.
+-- Envío a revisión (exige perfil completo).
+select throws_ok($$ select public.submit_for_review(tests.tenant_id('bodegon-a')) $$, 'P0001', 'profile_incomplete',
+  'no se envía a revisión con el perfil incompleto');
+select lives_ok($$ select public.save_explorer_profile(tests.tenant_id('bodegon-a'), '{"business_type":"parrilla","address":"Calle 1","province_code":"santa-fe","locality":"Rafaela","lat":-31.25,"lng":-61.49,"confirm":true}'::jsonb) $$,
+  'el dueño completa y confirma su ubicación');
 select lives_ok($$ select public.submit_for_review(tests.tenant_id('bodegon-a')) $$, 'el dueño envía a revisión');
 select throws_ok($$ select public.submit_for_review(tests.tenant_id('esquina-b')) $$, '42501', 'forbidden',
   'no se envía a revisión un comercio ajeno');

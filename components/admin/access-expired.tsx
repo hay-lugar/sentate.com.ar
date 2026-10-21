@@ -1,6 +1,6 @@
 import { Lock } from "lucide-react";
 import type { TenantAccess } from "@/lib/domain/types";
-import { planPriceLabel } from "@/lib/config/plan";
+import { planPriceFullLabel } from "@/lib/config/plan";
 import { formatPlainDate } from "@/lib/time/zoned";
 
 /** Prueba vencida (o suscripción inactiva): cuenta accesible, operación bloqueada. */
@@ -16,7 +16,7 @@ export function AccessExpired({ access }: { access: TenantAccess }) {
       </h1>
       <p className="mt-2 text-[15px] text-muted">
         Tu cuenta y tus datos siguen guardados, pero la carta, las reservas y los ajustes quedan bloqueados hasta activar la
-        suscripción ({planPriceLabel} por mes).
+        suscripción ({planPriceFullLabel}).
       </p>
       <p className="mt-4 rounded-2xl bg-background p-3 text-[13px] text-muted">
         La activación del pago desde el panel llega en la próxima fase. Mientras tanto, escribinos para habilitar tu cuenta.

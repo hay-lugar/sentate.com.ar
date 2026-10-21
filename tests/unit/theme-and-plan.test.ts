@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { listTenantSlugs, getTenantRecord } from "@/lib/data/tenants";
-import { PLAN, planPriceLabel, trialLongLabel } from "@/lib/config/plan";
+import { PLAN, planPriceFullLabel, planPriceLabel, trialLongLabel } from "@/lib/config/plan";
 import { contrastRatio, readableOn, themeContrastReport } from "@/lib/theme";
 import { getSimulationMode, simulateRequest } from "@/lib/demo/simulate";
 
@@ -18,9 +18,10 @@ describe("contraste de los temas de ejemplo (WCAG AA)", () => {
 });
 
 describe("modelo comercial", () => {
-  it("prueba de 30 días sin tarjeta y $5.500 ARS por mes", () => {
-    expect(PLAN).toMatchObject({ trialDays: 30, priceMonthly: 5500, currency: "ARS", trialRequiresCard: false });
-    expect(planPriceLabel.replace(/\s/g, " ")).toBe("$ 5.500");
+  it("prueba de 30 días sin tarjeta y $14.999 ARS por mes", () => {
+    expect(PLAN).toMatchObject({ trialDays: 30, priceMonthly: 14999, currency: "ARS", trialRequiresCard: false });
+    expect(planPriceLabel).toBe("$14.999");
+    expect(planPriceFullLabel).toBe("$14.999 ARS por mes");
     expect(trialLongLabel).toBe("30 días gratis, sin tarjeta");
   });
 });
@@ -38,5 +39,16 @@ describe("simulación de red", () => {
     const p = simulateRequest(c.signal, "lento");
     c.abort(new Error("cerrado"));
     await expect(p).rejects.toThrow("cerrado");
+  });
+});
+
+describe("precio en la base", () => {
+  it("la última migración que fija price_monthly coincide con PLAN.priceMonthly", async () => {
+    const { readdirSync, readFileSync } = await import("node:fs");
+    const dir = "supabase/migrations";
+    const values = readdirSync(dir)
+      .sort()
+      .flatMap((f) => [...readFileSync(`${dir}/${f}`, "utf8").matchAll(/price_monthly(?: numeric\(12, 2\) not null)?(?: set)? default (\d+)|price_monthly = (\d+)/g)].map((m) => Number(m[1] ?? m[2])));
+    expect(values.at(-1)).toBe(PLAN.priceMonthly);
   });
 });

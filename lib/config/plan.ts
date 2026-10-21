@@ -2,20 +2,18 @@
 
 export const PLAN = {
   name: "Sentate",
-  priceMonthly: 5500,
+  priceMonthly: 14999,
   currency: "ARS",
   trialDays: 30,
   trialRequiresCard: false,
 } as const;
 
-const money = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: PLAN.currency,
-  maximumFractionDigits: 0,
-});
+const amount = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 });
 
-/** "$ 5.500" */
-export const planPriceLabel = money.format(PLAN.priceMonthly);
+/** "$14.999" */
+export const planPriceLabel = `$${amount.format(PLAN.priceMonthly)}`;
+/** "$14.999 ARS por mes": así se muestra el precio en todo el producto. */
+export const planPriceFullLabel = `${planPriceLabel} ${PLAN.currency} por mes`;
 /** "30 días gratis" */
 export const trialLabel = `${PLAN.trialDays} días gratis`;
 /** "30 días gratis, sin tarjeta" */

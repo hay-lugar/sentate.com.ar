@@ -268,7 +268,7 @@ npx supabase db lint --local -s public,private     # plpgsql_check
     con `search_path` vacío, 27 políticas.
   - Grants: `anon` sin acceso a reservas ni suscripciones, `authenticated` sin escritura de membresías,
     suscripciones ni `tenants.status`.
-  - Configuración: plan de 30 días a $5.500, carta al vencer = `visible`.
+  - Configuración: plan de 30 días a $5.500 (histórico; el precio vigente es $14.999, ver `lib/config/plan.ts` y la migración `20261023000100`), carta al vencer = `visible`.
   - Data API con clave publicable: `tenants` → `[]`; `reservations` y `tenant_subscriptions` → `42501`;
     esquema `private` → `PGRST106` (no expuesto); `create_tenant` sin sesión → `42501`;
     `request_reservation` a comercio inexistente → `tenant_unavailable`.

@@ -7,7 +7,7 @@ export function NoAccess({ email }: { email: string }) {
   return (
     <main className="mx-auto grid min-h-dvh max-w-sm place-items-center px-6">
       <div>
-        <h1 className="text-2xl font-semibold">No tenés acceso a este panel</h1>
+        <h1 className="type-heading">No tenés acceso a este panel</h1>
         <p className="mt-2 text-[15px] text-muted">
           Ingresaste como <span className="font-medium text-foreground">{email}</span>, que no administra este local.
         </p>

@@ -16,7 +16,7 @@ const VARIANT: Record<ButtonVariant, string> = {
   danger: "border border-line-strong bg-surface text-danger hover:bg-subtle",
 };
 const SIZE: Record<ButtonSize, string> = {
-  sm: "h-11 px-3.5 text-[14px] lg:h-10", // 44 px de alto en pantallas táctiles
+  sm: "h-11 px-3.5 text-[14px]", // todos los controles miden al menos 44 px de alto
   md: "h-11 px-5 text-[15px]",
   lg: "h-13 px-6 text-[16px]",
 };

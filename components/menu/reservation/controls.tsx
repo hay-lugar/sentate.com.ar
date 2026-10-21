@@ -49,4 +49,4 @@ export function FieldError({ id, children }: { id: string; children?: string }) 
 }
 
 export const inputClass =
-  "h-12 w-full rounded-xl bg-surface px-4 text-[16px] text-foreground ring-1 ring-field outline-none transition-shadow placeholder:text-muted focus:ring-2 focus:ring-foreground aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-danger";
+  "h-12 w-full rounded-xl bg-surface px-4 text-[16px] text-foreground ring-1 ring-field outline-none transition-shadow placeholder:text-muted focus:ring-2 focus:ring-foreground aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-danger disabled:bg-subtle disabled:text-muted";

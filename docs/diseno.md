@@ -1,6 +1,15 @@
 # Sistema visual
 
-Base neutra (blanco, tinta y grises), tipografía de sistema y componentes compartidos. La identidad sale del logo: cubiertos negros y lettering en mayúsculas, sobre blanco.
+Base neutra (blanco, tinta y grises), tipografía de sistema y componentes compartidos.
+
+## Marca visible (temporal)
+
+El nombre visible de la plataforma es **«{Sin Nombre}»** (con llaves) hasta que se decida el definitivo. Sale de **una sola configuración**, `lib/config/brand.ts` (`BRAND.name`, `withBrand()`), y de ahí la toman la landing, el acceso, el panel, los títulos y metadatos, los textos de producto y los nombres accesibles.
+
+- Identidad: el símbolo de los cubiertos (`public/marca/cubiertos.svg`, vector propio sin texto, trazado del dibujo original) más el nombre como wordmark tipográfico (`components/ui/logo.tsx`: `sm` panel, `md` barra, `lg` acceso). Una vez por pantalla.
+- **No cambia con el nombre:** dominio (`sentate.com.ar`), repositorio, slugs, identificadores de Supabase, cookies, claves de almacenamiento ni los nombres técnicos internos. Tampoco los nombres y logos de los comercios.
+- Fuera del código, el nombre está escrito en: el asunto (`supabase/config.toml`) y el `<h2>` de `supabase/templates/recovery.html`, y en el dashboard de Supabase (plantilla y asunto remotos, acción del titular). Ver `docs/auth-recuperacion.md`.
+- `tests/e2e/marca.spec.ts` comprueba que no quede ninguna mención visible al nombre anterior (texto, nombres accesibles, título y metadatos), salvo URLs.
 
 ## Tokens (`app/globals.css`)
 
@@ -13,6 +22,14 @@ Base neutra (blanco, tinta y grises), tipografía de sistema y componentes compa
 | `--brand`, `--brand-fg`, `--accent`, `--accent-fg` | **Slots del comercio.** Valen la tinta de Sentate salvo dentro de la carta, donde `themeStyle()` los reemplaza por los colores guardados del comercio |
 | `--danger`, `--success`, `--warning` | Estados; siempre acompañados de texto |
 
+## Escala tipográfica
+
+Seis utilidades en `app/globals.css`: `type-display` (landing), `type-title` (título de página), `type-heading` (título de pantalla de una columna y de resultados), `type-section` (secciones), `type-label` (etiquetas de campo) y `type-help` (ayudas). Cuerpo 15–16 px. Las negritas quedan para los títulos; los nombres y etiquetas van en medium. Ningún texto baja de 13 px. Horas, precios y cantidades usan cifras tabulares.
+
+## Interacción
+
+Todo control mide al menos 44 × 44 px (los interruptores y los íconos tienen el área táctil completa aunque el dibujo sea menor). Estados: normal, hover, foco visible, presionado (`pressable`), deshabilitado, cargando (`Button pending`) y error. El viewport usa `interactive-widget=resizes-content`: con el teclado abierto, las barras y botones fijos quedan sobre el teclado.
+
 Radios (`rounded-lg` 8 px … `rounded-3xl` 16 px), sombras (solo `shadow-lift` para sheets) y fuentes (`font-sans`/`font-display`, ambas del sistema) también son tokens. No hay fuentes externas.
 
 ## Componentes
@@ -20,7 +37,7 @@ Radios (`rounded-lg` 8 px … `rounded-3xl` 16 px), sombras (solo `shadow-lift` 
 - `components/ui/button.tsx`: `Button` y `buttonClass()` (también para `<Link>`). Variantes `primary`, `secondary`, `quiet`, `danger`; tamaños `sm`/`md`/`lg`.
 - `components/menu/reservation/controls.tsx`: `inputClass`, `Chip`, `FieldError` (campos y selectores).
 - `components/ui/bottom-sheet.tsx`: sheets y diálogos.
-- `components/ui/logo.tsx`: logo (`public/sentate.svg`, recortado al contenido, sin deformar) en `sm` (panel), `md` (barra) y `lg` (ingreso y 404).
+- `components/ui/logo.tsx`: símbolo + wordmark (ver «Marca visible») en `sm` (panel), `md` (barra) y `lg` (ingreso y 404).
 
 ## Reglas
 

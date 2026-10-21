@@ -17,7 +17,7 @@ export function TodayAgenda() {
 
   return (
     <section aria-labelledby="agenda-titulo">
-      <h2 id="agenda-titulo" className="text-xl font-semibold">
+      <h2 id="agenda-titulo" className="type-section">
         Servicio de hoy
       </h2>
       {today.length === 0 ? (
@@ -29,12 +29,12 @@ export function TodayAgenda() {
               <span className="w-12 shrink-0 text-[16px] font-semibold tabular-nums">{r.time}</span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[15px] font-medium">{r.name}</span>
-                <span className="block text-[14px] text-muted">
+                <span className="block type-help">
                   {r.guests} {r.guests === 1 ? "persona" : "personas"}
                   {t.afterMidnight ? " · madrugada" : ""}
                 </span>
               </span>
-              <span className="shrink-0 text-[14px] font-medium">{r.status === "pending" ? "Pendiente" : "Confirmada"}</span>
+              <span className="shrink-0 type-label">{r.status === "pending" ? "Pendiente" : "Confirmada"}</span>
             </li>
           ))}
         </ol>

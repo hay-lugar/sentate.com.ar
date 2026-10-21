@@ -391,7 +391,7 @@ export function AdminDemoProvider({
                 <button
                   type="button"
                   onClick={toast.action.run}
-                  className="pressable ml-1 inline-flex min-h-9 shrink-0 items-center rounded-lg border border-background/40 px-3 text-[14px] font-medium hover:bg-background/10"
+                  className="pressable ml-1 inline-flex min-h-9 shrink-0 items-center rounded-lg border border-background/40 px-3 type-label hover:bg-background/10"
                 >
                   {toast.action.label}
                 </button>

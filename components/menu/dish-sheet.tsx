@@ -26,7 +26,7 @@ export function DishSheet({ dish, onClose, onReserve }: { dish: PublicDish | nul
           {shown.description && <p className="mt-2 text-[15px] leading-relaxed [overflow-wrap:anywhere] text-muted">{shown.description}</p>}
 
           <div className="mt-6 flex items-center gap-4 border-t border-line pt-5">
-            <p className="text-2xl font-semibold tabular-nums">{formatPrice(shown.price)}</p>
+            <p className="type-heading tabular-nums">{formatPrice(shown.price)}</p>
             <Button variant="secondary" onClick={onReserve} className="ml-auto">
               Solicitar mesa
             </Button>

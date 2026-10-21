@@ -249,7 +249,7 @@ otp_expiry = 3600
 
 # Sentate: recuperación con token_hash (funciona en cualquier navegador). Ver docs/auth-recuperacion.md.
 [auth.email.template.recovery]
-subject = "Recuperá tu contraseña de Sentate"
+subject = "Recuperá tu contraseña de {Sin Nombre}"
 content_path = "./supabase/templates/recovery.html"
 
 # Uncomment to customize email template

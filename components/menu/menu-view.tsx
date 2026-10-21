@@ -6,6 +6,7 @@ import { getOpenState } from "@/lib/domain/schedule";
 import { useZonedNow } from "@/lib/hooks/use-zoned-now";
 import type { ZonedNow } from "@/lib/time/zoned";
 import type { TenantSource } from "@/lib/data/resolve";
+import { BRAND } from "@/lib/config/brand";
 import { scrollBehavior } from "@/components/ui/motion-provider";
 import { CategoryTabs } from "./category-tabs";
 import { DishCard } from "./dish-card";
@@ -112,7 +113,7 @@ export function MenuView({
           <main className="px-4">
             {categories.map((category) => (
               <section key={category.id} id={`cat-${category.id}`} aria-labelledby={`h-${category.id}`} className="pt-7">
-                <h2 id={`h-${category.id}`} tabIndex={-1} className="text-xl font-semibold [overflow-wrap:anywhere] outline-none">
+                <h2 id={`h-${category.id}`} tabIndex={-1} className="type-section [overflow-wrap:anywhere] outline-none">
                   {category.name}
                 </h2>
                 <ul className="mt-1 divide-y divide-line">
@@ -129,14 +130,14 @@ export function MenuView({
       ) : (
         <main className="px-4 pt-6">
           <div className="rounded-xl border border-line px-6 py-10 text-center">
-            <h2 className="text-xl font-semibold">La carta todavía no está publicada</h2>
+            <h2 className="type-section">La carta todavía no está publicada</h2>
             <p className="mx-auto mt-2 max-w-xs text-[15px] text-muted">Podés consultar por teléfono o pedir una mesa igual desde el botón de abajo.</p>
           </div>
         </main>
       )}
 
-      <p className="mt-10 px-6 text-center text-[13px] text-muted">
-        {source === "demo" ? "Demo: precios y datos de ejemplo, en pesos argentinos." : "Precios en pesos argentinos."} Carta digital por Sentate.
+      <p className="mt-10 px-6 text-center type-help">
+        {source === "demo" ? "Demo: precios y datos de ejemplo, en pesos argentinos." : "Precios en pesos argentinos."} Carta digital por {BRAND.name}.
       </p>
 
       <ReserveBar onReserve={() => setReserving(true)} />

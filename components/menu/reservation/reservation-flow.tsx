@@ -40,10 +40,10 @@ export function ReservationFlow({
   const header =
     r.phase === "submitted" || r.phase === "failed" ? null : (
       <div>
-        <p className="text-[13px] text-muted">
+        <p className="type-help">
           Paso {r.step + 1} de {STEP_COUNT}
         </p>
-        <h2 className="mt-0.5 text-xl font-semibold">{TITLES[r.step]}</h2>
+        <h2 className="mt-0.5 type-section">{TITLES[r.step]}</h2>
         <div
           className="mt-3 flex gap-1.5"
           role="progressbar"

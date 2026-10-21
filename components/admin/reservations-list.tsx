@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { Reservation, ReservationStatus } from "@/lib/domain/types";
 import { Button, buttonClass } from "@/components/ui/button";
+import { BRAND } from "@/lib/config/brand";
 import { cn, timeAgo } from "@/lib/format";
 import { useZonedNow } from "@/lib/hooks/use-zoned-now";
 import { contactMessage, telLink, whatsappLink, whatsappTarget } from "@/lib/reservation/contact";
@@ -59,18 +60,18 @@ export function ReservationsList({
     <section className="min-w-0" aria-labelledby="reservas-titulo">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div>
-          <h2 id="reservas-titulo" className="text-xl font-semibold">
+          <h2 id="reservas-titulo" className="type-section">
             {title}
           </h2>
-          <p className="mt-0.5 text-[14px] text-muted">
+          <p className="mt-0.5 type-help">
             {mode === "demo" ? "Ejemplos ficticios. Una solicitud pendiente todavía no es una reserva confirmada." : "Una solicitud pendiente todavía no es una reserva confirmada."}
           </p>
           {realtime && <LiveIndicator status={realtime} />}
         </div>
       </div>
       {mode === "live" && (
-        <p className="mt-2 max-w-prose text-[14px] text-muted">
-          «WhatsApp» abre una conversación con un mensaje ya escrito: lo enviás vos. Sentate no manda mensajes a los comensales ni verifica el teléfono que
+        <p className="mt-2 max-w-prose type-help">
+          «WhatsApp» abre una conversación con un mensaje ya escrito: lo enviás vos. {BRAND.name} no manda mensajes a los comensales ni verifica el teléfono que
           dejaron.
         </p>
       )}
@@ -83,7 +84,7 @@ export function ReservationsList({
             aria-pressed={filter === f.id}
             onClick={() => setFilter(f.id)}
             className={cn(
-              "pressable inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-4 text-[14px]",
+              "pressable inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-[14px]",
               filter === f.id ? "border-foreground bg-foreground font-medium text-background" : "border-line-strong text-foreground hover:bg-subtle",
             )}
           >
@@ -136,10 +137,10 @@ function ReservationRow({
       <div className="min-w-0">
         <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-semibold">
           <span className="[overflow-wrap:anywhere]">{r.name}</span>
-          {r.status === "pending" && <span className="rounded-md border border-line-strong px-1.5 py-0.5 text-[12px] leading-none font-medium">Pendiente</span>}
+          {r.status === "pending" && <span className="rounded-md border border-line-strong px-1.5 py-1 text-[13px] leading-none font-medium">Pendiente</span>}
           {isNew && <span className="text-[13px] font-medium text-muted">Nueva</span>}
         </p>
-        <p className="mt-1 text-[14px] text-muted">
+        <p className="mt-1 type-help">
           <span className="tabular-nums">{r.phone}</span> · {timeAgo(r.receivedMinutesAgo)}
         </p>
         {contact && <ContactActions r={r} when={when} tenantName={contact.tenantName} />}
@@ -147,7 +148,7 @@ function ReservationRow({
 
       <div className="text-[15px]">
         <p className="font-medium">
-          {when.dayLabel} · {r.time}
+          <span className="tabular-nums">{when.dayLabel} · {r.time}</span>
           {when.afterMidnight && <span className="font-normal text-muted"> (madrugada)</span>}
         </p>
         <p className="text-muted">
@@ -227,7 +228,7 @@ function StatusBadge({ status }: { status: Exclude<ReservationStatus, "pending">
 /** Estado de la conexión en vivo: las solicitudes nuevas aparecen solas mientras está "En vivo". */
 function LiveIndicator({ status }: { status: "connecting" | "live" | "offline" }) {
   return (
-    <p role="status" className="mt-1 inline-flex items-center gap-1.5 text-[14px] font-medium">
+    <p role="status" className="mt-1 inline-flex items-center gap-1.5 type-label">
       {status === "live" ? (
         <>
           <Radio className="size-3.5 text-success" aria-hidden />

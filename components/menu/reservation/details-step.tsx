@@ -3,6 +3,7 @@
 import type { PlainDate, WallTime } from "@/lib/domain/types";
 import { RESERVATION_LIMITS, type FieldErrors, type ReservationDraft } from "@/lib/reservation/validation";
 import { capitalize, formatPlainDate } from "@/lib/time/zoned";
+import { BRAND } from "@/lib/config/brand";
 import { cn } from "@/lib/format";
 import { FieldError, inputClass } from "./controls";
 
@@ -24,7 +25,7 @@ export function DetailsStep({ draft, errors, update, onEdit, live = false }: Pro
         <div className="mt-4 rounded-xl bg-subtle p-3 text-[13px] leading-snug text-muted">
           <span>
             Tu nombre y teléfono se comparten solo con este local para gestionar la solicitud. El local te responde por su cuenta (teléfono o WhatsApp):
-            Sentate no envía mensajes automáticos.
+            {BRAND.name} no envía mensajes automáticos.
           </span>
         </div>
       ) : (
@@ -108,7 +109,7 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-1.5 flex items-baseline justify-between text-[14px] font-medium">
+      <label htmlFor={htmlFor} className="mb-1.5 flex items-baseline justify-between type-label">
         {label}
         {(optional || counter) && (
           <span className="text-[13px] font-normal text-muted">
@@ -137,7 +138,7 @@ function Summary({ guests, serviceDate, time, onEdit }: { guests: number; servic
 function SummaryItem({ label, value, onClick }: { label: string; value: string; onClick: () => void }) {
   return (
     <button type="button" onClick={onClick} aria-label={`Cambiar ${label.toLowerCase()}: ${value}`} className="pressable flex-1 px-3 py-3 text-center">
-      <span className="block text-[13px] text-muted">{label}</span>
+      <span className="block type-help">{label}</span>
       <span className="mt-0.5 block text-[17px] font-semibold">{value}</span>
       <span className="block text-[13px] underline underline-offset-2">Cambiar</span>
     </button>

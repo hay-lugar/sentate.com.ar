@@ -38,7 +38,7 @@ export function CategoryTabs({
               onClick={() => onSelect(tab.id)}
               aria-current={active ? "true" : undefined}
               className={cn(
-                "pressable -mb-px shrink-0 border-b-2 py-3.5 text-[15px] whitespace-nowrap",
+                "pressable -mb-px min-w-11 shrink-0 border-b-2 py-3.5 text-[15px] whitespace-nowrap",
                 active ? "border-brand font-semibold text-foreground" : "border-transparent text-muted hover:text-foreground",
               )}
             >

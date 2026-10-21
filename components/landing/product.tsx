@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { BRAND } from "@/lib/config/brand";
 
 /**
  * «Cómo se ve»: capturas reales de la demo (El Bodegón es un local de ejemplo). Se regeneran con
@@ -9,7 +10,7 @@ export function Product() {
   return (
     <section aria-labelledby="producto" className="border-t border-line bg-subtle">
       <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-24">
-        <h2 id="producto" className="text-3xl font-semibold sm:text-4xl">
+        <h2 id="producto" className="type-title">
           Así se ve
         </h2>
         <p className="mt-2 text-[15px] text-muted">Capturas de la demo, con datos de ejemplo.</p>
@@ -25,11 +26,11 @@ export function Product() {
             className="mx-auto h-auto w-full max-w-[300px] rounded-2xl border border-line bg-surface"
           />
           <figcaption className="max-w-md">
-            <h3 className="text-2xl font-semibold">Carta</h3>
+            <h3 className="type-heading">Carta</h3>
             <p className="mt-2 text-[16px] leading-relaxed text-muted">
-              Categorías, platos con foto y precio, horarios y si el local está abierto. Se abre desde un QR, sin instalar nada.
+              Categorías, platos con foto y precio, y horarios. Se abre desde un QR, sin instalar nada.
             </p>
-            <Link href="/el-bodegon" className="mt-3 inline-block text-[16px] font-medium underline underline-offset-4">
+            <Link href="/el-bodegon" className="mt-2 inline-flex min-h-11 items-center text-[16px] font-medium underline underline-offset-4">
               Abrir la carta demo
             </Link>
           </figcaption>
@@ -37,12 +38,12 @@ export function Product() {
 
         <figure className="mt-16 sm:mt-24">
           <figcaption className="max-w-xl">
-            <h3 className="text-2xl font-semibold">Reservas</h3>
+            <h3 className="type-heading">Reservas</h3>
             <p className="mt-2 text-[16px] leading-relaxed text-muted">
-              El comensal pide día, hora y cantidad de personas. La solicitud queda pendiente hasta que el local la confirma o la rechaza; Sentate no
-              reserva la mesa por su cuenta.
+              La solicitud queda pendiente hasta que el local la confirma o la rechaza. {BRAND.name} no reserva mesas por su cuenta ni avisa al
+              comensal.
             </p>
-            <Link href="/admin/el-bodegon" className="mt-3 inline-block text-[16px] font-medium underline underline-offset-4">
+            <Link href="/admin/el-bodegon" className="mt-2 inline-flex min-h-11 items-center text-[16px] font-medium underline underline-offset-4">
               Abrir el panel demo
             </Link>
           </figcaption>

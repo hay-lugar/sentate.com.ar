@@ -9,7 +9,7 @@ export default async function RegistroPage() {
   if (await getCurrentUser()) redirect("/registro/local");
   return (
     <>
-      <h1 className="mb-6 text-2xl font-semibold">Crear cuenta</h1>
+      <h1 className="mb-6 type-heading">Crear cuenta</h1>
       <SignupForm />
     </>
   );

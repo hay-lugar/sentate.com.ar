@@ -24,9 +24,9 @@ export function StatCards() {
 function Stat({ label, value, note }: { label: string; value: number; note: string }) {
   return (
     <div className="px-5 py-4">
-      <dt className="text-[14px] text-muted">{label}</dt>
+      <dt className="type-help">{label}</dt>
       <dd className="mt-1 text-3xl font-semibold tabular-nums">{value}</dd>
-      <dd className="mt-0.5 text-[14px] text-muted">{note}</dd>
+      <dd className="mt-0.5 type-help">{note}</dd>
     </div>
   );
 }

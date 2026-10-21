@@ -124,12 +124,12 @@ export function QrSection({ origin }: { origin: string | null }) {
                 producción el enlace usa tu dirección pública con https. Los archivos descargados llevan «-prueba» en el nombre.
               </p>
             )}
-            {mode === "demo" && <p className="text-[14px] text-muted">Demo: este QR abre la carta de ejemplo.</p>}
+            {mode === "demo" && <p className="type-help">Demo: este QR abre la carta de ejemplo.</p>}
           </div>
         )}
 
         <section aria-labelledby="qr-enlace">
-          <h2 id="qr-enlace" className="text-xl font-semibold">
+          <h2 id="qr-enlace" className="type-section">
             Enlace de tu carta
           </h2>
           <p className="mt-1 mb-4 text-[15px] text-muted">Es la dirección que abre el QR. Compartila también por WhatsApp o redes.</p>
@@ -155,7 +155,7 @@ export function QrSection({ origin }: { origin: string | null }) {
         </section>
 
         <section aria-labelledby="qr-codigo">
-          <h2 id="qr-codigo" className="text-xl font-semibold">
+          <h2 id="qr-codigo" className="type-section">
             Código QR
           </h2>
           <div className="mt-4 grid aspect-square w-full max-w-[17rem] place-items-center overflow-hidden rounded-xl bg-white ring-1 ring-line-strong">
@@ -163,7 +163,7 @@ export function QrSection({ origin }: { origin: string | null }) {
               // eslint-disable-next-line @next/next/no-img-element -- SVG generado en el navegador (data URL), no hay nada que optimizar
               <img src={svgDataUrl(svg)} alt={`Código QR que abre ${displayUrl(url)}`} className="size-full" />
             ) : (
-              <span className="text-[14px] text-muted" role="status">
+              <span className="type-help" role="status">
                 Generando el código…
               </span>
             )}
@@ -176,13 +176,13 @@ export function QrSection({ origin }: { origin: string | null }) {
               Descargar PNG
             </Button>
           </div>
-          <p className="mt-3 text-[14px] text-muted">
+          <p className="mt-3 type-help">
             SVG para imprenta: no pierde nitidez a ningún tamaño. PNG de 1200 px (10 cm a 300 dpi) para Word, redes o impresión casera.
           </p>
         </section>
 
         <section aria-labelledby="qr-imprimir">
-          <h2 id="qr-imprimir" className="text-xl font-semibold">
+          <h2 id="qr-imprimir" className="type-section">
             Calcomanía para imprimir
           </h2>
           <p className="mt-1 mb-4 text-[15px] text-muted">
@@ -192,11 +192,11 @@ export function QrSection({ origin }: { origin: string | null }) {
             Imprimir calcomanía
           </Button>
           {!pilot && (
-            <p id="print-blocked" className="mt-2 text-[14px] text-muted">
+            <p id="print-blocked" className="mt-2 type-help">
               Imprimir está bloqueado mientras el enlace apunte a un entorno de prueba.
             </p>
           )}
-          <ul className="mt-4 list-disc space-y-1.5 pl-5 text-[14px] text-muted">
+          <ul className="mt-4 list-disc space-y-1.5 pl-5 type-help">
             <li>Imprimila al 100 %, sin «ajustar a la página». El QR no debe bajar de {QR_PRINT_MIN_CM} cm de lado.</li>
             <li>Usá papel claro y mate. Evitá el brillo y los reflejos frente al QR.</li>
             <li>Dejá el margen blanco alrededor: sin él algunos teléfonos no lo leen.</li>
@@ -204,7 +204,7 @@ export function QrSection({ origin }: { origin: string | null }) {
           </ul>
         </section>
 
-        <p role="status" aria-live="polite" className={cn("min-h-5 text-[14px] font-medium text-success", !notice && "sr-only")}>
+        <p role="status" aria-live="polite" className={cn("min-h-5 type-label text-success", !notice && "sr-only")}>
           {notice}
         </p>
       </div>

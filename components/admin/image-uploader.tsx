@@ -188,7 +188,7 @@ export function ImageUploader({ tenantId, kind, value, onChange, disabled, shape
           >
             <div className="h-full rounded-full bg-brand transition-[width]" style={{ width: phase === "uploading" ? `${progress}%` : phase === "saving" ? "100%" : "8%" }} />
           </div>
-          <p className="mt-1.5 text-[13px] text-muted">{phase === "uploading" ? `${PHASE_LABEL.uploading} ${progress}%…` : PHASE_LABEL[phase as Exclude<Phase, "idle">]}</p>
+          <p className="mt-1.5 type-help">{phase === "uploading" ? `${PHASE_LABEL.uploading} ${progress}%…` : PHASE_LABEL[phase as Exclude<Phase, "idle">]}</p>
         </div>
       )}
 
@@ -203,7 +203,7 @@ export function ImageUploader({ tenantId, kind, value, onChange, disabled, shape
         </p>
       )}
 
-      <p id={hintId} className="text-[13px] text-muted">
+      <p id={hintId} className="type-help">
         {limitsHint(kind)}
       </p>
     </div>

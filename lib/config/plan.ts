@@ -1,7 +1,9 @@
 // Modelo comercial: única fuente de verdad para precio, moneda y prueba.
 
+import { BRAND } from "./brand";
+
 export const PLAN = {
-  name: "Sentate",
+  name: BRAND.name,
   priceMonthly: 14999,
   currency: "ARS",
   trialDays: 30,

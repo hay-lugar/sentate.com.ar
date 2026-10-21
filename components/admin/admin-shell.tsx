@@ -7,6 +7,7 @@ import { CalendarDays, ExternalLink, LayoutDashboard, LogOut, PanelLeftClose, Pa
 import { useEffect, useState, type ReactNode } from "react";
 import { Logo } from "@/components/ui/logo";
 import { TenantLogo } from "@/components/ui/tenant-logo";
+import { BRAND } from "@/lib/config/brand";
 import { cn } from "@/lib/format";
 import { themeStyle } from "@/lib/theme";
 import { useDemo } from "./demo-provider";
@@ -19,7 +20,7 @@ type NavItem = { href: string; label: string; icon: LucideIcon; badge?: number }
 const STORAGE_KEY = "sentate:sidebar-collapsed";
 
 /**
- * Estructura del panel. La interfaz es la de Sentate (neutra): el color del comercio solo aparece en su propio
+ * Estructura del panel. La interfaz es la de la plataforma (neutra): el color del comercio solo aparece en su propio
  * logo cuando no subió uno, y en la vista previa de Ajustes.
  */
 export function AdminShell({ children }: { children: ReactNode }) {
@@ -72,7 +73,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       >
         <div className="flex h-12 items-center justify-between">
           {!collapsed && (
-            <Link href="/" aria-label="Sentate, inicio" className="pl-1">
+            <Link href="/" aria-label={`${BRAND.name}, inicio`} className="inline-flex min-h-11 items-center pl-1">
               <Logo size="sm" />
             </Link>
           )}
@@ -80,7 +81,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             type="button"
             onClick={toggle}
             aria-label={collapsed ? "Expandir menú" : "Colapsar menú"}
-            className={cn("pressable grid size-10 shrink-0 place-items-center rounded-lg text-muted hover:bg-subtle hover:text-foreground", collapsed && "mx-auto")}
+            className={cn("pressable grid size-11 shrink-0 place-items-center rounded-lg text-muted hover:bg-subtle hover:text-foreground", collapsed && "mx-auto")}
           >
             {collapsed ? <PanelLeftOpen className="size-5" /> : <PanelLeftClose className="size-5" />}
           </button>
@@ -91,7 +92,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           {!collapsed && (
             <div className="min-w-0 leading-tight">
               <p className="truncate font-semibold">{tenant.name}</p>
-              <p className="truncate text-[13px] text-muted">{tenant.cuisine}</p>
+              <p className="truncate type-help">{tenant.cuisine}</p>
             </div>
           )}
         </div>
@@ -107,7 +108,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             href={`/${tenant.slug}`}
             target="_blank"
             title="Ver menú público"
-            className={cn("pressable flex h-10 items-center gap-3 rounded-lg px-3 text-[15px] text-muted hover:bg-subtle hover:text-foreground", collapsed && "justify-center px-0")}
+            className={cn("pressable flex h-11 items-center gap-3 rounded-lg px-3 text-[15px] text-muted hover:bg-subtle hover:text-foreground", collapsed && "justify-center px-0")}
           >
             <ExternalLink className="size-[18px] shrink-0" aria-hidden />
             {collapsed ? <span className="sr-only">Ver menú público (nueva pestaña)</span> : "Ver menú público"}
@@ -117,7 +118,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
               <button
                 type="submit"
                 title={`Cerrar sesión (${live.email})`}
-                className={cn("pressable flex h-10 w-full items-center gap-3 rounded-lg px-3 text-[15px] text-muted hover:bg-subtle hover:text-foreground", collapsed && "justify-center px-0")}
+                className={cn("pressable flex h-11 w-full items-center gap-3 rounded-lg px-3 text-[15px] text-muted hover:bg-subtle hover:text-foreground", collapsed && "justify-center px-0")}
               >
                 <LogOut className="size-[18px] shrink-0" aria-hidden />
                 {collapsed ? <span className="sr-only">Cerrar sesión</span> : "Cerrar sesión"}
@@ -132,7 +133,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
         {logo("size-9 rounded-lg text-[13px]")}
         <div className="min-w-0 leading-tight">
           <p className="truncate font-semibold">{tenant.name}</p>
-          {mode === "demo" && <p className="text-[13px] text-muted">Panel de la demo</p>}
+          <p className="type-help">
+            {BRAND.name} · {mode === "demo" ? "Panel de la demo" : "Panel"}
+          </p>
         </div>
         {live && (
           <form action={signOutAction} className="ml-auto">
@@ -163,7 +166,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 aria-current={active ? "page" : undefined}
                 aria-label={item.badge ? `${item.label} (${item.badge} pendientes)` : undefined}
                 className={cn(
-                  "pressable relative flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[12px]",
+                  "pressable relative flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[13px]",
                   active ? "font-semibold text-foreground" : "text-muted",
                 )}
               >
@@ -171,7 +174,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 <span className="relative" aria-hidden>
                   <Icon className="size-[22px]" strokeWidth={active ? 2.25 : 1.75} />
                   {!!item.badge && (
-                    <span className="absolute -top-1.5 -right-3 grid h-4 min-w-4 place-items-center rounded-full bg-foreground px-1 text-[11px] font-semibold text-background">
+                    <span className="absolute -top-1.5 -right-3 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-foreground px-1 text-[13px] leading-none font-medium text-background">
                       {item.badge}
                     </span>
                   )}
@@ -195,7 +198,7 @@ function SidebarLink({ item, active, collapsed }: { item: NavItem; active: boole
       aria-current={active ? "page" : undefined}
       aria-label={collapsed || item.badge ? `${item.label}${item.badge ? ` (${item.badge} pendientes)` : ""}` : undefined}
       className={cn(
-        "pressable relative flex h-10 items-center gap-3 rounded-lg px-3 text-[15px]",
+        "pressable relative flex h-11 items-center gap-3 rounded-lg px-3 text-[15px]",
         active ? "bg-subtle font-semibold text-foreground" : "text-muted hover:bg-subtle hover:text-foreground",
         collapsed && "justify-center px-0",
       )}
@@ -205,7 +208,7 @@ function SidebarLink({ item, active, collapsed }: { item: NavItem; active: boole
       {!!item.badge && (
         <span
           aria-hidden
-          className={cn("grid h-5 min-w-5 place-items-center rounded-full bg-foreground px-1.5 text-[12px] font-semibold text-background", collapsed ? "absolute top-0.5 right-2" : "ml-auto")}
+          className={cn("grid h-5 min-w-5 place-items-center rounded-full bg-foreground px-1.5 text-[13px] leading-none font-medium text-background", collapsed ? "absolute top-0.5 right-2" : "ml-auto")}
         >
           {item.badge}
         </span>

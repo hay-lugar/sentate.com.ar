@@ -38,7 +38,7 @@ export function DashboardHeader() {
         <section className="mb-6 flex flex-col gap-3 rounded-xl border border-line bg-subtle p-4 sm:flex-row sm:items-center">
           <div className="min-w-0 flex-1">
             <h2 className="text-[17px] font-semibold">Tu menú todavía no es público</h2>
-            <p className="mt-0.5 text-[14px] text-muted">
+            <p className="mt-0.5 type-help">
               Cargá tu carta y tus horarios en Menú y Ajustes. Cuando publiques, tu menú queda en sentate.com.ar/{state.slug}.
             </p>
           </div>

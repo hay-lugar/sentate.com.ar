@@ -23,7 +23,7 @@ export function LoginForm({ next, initialError }: { next?: string; initialError?
       </p>
       <FormMessage error={state.error} info={state.info} />
       <SubmitButton pendingLabel="Ingresando…">Ingresar</SubmitButton>
-      <p className="text-center text-[14px] text-muted">
+      <p className="text-center type-help">
         ¿Todavía no tenés cuenta?{" "}
         <Link href="/registro" className="font-medium text-foreground underline underline-offset-4">
           Crear cuenta

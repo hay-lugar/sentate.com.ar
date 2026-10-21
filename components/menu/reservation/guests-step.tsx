@@ -16,7 +16,7 @@ export function GuestsStep({ guests, onChange, phone, error }: { guests: number;
         </Button>
         <div className="text-center" aria-live="polite">
           <span className="block text-6xl leading-none font-semibold tabular-nums">{guests}</span>
-          <span className="mt-2 block text-[14px] text-muted">{guests === 1 ? "persona" : "personas"}</span>
+          <span className="mt-2 block type-help">{guests === 1 ? "persona" : "personas"}</span>
         </div>
         <Button variant="secondary" aria-label="Una persona más" disabled={guests >= maxGuests} onClick={() => onChange(guests + 1)} className="size-12 px-0">
           <Plus className="size-5" aria-hidden />
@@ -32,7 +32,7 @@ export function GuestsStep({ guests, onChange, phone, error }: { guests: number;
       </div>
       <FieldError id="err-guests">{error}</FieldError>
 
-      <p className="mt-6 border-t border-line pt-4 text-[14px] text-muted">
+      <p className="mt-6 border-t border-line pt-4 type-help">
         ¿Son más de {maxGuests}? Llamá al local para grupos grandes:{" "}
         <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="font-medium text-foreground underline underline-offset-4">
           {phone}

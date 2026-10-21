@@ -31,7 +31,7 @@ export function MenuManager() {
   return (
     <>
       <form onSubmit={addCategory} noValidate className="mb-6 rounded-xl border border-line p-4">
-        <label htmlFor="new-category" className="mb-2 block text-[14px] font-medium">
+        <label htmlFor="new-category" className="mb-2 block type-label">
           Nueva categoría
         </label>
         <div className="flex gap-2">
@@ -174,10 +174,10 @@ function CategoryCard({
           </form>
         ) : (
           <>
-            <h2 id={headingId} className="min-w-0 flex-1 truncate text-lg font-semibold">
+            <h2 id={headingId} className="min-w-0 flex-1 type-section [overflow-wrap:anywhere]">
               {cat.name}
             </h2>
-            <span className="text-[14px] text-muted">
+            <span className="type-help">
               {active}/{cat.dishes.length} visibles
             </span>
           </>
@@ -229,7 +229,7 @@ function CategoryCard({
       )}
 
       {cat.dishes.length === 0 ? (
-        <p className="mx-4 mb-4 rounded-lg bg-subtle px-4 py-5 text-center text-[14px] text-muted">
+        <p className="mx-4 mb-4 rounded-lg bg-subtle px-4 py-5 text-center type-help">
           Sin platos todavía. Esta categoría no se muestra en el menú público.
         </p>
       ) : (
@@ -240,14 +240,12 @@ function CategoryCard({
               <span className={cn("relative grid size-12 shrink-0 place-items-center overflow-hidden rounded-lg bg-subtle text-muted", !d.active && "opacity-50 grayscale")}>
                 <DishThumb image={d.image} />
               </span>
-              <div className="min-w-0 flex-1 leading-tight">
-                <p className="truncate text-[15px] font-medium" title={d.name}>
-                  {d.name}
-                </p>
-                <p className="mt-0.5 text-[14px] text-muted tabular-nums">
+              <div className="min-w-0 flex-1">
+                <p className="line-clamp-2 text-[15px] leading-snug font-medium [overflow-wrap:anywhere]">{d.name}</p>
+                <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 type-help tabular-nums">
                   {formatPrice(d.price)}
                   {!d.active && (
-                    <span className="ml-2 rounded-md border border-line-strong px-1.5 py-0.5 text-[12px] text-foreground">No disponible</span>
+                    <span className="rounded-md border border-line-strong px-1.5 py-0.5 text-[13px] whitespace-nowrap text-foreground">No disponible</span>
                   )}
                 </p>
               </div>
@@ -280,7 +278,7 @@ function IconButton({
       aria-label={label}
       title={label}
       className={cn(
-        "pressable grid size-10 shrink-0 place-items-center rounded-lg text-muted hover:bg-subtle hover:text-foreground disabled:opacity-30",
+        "pressable grid size-11 shrink-0 place-items-center rounded-lg text-muted hover:bg-subtle hover:text-foreground disabled:opacity-30",
         className,
       )}
       {...props}

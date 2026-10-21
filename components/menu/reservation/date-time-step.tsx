@@ -62,9 +62,9 @@ export function DateTimeStep({ tenant, now, guests, fakeAvailability, serviceDat
                 d.closed && "opacity-50",
               )}
             >
-              <span className={cn("max-w-full truncate px-1 text-[11px] font-semibold uppercase", !selected && "text-muted")}>{d.label}</span>
+              <span className={cn("max-w-full truncate px-1 text-[13px] font-medium uppercase", !selected && "text-muted")}>{d.label}</span>
               <span className="mt-0.5 text-[22px] leading-tight font-semibold">{Number(d.serviceDate.slice(8))}</span>
-              <span className={cn("max-w-full truncate px-1 text-[11px] font-medium", !selected && "text-muted")} title={d.closedReason}>
+              <span className={cn("max-w-full truncate px-1 text-[13px]", !selected && "text-muted")} title={d.closedReason}>
                 {d.closed ? (d.closedReason ? "Cierre" : "Cerrado") : d.sublabel}
               </span>
             </button>
@@ -77,18 +77,18 @@ export function DateTimeStep({ tenant, now, guests, fakeAvailability, serviceDat
         Elegí el horario
       </SectionLabel>
       {!serviceDate ? (
-        <div className="grid h-28 place-items-center rounded-xl border border-line px-4 text-center text-[14px] text-muted">
+        <div className="grid h-28 place-items-center rounded-xl border border-line px-4 text-center type-help">
           Primero elegí un día
         </div>
       ) : !anyFree ? (
-        <div className="grid h-28 place-items-center rounded-xl border border-line px-4 text-center text-[14px] text-muted">
+        <div className="grid h-28 place-items-center rounded-xl border border-line px-4 text-center type-help">
           No quedan horarios para este día. Probá con otra fecha.
         </div>
       ) : (
         <div key={serviceDate} className="space-y-4" role="group" aria-labelledby="lbl-hora">
           {groups.map(({ shift, items }) => (
             <div key={shift.id}>
-              <p className="mb-2 text-[13px] text-muted">
+              <p className="mb-2 type-help">
                 {shift.label} · {shift.open}–{shift.close}
               </p>
               <div className="grid grid-cols-4 gap-2">
@@ -111,7 +111,7 @@ export function DateTimeStep({ tenant, now, guests, fakeAvailability, serviceDat
                 })}
               </div>
               {items.some((s) => s.afterMidnight) && (
-                <p className="mt-2 flex items-center gap-1.5 text-[13px] text-muted">
+                <p className="mt-2 flex items-center gap-1.5 type-help">
                   <Moon className="size-3" aria-hidden /> Después de medianoche: corresponde al{" "}
                   {formatPlainDate(items.find((s) => s.afterMidnight)!.calendarDate, { weekday: "long", day: "numeric" })} en el calendario.
                 </p>
@@ -121,7 +121,7 @@ export function DateTimeStep({ tenant, now, guests, fakeAvailability, serviceDat
         </div>
       )}
       <FieldError id="err-time">{errors.time}</FieldError>
-      <p className="mt-4 text-[13px] text-muted">
+      <p className="mt-4 type-help">
         {fakeAvailability
           ? "Disponibilidad ficticia de la demo."
           : "Es una solicitud: el local la confirma según su disponibilidad."}{" "}

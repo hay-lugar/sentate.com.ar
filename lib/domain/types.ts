@@ -5,8 +5,23 @@ export type PlainDate = string;
 /** Hora de reloj de pared: "HH:MM" (24 h). */
 export type WallTime = string;
 
-export type DishTag = "popular" | "veggie" | "picante" | "sin-tacc" | "nuevo";
-export const DISH_TAGS: DishTag[] = ["popular", "nuevo", "veggie", "picante", "sin-tacc"];
+export type DishTag = "popular" | "veggie" | "vegan" | "picante" | "sin-tacc" | "nuevo";
+export const DISH_TAGS: DishTag[] = ["popular", "nuevo", "vegan", "veggie", "picante", "sin-tacc"];
+
+/**
+ * Etiquetas dietarias. Las declara el local para cada plato: NO son una certificación ni se infieren
+ * (un plato «apto celíacos» no hace al local libre de gluten). Nunca se usan para clasificar al comercio entero.
+ */
+export const DIETARY_TAGS: DishTag[] = ["vegan", "veggie", "sin-tacc"];
+export const TAG_LABELS: Record<DishTag, string> = {
+  popular: "Popular",
+  nuevo: "Nuevo",
+  vegan: "Vegano",
+  veggie: "Vegetariano",
+  picante: "Picante",
+  "sin-tacc": "Apto celíacos",
+};
+export const DIETARY_DISCLAIMER = "Etiquetas declaradas por el local, no son una certificación. Si tenés alergias o celiaquía, consultá al local antes de pedir.";
 
 export type Dish = {
   id: string;

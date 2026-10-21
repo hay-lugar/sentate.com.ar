@@ -10,8 +10,8 @@ Documento vivo. Cada etapa lo actualiza con lo realmente implementado y verifica
 | B | Perfil geográfico (PostGIS), catálogos, aprobación | Integrada en main |
 | C | `/explorar`, búsqueda, filtros, mapa | Integrada en main |
 | D | Perfil del comensal, favoritos, historial, OAuth | Integrada en main |
-| E | Capacidad y reservas con disponibilidad real | En curso |
-| F | Carta avanzada y administración del comercio | Pendiente |
+| E | Capacidad y reservas con disponibilidad real | Integrada en main |
+| F | Carta avanzada y administración del comercio | En curso |
 | G | Superadmin completo, validación integral | Pendiente |
 
 ## Cuatro ejes independientes
@@ -119,3 +119,11 @@ Detalle y requisitos externos en `docs/auth-oauth.md`.
 **Concurrencia.** `request_reservation` valida el horario, calcula la capacidad y escribe **en una sola transacción bajo un bloqueo (advisory) por comercio**; la confirmación de una retención vencida toma el mismo bloqueo. La idempotencia por clave sigue funcionando. La consulta `reservation_availability` desde el navegador es **informativa**; la escritura vuelve a validar. Prueba: `supabase/tests/api/capacity-concurrency.test.mjs` dispara ráfagas paralelas contra la Data API real (12 pedidos de 2 personas con tope 10 → entran exactamente 5; ocupación solapada; misma clave en paralelo → una sola reserva; liberar al rechazar).
 
 **Interfaz.** La carta consulta el cupo real por día y cantidad de personas (los horarios completos/bloqueados se deshabilitan y se explican); el máximo por pedido sale de la configuración. El panel tiene `/admin/[slug]/reservas/capacidad` (cupo, retención, bloqueos). Limitación conocida: la grilla de horarios de la carta sigue siendo la de 30 minutos; con intervalo de 60 los horarios intermedios aparecen como «no disponible», y el panel ofrece solo 30 o 60.
+
+## Etapa F — carta avanzada y administración del comercio (implementado)
+
+- **Etiquetas dietarias** por plato: *Vegano* (`vegan`), *Vegetariano* (`veggie`) y *Apto celíacos* (`sin-tacc`). Las **declara el local; no son una certificación** ni se infieren, y nunca clasifican al comercio entero (el explorador no usa estas etiquetas). El aviso se muestra en el detalle del plato, al filtrar y en el formulario del dueño. La carta (HTML, no PDF) ofrece un filtro dietario solo si hay platos con esas etiquetas.
+- **Cambio masivo de precios** (`/admin/[slug]/menu/precios`, solo datos reales): selección explícita (por plato o categoría), tipo (% / monto / precio fijo), redondeo, **vista previa** fila por fila, validación (no negativos, tope, máximo 500), **confirmación** y aplicación **atómica** con `bulk_update_prices`: todo o nada, aislada por comercio (los ids de otro comercio cuentan como inexistentes), con control de versión por plato (`updated_at`): si algo cambió mientras se editaba, no se aplica nada y se listan los platos en conflicto. Con prueba vencida no se puede editar.
+- **Reservas en el panel:** estados `Vencida` y `Finalizada`, botones *Cancelar* (confirmada) y *Finalizar* (desde la hora de inicio), con aplicación optimista y reversión si la base rechaza (el estado no se anuncia como hecho hasta que la base lo confirma). **Sonido de solicitudes nuevas opcional**: apagado por defecto, lo activa la persona, suena solo ante una solicitud nueva en vivo (no al cargar ni al resincronizar); el aviso visual/lector de pantalla sigue siendo el toast `aria-live`.
+- **Perfil público:** nombre/descripción/teléfono del local/horarios/colores/logo y portada en *Ajustes*; tipo, cocinas, dirección, pin y redes en *Mapa* (etapa B). El teléfono de la cuenta nunca se publica.
+- **Pendiente / no incluido:** miniaturas dedicadas para tarjetas y mapa (hoy se usa la portada optimizada por `next/image`), arrastrar para reordenar platos y reservas en Kanban.

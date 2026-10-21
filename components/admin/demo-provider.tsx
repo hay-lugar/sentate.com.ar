@@ -16,6 +16,7 @@ import {
 import { useRouter } from "next/navigation";
 import type { Reservation, ReservationStatus, TenantAccess, TenantProfile, TenantRecord, TenantStats } from "@/lib/domain/types";
 import { mutateTenantAction } from "@/app/admin/[slug]/actions";
+import { playNewRequestSound, soundEnabled } from "@/lib/admin/notify-sound";
 import type { LiveMutation, MutationResult } from "@/lib/admin/live-mutations";
 import { demoReducer, type DemoAction, type DemoState } from "@/lib/demo/state";
 import { clearDemo, loadDemo, saveDemo } from "@/lib/demo/storage";
@@ -223,6 +224,7 @@ export function AdminDemoProvider({
       const known = latest.current.reservations.some((r) => r.id === reservation.id);
       apply({ type: "upsertReservation", reservation });
       if (isNew && !known && reservation.status === "pending") {
+        if (soundEnabled()) playNewRequestSound();
         showToast({ tone: "neutral", message: `Nueva solicitud de ${reservation.name.split(" ")[0]} · ${reservation.guests} pers. · ${reservation.time}` });
       }
     },

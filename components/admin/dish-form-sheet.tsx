@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { Category, Dish, DishTag } from "@/lib/domain/types";
-import { DISH_TAGS } from "@/lib/domain/types";
+import type { Category, Dish } from "@/lib/domain/types";
+import { DIETARY_DISCLAIMER, DIETARY_TAGS, DISH_TAGS, TAG_LABELS } from "@/lib/domain/types";
 import { useDemo } from "./demo-provider";
 import { MENU_LIMITS, validateDishForm, type DishFormErrors, type DishFormValues } from "@/lib/demo/menu-validation";
 import type { DishInput } from "@/lib/demo/state";
@@ -13,13 +13,7 @@ import { cn } from "@/lib/format";
 import { ImageUploader } from "./image-uploader";
 import { Switch } from "./switch";
 
-const TAG_LABEL: Record<DishTag, string> = {
-  popular: "Popular",
-  nuevo: "Nuevo",
-  veggie: "Veggie",
-  picante: "Picante",
-  "sin-tacc": "Sin TACC",
-};
+const TAG_LABEL = TAG_LABELS;
 
 export type DishFormTarget = { categoryId: string; dish?: Dish } | null;
 
@@ -209,6 +203,7 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
                 );
               })}
             </div>
+            {values.tags.some((t) => DIETARY_TAGS.includes(t)) && <p className="mt-2 type-help">{DIETARY_DISCLAIMER}</p>}
           </fieldset>
 
           <div className="flex items-center justify-between gap-4 rounded-xl border border-line p-4">

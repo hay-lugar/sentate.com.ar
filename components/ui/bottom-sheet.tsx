@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion, useDragControls, type PanInfo } from "framer-motion";
+import { AnimatePresence, MotionConfig, motion, useDragControls, type PanInfo } from "framer-motion";
 import { X } from "lucide-react";
 import { cn } from "@/lib/format";
 import { useThemeStyle } from "./theme-scope";
@@ -112,6 +112,7 @@ export function BottomSheet({ open, onClose, children, label, header, footer, cl
 
   return createPortal(
     <div ref={portalRef} style={themeStyle}>
+      <MotionConfig reducedMotion="user">
       <AnimatePresence>
         {open && (
           <div className="fixed inset-0 z-50">
@@ -176,6 +177,7 @@ export function BottomSheet({ open, onClose, children, label, header, footer, cl
           </div>
         )}
       </AnimatePresence>
+      </MotionConfig>
     </div>,
     document.body,
   );

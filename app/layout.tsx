@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { MotionProvider } from "@/components/ui/motion-provider";
 import { appOrigin } from "@/lib/auth/app-url";
 import { BRAND, withBrand } from "@/lib/config/brand";
 import "./globals.css";
@@ -36,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es-AR">
       <body className="min-h-dvh">
-        <MotionProvider>{children}</MotionProvider>
+        {children}
       </body>
     </html>
   );

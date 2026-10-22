@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DIETARY_DISCLAIMER, DIETARY_TAGS, TAG_LABELS, type DishTag, type PublicDish, type PublicTenant } from "@/lib/domain/types";
 import { getOpenState } from "@/lib/domain/schedule";
@@ -12,10 +13,13 @@ import { Search } from "lucide-react";
 import { scrollBehavior } from "@/components/ui/motion-provider";
 import { CategoryTabs } from "./category-tabs";
 import { DishCard } from "./dish-card";
-import { DishSheet } from "./dish-sheet";
-import { ReservationFlow } from "./reservation/reservation-flow";
 import { ContactBar, ReserveBar } from "./reserve-bar";
 import { CompactBar, RestaurantHeader } from "./restaurant-header";
+
+// Las hojas (plato y pedido de mesa) pesan más que el resto de la carta y solo se usan al tocar: se descargan recién cuando
+// se abren por primera vez, para no cargar ese JavaScript (ni framer-motion) al entrar.
+const DishSheet = dynamic(() => import("./dish-sheet").then((m) => m.DishSheet), { ssr: false });
+const ReservationFlow = dynamic(() => import("./reservation/reservation-flow").then((m) => m.ReservationFlow), { ssr: false });
 
 /** Alto de la barra compacta (56) + tabs (~62): offset para anclar secciones. */
 const STICKY_OFFSET = 118;
@@ -53,11 +57,22 @@ export function MenuView({
   const [dish, setDish] = useState<PublicDish | null>(null);
   const reservationsEnabled = tenant.reservationsEnabled !== false;
   const [reserving, setReserving] = useState(false);
+  // Una vez abiertas se quedan montadas (para conservar la animación de cierre).
+  const [dishEverOpen, setDishEverOpen] = useState(false);
+  const [reserveEverOpen, setReserveEverOpen] = useState(false);
+  const openDish = useCallback((d: PublicDish) => {
+    setDishEverOpen(true);
+    setDish(d);
+  }, []);
+  const openReservation = useCallback(() => {
+    setReserveEverOpen(true);
+    setReserving(true);
+  }, []);
   // Desde el explorador: /slug?mesa=1 abre directamente el pedido de mesa.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- parámetro de URL leído tras hidratar (la carta se sirve estática)
-    if (reservationsEnabled && new URLSearchParams(window.location.search).get("mesa") === "1") setReserving(true);
-  }, [reservationsEnabled]);
+    if (reservationsEnabled && new URLSearchParams(window.location.search).get("mesa") === "1") openReservation();
+  }, [reservationsEnabled, openReservation]);
 
   const tabsAnchor = useRef<HTMLDivElement>(null);
   const lockSpy = useRef<number | null>(null);
@@ -189,7 +204,7 @@ export function MenuView({
                 <ul className="mt-1 divide-y divide-line">
                   {category.dishes.map((d) => (
                     <li key={d.id}>
-                      <DishCard dish={d} onSelect={setDish} />
+                      <DishCard dish={d} onSelect={openDish} />
                     </li>
                   ))}
                 </ul>
@@ -226,18 +241,20 @@ export function MenuView({
         {source === "demo" ? "Demo: precios y datos de ejemplo, en pesos argentinos." : "Precios en pesos argentinos."} Carta digital por {BRAND.name}.
       </p>
 
-      {reservationsEnabled ? <ReserveBar onReserve={() => setReserving(true)} /> : <ContactBar phone={tenant.phone} />}
+      {reservationsEnabled ? <ReserveBar onReserve={openReservation} /> : <ContactBar phone={tenant.phone} />}
 
+      {(dish || dishEverOpen) && (
       <DishSheet
         dish={dish}
         onClose={closeDish}
         onReserve={!reservationsEnabled ? undefined : () => {
           setDish(null);
           if (reopenTimer.current) clearTimeout(reopenTimer.current);
-          reopenTimer.current = window.setTimeout(() => setReserving(true), 220);
+          reopenTimer.current = window.setTimeout(openReservation, 220);
         }}
       />
-      {reservationsEnabled && <ReservationFlow tenant={tenant} source={source} open={reserving} onClose={closeReservation} />}
+      )}
+      {reservationsEnabled && (reserving || reserveEverOpen) && <ReservationFlow tenant={tenant} source={source} open={reserving} onClose={closeReservation} />}
     </div>
   );
 }

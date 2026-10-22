@@ -30,6 +30,9 @@ Preview automático por PR en Vercel; producción solo con autorización. Migrac
 
 ## Registro de cambios
 
+### Fase 4 (experiencia del comensal)
+Carta: buscador por nombre/descripción (sin tildes) en cartas de 10 o más platos, combinable con el filtro dietario; enlace «Cómo llegar» con las coordenadas confirmadas del local (o la dirección si no las hay); texto de carta vacía coherente con reservas apagadas. Cubierto por pruebas unitarias y E2E demo. No se agregó nada que dependa de datos de uso, que todavía no existen.
+
 ### Fase 3 (experiencia del comercio)
 El inicio y la página de Reservas del panel respetan las reservas opcionales: con las reservas apagadas no muestran solicitudes ni agenda vacías, sino un aviso con acceso a Capacidad (el historial se conserva). Nuevo filtro «Hoy» en reservas (mesas de hoy confirmadas y pendientes). Cubierto por E2E demo y E2E live.
 

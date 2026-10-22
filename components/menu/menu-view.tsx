@@ -7,6 +7,8 @@ import { useZonedNow } from "@/lib/hooks/use-zoned-now";
 import type { ZonedNow } from "@/lib/time/zoned";
 import type { TenantSource } from "@/lib/data/resolve";
 import { BRAND } from "@/lib/config/brand";
+import { filterCategories, SEARCH_MIN_DISHES } from "@/lib/menu/search";
+import { Search } from "lucide-react";
 import { scrollBehavior } from "@/components/ui/motion-provider";
 import { CategoryTabs } from "./category-tabs";
 import { DishCard } from "./dish-card";
@@ -34,15 +36,17 @@ export function MenuView({
   // Filtro dietario (etiquetas que declara el local por plato). Solo aparece si la carta tiene alguna.
   const [diet, setDiet] = useState<DishTag[]>([]);
   const available = useMemo(() => DIETARY_TAGS.filter((t) => tenant.categories.some((c) => c.dishes.some((d) => d.tags?.includes(t)))), [tenant.categories]);
-  const categories = useMemo(
-    () =>
-      diet.length
-        ? tenant.categories
-            .map((c) => ({ ...c, dishes: c.dishes.filter((d) => diet.every((t) => d.tags?.includes(t))) }))
-            .filter((c) => c.dishes.length)
-        : tenant.categories,
-    [tenant.categories, diet],
-  );
+  const [query, setQuery] = useState("");
+  const totalDishes = useMemo(() => tenant.categories.reduce((n, c) => n + c.dishes.length, 0), [tenant.categories]);
+  const searchable = totalDishes >= SEARCH_MIN_DISHES;
+  const categories = useMemo(() => {
+    const byDiet = diet.length
+      ? tenant.categories
+          .map((c) => ({ ...c, dishes: c.dishes.filter((d) => diet.every((t) => d.tags?.includes(t))) }))
+          .filter((c) => c.dishes.length)
+      : tenant.categories;
+    return filterCategories(byDiet, query);
+  }, [tenant.categories, diet, query]);
 
   const [activeId, setActiveId] = useState(categories[0]?.id ?? "");
   const [compact, setCompact] = useState(false);
@@ -121,6 +125,26 @@ export function MenuView({
 
       {categories.length > 0 ? (
         <>
+          {searchable && (
+            <div className="px-4 pt-4">
+              <label htmlFor="carta-buscar" className="sr-only">
+                Buscar en la carta
+              </label>
+              <div className="relative">
+                <Search className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted" aria-hidden />
+                <input
+                  id="carta-buscar"
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  maxLength={60}
+                  placeholder="Buscar en la carta"
+                  autoComplete="off"
+                  className="h-12 w-full rounded-xl bg-surface pr-4 pl-12 text-[16px] ring-1 ring-field outline-none placeholder:text-muted focus:ring-2 focus:ring-foreground"
+                />
+              </div>
+            </div>
+          )}
           {available.length > 0 && (
             <div className="px-4 pt-4">
               <div role="group" aria-label="Filtrar por dieta" className="flex flex-wrap gap-2">
@@ -165,11 +189,18 @@ export function MenuView({
             ))}
           </main>
         </>
-      ) : diet.length > 0 ? (
+      ) : diet.length > 0 || query.trim() ? (
         <main className="px-4 pt-6">
           <div role="status" className="rounded-xl border border-line px-6 py-10 text-center">
             <h2 className="type-section">Ningún plato coincide</h2>
-            <button type="button" onClick={() => setDiet([])} className="pressable mt-3 min-h-11 rounded-full border border-line-strong px-4 text-[15px]">
+            <button
+              type="button"
+              onClick={() => {
+                setDiet([]);
+                setQuery("");
+              }}
+              className="pressable mt-3 min-h-11 rounded-full border border-line-strong px-4 text-[15px]"
+            >
               Quitar filtros
             </button>
           </div>
@@ -178,7 +209,7 @@ export function MenuView({
         <main className="px-4 pt-6">
           <div className="rounded-xl border border-line px-6 py-10 text-center">
             <h2 className="type-section">La carta todavía no está publicada</h2>
-            <p className="mx-auto mt-2 max-w-xs text-[15px] text-muted">Podés consultar por teléfono o pedir una mesa igual desde el botón de abajo.</p>
+            <p className="mx-auto mt-2 max-w-xs text-[15px] text-muted">{reservationsEnabled ? "Podés consultar por teléfono o pedir una mesa igual desde el botón de abajo." : "Podés consultar por teléfono desde el botón de abajo."}</p>
           </div>
         </main>
       )}

@@ -66,7 +66,7 @@ export async function getLivePublicTenant(slug: string): Promise<LiveResult<Publ
   if (error) return fail("public tenant", error);
   if (!tenant) return { status: "not_found" };
 
-  const [shifts, closures, categories, items, settings, location] = await Promise.all([
+  const [shifts, closures, categories, items, settings, location, promotion] = await Promise.all([
     supabase.from("tenant_shifts").select(SHIFT_COLUMNS).eq("tenant_id", tenant.id),
     supabase.from("tenant_closures").select(CLOSURE_COLUMNS).eq("tenant_id", tenant.id).gte("service_date", reservationsSince(tenant.timezone)),
     supabase.from("categories").select(CATEGORY_COLUMNS).eq("tenant_id", tenant.id).eq("is_visible", true),
@@ -75,7 +75,10 @@ export async function getLivePublicTenant(slug: string): Promise<LiveResult<Publ
     supabase.from("tenant_reservation_settings").select("accepts_reservations").eq("tenant_id", tenant.id).maybeSingle(),
     // RLS solo entrega la ubicación de comercios LISTADOS: su presencia es la señal para indexar la ficha.
     supabase.from("tenant_locations").select("lat, lng, locality, province_code").eq("tenant_id", tenant.id).maybeSingle(),
+    // RLS entrega la fila solo mientras la promoción está vigente.
+    supabase.from("tenant_promotions").select("title, detail").eq("tenant_id", tenant.id).maybeSingle(),
   ]);
+  // Un error al leer la promoción no rompe la carta: simplemente no se muestra.
   const failed = [shifts, closures, categories, items, settings, location].find((r) => r.error);
   if (failed) return fail("public menu", failed.error);
 
@@ -94,6 +97,7 @@ export async function getLivePublicTenant(slug: string): Promise<LiveResult<Publ
     data: {
       ...liveToPublicTenant(publicRow, shifts.data as ShiftRow[], categories.data as CategoryRow[], publicItems, closures.data as ClosureRow[]),
       reservationsEnabled: settings.data?.accepts_reservations ?? true,
+      promotion: promotion.data ? { title: promotion.data.title as string, detail: (promotion.data.detail as string) ?? "" } : undefined,
       discovery: location.data ? { lat: location.data.lat, lng: location.data.lng, locality: location.data.locality, province: location.data.province_code } : undefined,
     },
   };

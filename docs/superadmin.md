@@ -33,3 +33,17 @@ Todo deja registro en `private.admin_audit_log` (quién, cuándo, acción, motiv
 - **Cambios posteriores** (nombre, dirección o mover el pin >200 m) de un comercio aprobado lo devuelven a revisión: sale del explorador, **la carta y las reservas existentes siguen**.
 - **Cobro:** hoy no hay integración con Mercado Pago; la activación es manual. El comercio **no puede** editar su estado de pago ni extender su prueba (sin grants sobre `tenant_subscriptions`). Los estados `past_due` y `canceled` ya existen para un proveedor futuro. Volver de una pantalla de pago **nunca** confirma un pago: solo el panel (o, a futuro, un webhook verificado) cambia el estado.
 - **Destacados:** apagado por defecto. Aparecen en un bloque aparte (primera página, orden Relevancia o Nombre; nunca en «Más cercanos»), con la etiqueta «Destacado», y **respetan todos los filtros y la visibilidad** (un destacado suspendido, sin aprobar o con la prueba vencida no aparece).
+
+## Consola completa (secciones)
+Navegación fija en `/superadmin`: **Bandeja** (moderación), **Resumen** (cifras reales de la base), **Comercios** (búsqueda, *crear restaurante*), **Suscripciones** (por estado y pruebas por vencer), **Usuarios**, **Administradores** (alta por email de una cuenta ya registrada y confirmada, baja; nadie se quita a sí mismo y siempre queda uno), **Auditoría** (filtro por acción) y **Sistema** (estado de avisos y pagos, últimos eventos con el email enmascarado, y el ajuste «carta con acceso vencido»). Cierre de sesión en la cabecera.
+
+| Acción | Función | Notas |
+|---|---|---|
+| Crear restaurante | `admin_create_tenant` | para un dueño con cuenta confirmada, o para el propio superadmin; queda sin publicar y en borrador |
+| Pausar / reactivar | `admin_set_suspension` | oculta carta y explorador; no borra nada |
+| Promoción | `admin_set_promotion` / `admin_clear_promotion` | una por comercio, hasta 90 días; se ve en la carta pública solo mientras está vigente y el comercio es visible |
+| Eliminar | `admin_delete_tenant` | **definitivo**: borra carta, reservas, horarios, membresías y favoritos; exige escribir el slug exacto y un motivo; queda en auditoría con nombre y slug. Las imágenes del Storage no se borran |
+| Administradores | `admin_add_admin` / `admin_remove_admin` | auditado |
+| Ajuste | `admin_set_platform_setting` | solo `public_menu_when_access_lapsed` |
+
+Pruebas: pgTAP `250_superadmin_consola.sql` y E2E live (`superadmin.spec.ts`).

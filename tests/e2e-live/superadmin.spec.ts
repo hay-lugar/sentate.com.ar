@@ -54,7 +54,7 @@ test("suspender oculta la carta y el explorador; reactivar los devuelve", async 
   await page.getByRole("link", { name: "Aprobados" }).click();
   await page.getByRole("link", { name: /La Esquina/ }).click();
   await page.getByLabel(/^Motivo/).fill("Denuncia verificada de prueba");
-  await page.getByRole("button", { name: "Suspender comercio" }).click();
+  await page.getByRole("button", { name: "Pausar comercio" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Comercio suspendido." })).toBeVisible();
 
   const pub = await newContextWithIp(browser, baseURL!, "203.0.113.73");
@@ -113,5 +113,49 @@ test("suscripción manual: exige motivo, queda en el historial y el panel es acc
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   const axe = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).disableRules(["color-contrast"]).analyze();
   expect(axe.violations.filter((v) => v.impact === "serious" || v.impact === "critical")).toEqual([]);
+  await ctx.close();
+});
+
+test("consola: cerrar sesión, crear un restaurante, ponerle una promoción visible en su carta y eliminarlo", async ({ browser, baseURL }) => {
+  const ctx = await newContextWithIp(browser, baseURL!, "203.0.113.72");
+  const page = await ctx.newPage();
+  await login(page, "superadmin@example.test");
+  const slug = `consola-${Date.now().toString(36)}`;
+
+  // Navegación completa de la consola: cada sección abre sin error.
+  for (const [name, heading] of [["Resumen", "Resumen de la plataforma"], ["Comercios", "Comercios"], ["Suscripciones", "Suscripciones"], ["Usuarios", "Usuarios"], ["Administradores", "Administradores"], ["Auditoría", "Auditoría"], ["Sistema", "Sistema"]] as const) {
+    await page.getByRole("navigation", { name: "Superadmin" }).getByRole("link", { name, exact: true }).click();
+    await expect(page.getByRole("heading", { name: heading, exact: true })).toBeVisible();
+  }
+
+  // Crear (dueño = el propio superadmin) → abre la ficha.
+  await page.getByRole("navigation", { name: "Superadmin" }).getByRole("link", { name: "Comercios", exact: true }).click();
+  await page.getByLabel("Nombre", { exact: true }).fill("Local de Consola");
+  await page.getByLabel(/Dirección web/).fill(slug);
+  await page.getByLabel("Motivo").first().fill("prueba de la consola");
+  await page.getByRole("button", { name: "Crear restaurante" }).click();
+  await expect(page.getByRole("heading", { name: "Local de Consola" })).toBeVisible({ timeout: 20_000 });
+
+  // Promoción: la ficha la guarda (visible en la carta solo si el comercio es visible; acá solo se valida el registro).
+  await page.getByLabel("Título").fill("2x1 en pizzas");
+  await page.getByLabel("Motivo", { exact: false }).nth(1).fill("campaña de prueba");
+  await page.getByRole("button", { name: "Publicar promoción" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Promoción publicada." })).toBeVisible();
+  await expect(page.getByText("2x1 en pizzas — hasta")).toBeVisible();
+
+  // Eliminar: exige el slug exacto.
+  const del = page.getByRole("button", { name: "Eliminar definitivamente" });
+  await expect(del).toBeDisabled();
+  await page.getByLabel(/Escribí «/).fill(slug);
+  await page.getByRole("region", { name: "Eliminar comercio" }).getByLabel("Motivo").fill("limpieza de prueba");
+  await del.click();
+  await expect(page).toHaveURL(/\/superadmin\/comercios/, { timeout: 20_000 });
+  await page.goto(`/${slug}`);
+  await expect(page.getByText(/No encontramos esta página|could not be found/)).toBeVisible();
+
+  // Cerrar sesión.
+  await page.goto("/superadmin");
+  await page.getByRole("button", { name: "Cerrar sesión" }).click();
+  await expect(page).toHaveURL(/\/login/);
   await ctx.close();
 });

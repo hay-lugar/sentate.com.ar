@@ -28,7 +28,7 @@ select is((select (i ->> 'accepts_reservations')::boolean from jsonb_array_eleme
   true, 'sin configuración = habilitadas');
 
 -- Una solicitud a un local con reservas deshabilitadas se rechaza en la base (no solo se oculta el botón).
-select throws_ok(format($$ select public.request_reservation(%L, %L, '21:00', 2, 'Ana Pérez', '+5411000012345', '', gen_random_uuid()) $$,
+select throws_ok(format($$ select public.request_reservation(%L, %L, '21:00', 2, 'Ana Pérez', '+541100001234', '', gen_random_uuid()) $$,
   tests.tenant_id('esquina-b'), tests.next_service_date(4)), 'P0001', 'reservations_closed', 'la base rechaza reservas en un local que no las recibe');
 
 select * from finish();

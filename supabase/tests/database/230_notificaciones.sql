@@ -19,6 +19,7 @@ select tests.as_anon();
 create temp table r1 as select tests.req(1, 'Ana@Example.com', true) as id;
 create temp table r2 as select tests.req(2, 'sin-consentimiento@example.com', false) as id;
 create temp table r3 as select tests.req(3, null, false) as id;
+grant select on r1, r2, r3 to anon, authenticated;
 select is(tests.req(4, 'no-es-un-email', true), 'ERR:invalid_email', 'un email inválido se rechaza');
 
 select tests.as_postgres();

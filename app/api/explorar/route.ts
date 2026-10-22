@@ -22,6 +22,7 @@ const body = z
     price: z.array(z.enum(["$", "$$", "$$$"])).max(3).optional(),
     open_now: z.boolean().optional(),
     accepts_reservations: z.boolean().optional(),
+    with_promotion: z.boolean().optional(),
     lat: z.number().min(-90).max(90).optional(),
     lng: z.number().min(-180).max(180).optional(),
     radius_km: z.number().min(0.1).max(500).optional(),

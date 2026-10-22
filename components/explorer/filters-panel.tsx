@@ -82,6 +82,14 @@ export function FiltersPanel({ filters, facets, onChange, onLocate, geo, hasPoin
         </span>
       </label>
 
+      <label className="flex min-h-11 cursor-pointer items-center gap-3">
+        <input type="checkbox" checked={filters.withPromotion} onChange={(e) => set({ withPromotion: e.target.checked })} className="size-5 shrink-0 accent-foreground" />
+        <span>
+          <span className="block text-[15px] font-medium">Con promoción</span>
+          <span className="block type-help">Locales que tienen una promoción vigente.</span>
+        </span>
+      </label>
+
       <div>
         <p className="mb-1.5 type-label">Cerca de mí</p>
         <p className="mb-2 type-help">Usamos tu ubicación solo para ordenar y filtrar por distancia aproximada. No la guardamos.</p>

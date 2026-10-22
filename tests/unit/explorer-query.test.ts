@@ -77,3 +77,15 @@ describe("estado en la URL", () => {
     expect(toSearchBody({ ...DEFAULT_FILTERS, sort: "distance" }).sort).toBe("name");
   });
 });
+
+describe("filtro «Con promoción»", () => {
+  it("va y viene por la URL y por el cuerpo de la búsqueda, y por defecto está apagado", () => {
+    expect(DEFAULT_FILTERS.withPromotion).toBe(false);
+    expect(toSearchBody(DEFAULT_FILTERS)).not.toHaveProperty("with_promotion");
+    const f = filtersFromParams(new URLSearchParams("promo=1"));
+    expect(f.withPromotion).toBe(true);
+    expect(filtersToParams(f).get("promo")).toBe("1");
+    expect(toSearchBody(f).with_promotion).toBe(true);
+    expect(filtersFromParams(new URLSearchParams("promo=si")).withPromotion).toBe(false);
+  });
+});

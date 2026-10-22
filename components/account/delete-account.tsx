@@ -20,7 +20,7 @@ export function DeleteAccount() {
   }
   return (
     <div role="group" aria-label="Eliminar cuenta" className="space-y-3 rounded-xl border border-danger/40 p-4">
-      <p className="text-[15px]">
+      <p className="text-[0.9375rem]">
         Se borran tu acceso, tu perfil y tus favoritos. Las reservas que hiciste quedan en cada local (con el nombre y teléfono que les diste) pero ya no
         se asocian a vos. No se puede deshacer.
       </p>
@@ -31,7 +31,7 @@ export function DeleteAccount() {
         <input id="del-confirm" value={text} onChange={(e) => setText(e.target.value)} autoComplete="off" className={authInputClass} />
       </div>
       {error && (
-        <p role="alert" className="text-[14px] text-danger">
+        <p role="alert" className="text-[0.875rem] text-danger">
           {error}
         </p>
       )}

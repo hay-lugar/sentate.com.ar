@@ -25,7 +25,7 @@ export function GuestsStep({ guests, onChange, phone, error, max = maxGuests }: 
 
       <div className="mt-5 grid grid-cols-4 gap-2" role="group" aria-label="Cantidad de personas">
         {Array.from({ length: Math.min(max, 12) }, (_, i) => i + 1).map((n) => (
-          <Chip key={n} selected={guests === n} onClick={() => onChange(n)} className="h-12 text-[15px]" aria-label={`${n} ${n === 1 ? "persona" : "personas"}`}>
+          <Chip key={n} selected={guests === n} onClick={() => onChange(n)} className="h-12 text-[0.9375rem]" aria-label={`${n} ${n === 1 ? "persona" : "personas"}`}>
             {n}
           </Chip>
         ))}

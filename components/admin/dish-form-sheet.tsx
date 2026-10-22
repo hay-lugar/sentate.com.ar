@@ -161,7 +161,7 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
             // referenciado hasta que el guardado del plato se confirma.
             <div role="group" aria-labelledby="dish-image-label">
               <p id="dish-image-label" className="mb-1.5 flex items-baseline justify-between type-label">
-                Foto del plato <span className="text-[13px] font-normal text-muted">Opcional</span>
+                Foto del plato <span className="text-[0.8125rem] font-normal text-muted">Opcional</span>
               </p>
               <ImageUploader tenantId={live.tenantId} kind="dish" value={values.image || null} onChange={(path) => set("image", path ?? "")} />
               <FieldError id="dish-image-error">{errors.image}</FieldError>
@@ -194,7 +194,7 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
                     aria-pressed={on}
                     onClick={() => set("tags", on ? values.tags.filter((t) => t !== tag) : [...values.tags, tag])}
                     className={cn(
-                      "pressable h-10 rounded-full px-4 text-[14px] ring-1",
+                      "pressable h-10 rounded-full px-4 text-[0.875rem] ring-1",
                       on ? "bg-brand font-medium text-brand-fg ring-brand" : "bg-surface ring-line-strong hover:bg-subtle",
                     )}
                   >
@@ -208,7 +208,7 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
 
           <div className="flex items-center justify-between gap-4 rounded-2xl border border-line/70 p-4">
             <div>
-              <p id="dish-active-label" className="text-[15px] font-medium">
+              <p id="dish-active-label" className="text-[0.9375rem] font-medium">
                 Disponible
               </p>
               <p className="type-help">Si lo desactivás, no aparece en el menú público.</p>
@@ -218,7 +218,7 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
 
           {isEdit &&
             (confirmDelete ? (
-              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-danger/40 p-3 text-[14px]">
+              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-danger/40 p-3 text-[0.875rem]">
                 <span className="flex-1 font-medium text-danger">¿Eliminar este plato?</span>
                 <Button size="sm" variant="danger" onClick={() => lastTarget && onDelete(resolveId(lastTarget.categoryId), values.id!)}>
                   Eliminar
@@ -258,7 +258,7 @@ function FormField({
       <label htmlFor={id} className="mb-1.5 flex items-baseline justify-between type-label">
         {label}
         {(optional || counter) && (
-          <span className="text-[13px] font-normal text-muted">
+          <span className="text-[0.8125rem] font-normal text-muted">
             {optional && "Opcional"}
             {optional && counter && " · "}
             {counter}

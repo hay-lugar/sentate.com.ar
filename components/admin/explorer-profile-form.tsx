@@ -132,14 +132,14 @@ export function ExplorerProfileForm({ tenantId, initial, businessTypes, cuisines
         <h2 id={id("status")} className="type-label">
           Estado en el explorador: <span className="font-semibold">{copy.title}</span>
         </h2>
-        <p className="mt-1 text-[15px] text-muted">{copy.body}</p>
-        {moderation.reason && status !== "approved" && <p className="mt-2 text-[15px]">Motivo: {moderation.reason}</p>}
-        {suspended && <p className="mt-2 text-[15px] text-danger">Tu comercio está suspendido: {moderation.suspensionReason}</p>}
-        {!isPublished && <p className="mt-2 text-[15px] text-muted">Tu carta está sin publicar: no aparece en el explorador aunque esté aprobado.</p>}
+        <p className="mt-1 text-[0.9375rem] text-muted">{copy.body}</p>
+        {moderation.reason && status !== "approved" && <p className="mt-2 text-[0.9375rem]">Motivo: {moderation.reason}</p>}
+        {suspended && <p className="mt-2 text-[0.9375rem] text-danger">Tu comercio está suspendido: {moderation.suspensionReason}</p>}
+        {!isPublished && <p className="mt-2 text-[0.9375rem] text-muted">Tu carta está sin publicar: no aparece en el explorador aunque esté aprobado.</p>}
         {missing.length > 0 && (status === "draft" || status === "changes_requested" || status === "rejected") && (
           <div className="mt-3">
             <p className="type-label">Para enviar a revisión falta:</p>
-            <ul className="mt-1 list-disc pl-5 text-[15px]">
+            <ul className="mt-1 list-disc pl-5 text-[0.9375rem]">
               {missing.map((k) => (
                 <li key={k}>{MISSING_LABELS[k] ?? k}</li>
               ))}
@@ -169,7 +169,7 @@ export function ExplorerProfileForm({ tenantId, initial, businessTypes, cuisines
           <FieldError id={id("bt-error")}>{errors.businessType}</FieldError>
         </div>
         <fieldset>
-          <legend className="mb-1.5 type-label">Cocina <span className="text-[13px] font-normal text-muted">Hasta 3</span></legend>
+          <legend className="mb-1.5 type-label">Cocina <span className="text-[0.8125rem] font-normal text-muted">Hasta 3</span></legend>
           <div className="flex flex-wrap gap-2">
             {cuisines.map((c) => {
               const on = draft.cuisines.includes(c.code);
@@ -179,7 +179,7 @@ export function ExplorerProfileForm({ tenantId, initial, businessTypes, cuisines
                   type="button"
                   aria-pressed={on}
                   onClick={() => toggleCuisine(c.code)}
-                  className={cn("pressable min-h-11 rounded-full border px-4 text-[15px]", on ? "border-foreground bg-foreground text-background" : "border-line-strong")}
+                  className={cn("pressable min-h-11 rounded-full border px-4 text-[0.9375rem]", on ? "border-foreground bg-foreground text-background" : "border-line-strong")}
                 >
                   {c.label}
                 </button>
@@ -219,10 +219,10 @@ export function ExplorerProfileForm({ tenantId, initial, businessTypes, cuisines
             </div>
             {results && (
               <ul className="mt-2 divide-y divide-line/70 rounded-2xl border border-line/70" aria-label="Resultados">
-                {results.length === 0 && <li className="p-3 text-[15px] text-muted">No encontramos esa dirección. Marcá el punto en el mapa.</li>}
+                {results.length === 0 && <li className="p-3 text-[0.9375rem] text-muted">No encontramos esa dirección. Marcá el punto en el mapa.</li>}
                 {results.map((r) => (
                   <li key={`${r.lat},${r.lng}`}>
-                    <button type="button" onClick={() => pickResult(r)} className="min-h-11 w-full p-3 text-left text-[15px] hover:bg-subtle">{r.label}</button>
+                    <button type="button" onClick={() => pickResult(r)} className="min-h-11 w-full p-3 text-left text-[0.9375rem] hover:bg-subtle">{r.label}</button>
                   </li>
                 ))}
               </ul>
@@ -236,7 +236,7 @@ export function ExplorerProfileForm({ tenantId, initial, businessTypes, cuisines
           <LocationPicker lat={pinned ? draft.lat : null} lng={pinned ? draft.lng : null} onChange={setPin} label="Mapa para ubicar el local" />
           <FieldError id={id("loc-error")}>{errors.location ?? errors.lat ?? errors.lng}</FieldError>
           <details className="mt-3">
-            <summary className="min-h-11 cursor-pointer py-3 text-[15px]">Ingresar coordenadas manualmente</summary>
+            <summary className="min-h-11 cursor-pointer py-3 text-[0.9375rem]">Ingresar coordenadas manualmente</summary>
             <div className="grid gap-3 sm:grid-cols-2">
               <CoordField id={id("lat")} label="Latitud" value={pinned ? draft.lat : ""} onChange={(v) => setCoord("lat", v)} />
               <CoordField id={id("lng")} label="Longitud" value={pinned ? draft.lng : ""} onChange={(v) => setCoord("lng", v)} />
@@ -244,7 +244,7 @@ export function ExplorerProfileForm({ tenantId, initial, businessTypes, cuisines
           </details>
         </div>
         {pinned && (
-          <p className={cn("flex items-center gap-2 text-[15px]", draft.confirm ? "text-success" : "text-muted")}>
+          <p className={cn("flex items-center gap-2 text-[0.9375rem]", draft.confirm ? "text-success" : "text-muted")}>
             {draft.confirm ? <CheckCircle2 className="size-4" aria-hidden /> : null}
             {draft.confirm ? "Ubicación confirmada." : "Ubicación sin confirmar: confirmala para aparecer en el explorador."}
           </p>
@@ -267,7 +267,7 @@ export function ExplorerProfileForm({ tenantId, initial, businessTypes, cuisines
           Guardar y confirmar ubicación
         </Button>
         {message && (
-          <p role="status" className={cn("text-[15px]", message.tone === "ok" ? "text-success" : "text-danger")}>
+          <p role="status" className={cn("text-[0.9375rem]", message.tone === "ok" ? "text-success" : "text-danger")}>
             {message.text}
           </p>
         )}
@@ -289,7 +289,7 @@ function Field({ id, label, value, onChange, error, optional, type = "text", pla
     <div>
       <label htmlFor={id} className="mb-1.5 flex justify-between type-label">
         {label}
-        {optional && <span className="text-[13px] font-normal text-muted">Opcional</span>}
+        {optional && <span className="text-[0.8125rem] font-normal text-muted">Opcional</span>}
       </label>
       <input id={id} type={type} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} className={inputClass} />
       <FieldError id={`${id}-error`}>{error}</FieldError>

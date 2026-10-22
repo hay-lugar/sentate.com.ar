@@ -16,7 +16,7 @@ export default async function FavoritosPage() {
   if (!items.length) {
     return (
       <div className="rounded-2xl border border-line/70 p-6 text-center">
-        <p className="text-[16px] font-medium">Todavía no guardaste favoritos.</p>
+        <p className="text-[1rem] font-medium">Todavía no guardaste favoritos.</p>
         <p className="mt-1 type-help">Tocá el corazón en un local del explorador para guardarlo acá. Tus favoritos son privados.</p>
         <Link href="/explorar" className={buttonClass({ className: "mt-4" })}>
           Explorar locales
@@ -32,7 +32,7 @@ export default async function FavoritosPage() {
           <li key={f.id} className="flex items-center gap-3 rounded-2xl border border-line/70 p-3">
             <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-subtle">{img && <Image src={img} alt="" fill sizes="64px" className="object-cover" />}</div>
             <div className="min-w-0 flex-1">
-              <Link href={`/${f.slug}`} className="block truncate text-[16px] font-semibold hover:underline">
+              <Link href={`/${f.slug}`} className="block truncate text-[1rem] font-semibold hover:underline">
                 {f.name}
               </Link>
               <p className="truncate type-help">{[f.locality, f.price_range].filter(Boolean).join(" · ")}</p>

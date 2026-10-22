@@ -37,20 +37,20 @@ export default async function SuperadminLayout({ children }: { children: React.R
           <Link href="/" aria-label={`${BRAND.name}, inicio`} className="inline-flex min-h-11 items-center">
             <Logo size="sm" />
           </Link>
-          <span className="hidden rounded-md border border-line-strong px-2 py-1 text-[13px] font-medium min-[430px]:inline">Superadmin</span>
-          <span className="ml-auto hidden text-[13px] text-muted md:inline">{user.email}</span>
-          <Link href="/cuenta" className="hidden min-h-11 items-center px-2 text-[15px] text-muted hover:text-foreground sm:inline-flex">
+          <span className="hidden rounded-md border border-line-strong px-2 py-1 text-[0.8125rem] font-medium min-[430px]:inline">Superadmin</span>
+          <span className="ml-auto hidden text-[0.8125rem] text-muted md:inline">{user.email}</span>
+          <Link href="/cuenta" className="hidden min-h-11 items-center px-2 text-[0.9375rem] text-muted hover:text-foreground sm:inline-flex">
             Mi cuenta
           </Link>
           <form action={signOutAction} className="ml-auto md:ml-0">
-            <button type="submit" className="pressable inline-flex min-h-11 items-center rounded-xl border border-line-strong px-3 text-[15px] hover:bg-subtle">
+            <button type="submit" className="pressable inline-flex min-h-11 items-center rounded-xl border border-line-strong px-3 text-[0.9375rem] hover:bg-subtle">
               Cerrar sesión
             </button>
           </form>
         </div>
         <nav aria-label="Superadmin" className="no-scrollbar mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2 sm:px-4">
           {NAV.map((n) => (
-            <Link key={n.href} href={n.href} className="inline-flex min-h-11 shrink-0 items-center rounded-lg px-3 text-[15px] text-muted hover:bg-subtle hover:text-foreground">
+            <Link key={n.href} href={n.href} className="inline-flex min-h-11 shrink-0 items-center rounded-lg px-3 text-[0.9375rem] text-muted hover:bg-subtle hover:text-foreground">
               {n.label}
             </Link>
           ))}

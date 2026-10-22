@@ -21,14 +21,14 @@ export function TodayAgenda() {
         Servicio de hoy
       </h2>
       {today.length === 0 ? (
-        <p className="mt-3 rounded-2xl border border-line/70 px-4 py-6 text-[15px] text-muted">Todavía no hay mesas para hoy.</p>
+        <p className="mt-3 rounded-2xl border border-line/70 px-4 py-6 text-[0.9375rem] text-muted">Todavía no hay mesas para hoy.</p>
       ) : (
         <ol className="mt-3 divide-y divide-line/70 rounded-2xl border border-line/70">
           {today.map(({ r, t }) => (
             <li key={r.id} className="flex items-center gap-4 px-4 py-3">
-              <span className="w-12 shrink-0 text-[16px] font-semibold tabular-nums">{r.time}</span>
+              <span className="w-12 shrink-0 text-[1rem] font-semibold tabular-nums">{r.time}</span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[15px] font-medium">{r.name}</span>
+                <span className="block truncate text-[0.9375rem] font-medium">{r.name}</span>
                 <span className="block type-help">
                   {r.guests} {r.guests === 1 ? "persona" : "personas"}
                   {t.afterMidnight ? " · madrugada" : ""}

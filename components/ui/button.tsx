@@ -16,9 +16,9 @@ const VARIANT: Record<ButtonVariant, string> = {
   danger: "border border-line-strong bg-surface text-danger hover:bg-subtle",
 };
 const SIZE: Record<ButtonSize, string> = {
-  sm: "h-11 px-3.5 text-[14px]", // todos los controles miden al menos 44 px de alto
-  md: "h-11 px-5 text-[15px]",
-  lg: "h-13 px-6 text-[16px]",
+  sm: "h-11 px-3.5 text-[0.875rem]", // todos los controles miden al menos 44 px de alto
+  md: "h-11 px-5 text-[0.9375rem]",
+  lg: "h-13 px-6 text-[1rem]",
 };
 
 export function buttonClass({ variant = "primary", size = "md", className }: { variant?: ButtonVariant; size?: ButtonSize; className?: string } = {}) {

@@ -44,7 +44,8 @@ const measure = () => {
 const browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM_PATH || undefined });
 const report = {};
 for (const w of widths) {
-  const ctx = await browser.newContext({ viewport: { width: w, height: w >= 768 ? 900 : 800 }, reducedMotion: "reduce", isMobile: w < 600, hasTouch: w < 600 });
+  const ctx = await browser.newContext({ colorScheme: process.env.SCHEME || "light", viewport: { width: w, height: w >= 768 ? 900 : 800 }, reducedMotion: "reduce", isMobile: w < 600, hasTouch: w < 600 });
+  if (process.env.FONT_PX) await ctx.addInitScript((px) => { document.addEventListener("DOMContentLoaded", () => { document.documentElement.style.fontSize = px + "px"; }); }, process.env.FONT_PX);
   const page = await ctx.newPage();
   for (const [name, path] of pages) {
     await page.goto(base + path);

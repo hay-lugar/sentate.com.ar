@@ -37,13 +37,13 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="space-y-8">
-      <Link href="/superadmin/comercios" className="inline-flex min-h-11 items-center text-[15px] text-muted hover:text-foreground">← Comercios</Link>
+      <Link href="/superadmin/comercios" className="inline-flex min-h-11 items-center text-[0.9375rem] text-muted hover:text-foreground">← Comercios</Link>
       <div>
         <h1 className="type-title [overflow-wrap:anywhere]">{String(t.name)}</h1>
         <p className="type-help">/{String(t.slug)} · {MODERATION_COPY[d.moderation.status].title}{t.status === "suspended" ? " · Pausado" : ""}</p>
       </div>
 
-      <section aria-labelledby="perfil" className="space-y-1 text-[15px]">
+      <section aria-labelledby="perfil" className="space-y-1 text-[0.9375rem]">
         <h2 id="perfil" className="mb-2 type-section">Perfil</h2>
         <Row k="Dueños" v={d.owners.join(", ") || "—"} />
         <Row k="Dirección" v={String(t.address || "—")} />
@@ -59,7 +59,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
         )}
       </section>
 
-      <section aria-labelledby="estado" className="space-y-1 text-[15px]">
+      <section aria-labelledby="estado" className="space-y-1 text-[0.9375rem]">
         <h2 id="estado" className="mb-2 type-section">Estado</h2>
         <Row k="Moderación" v={`${MODERATION_COPY[d.moderation.status].title}${d.moderation.reason ? ` — ${d.moderation.reason}` : ""}`} />
         {d.moderation.suspension_reason && <Row k="Suspensión" v={d.moderation.suspension_reason} />}
@@ -77,10 +77,10 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
 
       <section aria-labelledby="hist">
         <h2 id="hist" className="mb-2 type-section">Historial</h2>
-        {d.history.length === 0 ? <p className="text-[15px] text-muted">Sin movimientos.</p> : (
+        {d.history.length === 0 ? <p className="text-[0.9375rem] text-muted">Sin movimientos.</p> : (
           <ul className="divide-y divide-line/70 rounded-2xl border border-line/70">
             {d.history.map((h, i) => (
-              <li key={i} className="px-4 py-3 text-[15px]">
+              <li key={i} className="px-4 py-3 text-[0.9375rem]">
                 <span className="font-medium">{ACTION_LABEL[h.action] ?? h.action}</span> <span className="text-muted">· {h.by ?? "sistema"} · {fmt(h.at)}</span>
                 {h.detail?.reason && <span className="block type-help">Motivo: {h.detail.reason}</span>}
               </li>

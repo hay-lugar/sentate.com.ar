@@ -44,7 +44,7 @@ export function FavoriteButton({ tenantId, name, initial, loginHref, onChange }:
         <Heart className={cn("size-5", on && "fill-current")} aria-hidden />
       </button>
       {error && (
-        <span role="alert" className="absolute top-full right-0 z-10 w-52 rounded-lg border border-line bg-background p-2 text-[13px] text-danger shadow-sm">
+        <span role="alert" className="absolute top-full right-0 z-10 w-52 rounded-lg border border-line bg-background p-2 text-[0.8125rem] text-danger shadow-sm">
           {error}
         </span>
       )}

@@ -35,7 +35,7 @@ export default async function SuscripcionesPage({ searchParams }: { searchParams
                   <span className="block font-semibold [overflow-wrap:anywhere]">{r.name} <span className="font-normal text-muted">/{r.slug}</span></span>
                   <span className="block type-help">{r.owner_email ?? "sin dueño"}</span>
                 </span>
-                <span className="text-[14px]">{SUB_LABEL[r.status] ?? r.status} · prueba hasta {fmt(r.trial_ends_at)}{r.current_period_ends_at ? ` · período hasta ${fmt(r.current_period_ends_at)}` : ""}</span>
+                <span className="text-[0.875rem]">{SUB_LABEL[r.status] ?? r.status} · prueba hasta {fmt(r.trial_ends_at)}{r.current_period_ends_at ? ` · período hasta ${fmt(r.current_period_ends_at)}` : ""}</span>
               </Link>
             </li>
           ))}

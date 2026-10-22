@@ -95,9 +95,9 @@ export function DateTimeStep({ tenant, now, guests, fakeAvailability, liveTenant
                 d.closed && "opacity-50",
               )}
             >
-              <span className={cn("max-w-full truncate px-1 text-[13px] font-medium uppercase", !selected && "text-muted")}>{d.label}</span>
-              <span className="mt-0.5 text-[22px] leading-tight font-semibold">{Number(d.serviceDate.slice(8))}</span>
-              <span className={cn("max-w-full truncate px-1 text-[13px]", !selected && "text-muted")} title={d.closedReason}>
+              <span className={cn("max-w-full truncate px-1 text-[0.8125rem] font-medium uppercase", !selected && "text-muted")}>{d.label}</span>
+              <span className="mt-0.5 text-[1.375rem] leading-tight font-semibold">{Number(d.serviceDate.slice(8))}</span>
+              <span className={cn("max-w-full truncate px-1 text-[0.8125rem]", !selected && "text-muted")} title={d.closedReason}>
                 {d.closed ? (d.closedReason ? "Cierre" : "Cerrado") : d.sublabel}
               </span>
             </button>
@@ -139,7 +139,7 @@ export function DateTimeStep({ tenant, now, guests, fakeAvailability, liveTenant
                       disabled={state !== "free"}
                       onClick={() => onTime(slot.time)}
                       aria-label={`${slot.time}${slot.afterMidnight ? `, madrugada del ${formatPlainDate(slot.calendarDate, { weekday: "long" })}` : ""}${reason ? `, ${reason}` : ""}`}
-                      className={cn("relative h-11 text-[14px] tabular-nums", state !== "free" && "line-through")}
+                      className={cn("relative h-11 text-[0.875rem] tabular-nums", state !== "free" && "line-through")}
                     >
                       {slot.time}
                       {slot.afterMidnight && <Moon className="absolute top-1 right-1 size-3 opacity-70" aria-hidden />}

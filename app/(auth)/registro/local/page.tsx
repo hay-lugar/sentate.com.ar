@@ -15,7 +15,7 @@ export default async function NuevoLocalPage() {
   return (
     <>
       <h1 className="type-heading">{slugs.length ? "Sumar otro local" : "Tu local"}</h1>
-      <p className="mt-1 mb-6 text-[15px] text-muted">Empieza sin publicar: cargás la carta y los horarios, y lo publicás cuando esté listo.</p>
+      <p className="mt-1 mb-6 text-[0.9375rem] text-muted">Empieza sin publicar: cargás la carta y los horarios, y lo publicás cuando esté listo.</p>
       <CreateLocalForm />
     </>
   );

@@ -1,11 +1,10 @@
 "use client";
 
 import { LocateFixed } from "lucide-react";
-import { loadMapLibre } from "@/lib/map/load-maplibre";
+import { loadMapLibre, mapStyleUrl } from "@/lib/map/load-maplibre";
 import { useEffect, useRef } from "react";
 import type { Map as MapLibreMap, GeoJSONSource } from "maplibre-gl";
 import { AR_CENTER } from "@/lib/explorer/profile";
-import { MAP_STYLE_URL } from "@/components/admin/location-picker";
 import type { Bbox, Point } from "@/lib/explorer/filters";
 import type { ResultItem } from "./types";
 
@@ -57,7 +56,7 @@ export default function ExplorerMap({ markers, selectedId, onSelect, onViewChang
         if (disposed || !box.current) return;
         const map = new maplibregl.Map({
           container: box.current,
-          style: MAP_STYLE_URL,
+          style: mapStyleUrl(),
           center: [AR_CENTER.lng, AR_CENTER.lat],
           zoom: AR_CENTER.zoom,
           attributionControl: { compact: true },

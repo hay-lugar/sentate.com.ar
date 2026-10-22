@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { loadMapLibre } from "@/lib/map/load-maplibre";
+import { loadMapLibre, mapStyleUrl } from "@/lib/map/load-maplibre";
 import { AR_CENTER } from "@/lib/explorer/profile";
 
-export const MAP_STYLE_URL = process.env.NEXT_PUBLIC_MAP_STYLE_URL || "https://tiles.openfreemap.org/styles/positron";
 
 type Props = {
   lat: number | null;
@@ -37,7 +36,7 @@ export default function LocationPicker({ lat, lng, onChange, label }: Props) {
         const hasPoint = lat !== null && lng !== null;
         const map = new maplibregl.Map({
           container: box.current,
-          style: MAP_STYLE_URL,
+          style: mapStyleUrl(),
           center: hasPoint ? [lng, lat] : [AR_CENTER.lng, AR_CENTER.lat],
           zoom: hasPoint ? 16 : AR_CENTER.zoom,
           attributionControl: { compact: true },
@@ -84,7 +83,7 @@ export default function LocationPicker({ lat, lng, onChange, label }: Props) {
 
   if (failed) {
     return (
-      <p role="alert" className="rounded-2xl border border-line/70 bg-subtle p-4 text-[15px]">
+      <p role="alert" className="rounded-2xl border border-line/70 bg-subtle p-4 text-[0.9375rem]">
         No se pudo cargar el mapa. Podés escribir las coordenadas en «Ingresar coordenadas manualmente».
       </p>
     );

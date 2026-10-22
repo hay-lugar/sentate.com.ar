@@ -50,7 +50,12 @@ Radios al estilo de iOS (`rounded-lg` 10 px, `rounded-xl` 14 px para controles, 
 7. **Feedback al tocar** (`pressable`): el control se hunde un 3 % (`scale(.97)`) y recupera su tamaño con la curva `--ease-spring`; con movimiento reducido no hay transición.
 8. Títulos grandes y compactos: `type-display` 44→68 px en peso 700 con tracking −0,04 em; `type-title` 32 px en peso 700.
 
-Pendiente a propósito: modo oscuro (la carta usa los colores del comercio, y un tema oscuro exige definir cómo conviven), transiciones entre páginas y tipografía dinámica.
+9. **Modo oscuro** (sigue al sistema, `prefers-color-scheme`). Las superficies pasan a negro (`--background`), gris elevado (`--surface`/`--subtle`) y texto `#f5f5f7`; los tokens de la plataforma (`--brand`, `--accent`) se invierten. **Convivencia con el comercio:** la carta de cada comercio conserva SUS colores de marca como rellenos (botones, selecciones, logo-inicial) con un filo claro en oscuro para que un color muy oscuro no desaparezca; el fondo y el texto base sí se adaptan. No se oscurecen ni invierten las fotos. El mapa usa el estilo oscuro de OpenFreeMap. Al imprimir (QR) siempre es claro. Verificado con axe (contraste incluido) en `tests/e2e/oscuro-y-texto.spec.ts`.
+10. **Tipografía dinámica:** todos los tamaños de texto están en `rem` (no hay `text-[Npx]`), así que escalan con el tamaño de texto del navegador y del sistema; en Safari (iOS/macOS) la base sigue `font: -apple-system-body`, o sea el tamaño de texto que la persona eligió en Ajustes. Sin desborde horizontal a 360 px con el texto al 140 % (prueba E2E).
+11. **Transición entre páginas:** un fundido de 260 ms al navegar (`app/template.tsx`), no en la primera carga; solo opacidad (sin `transform`, para no mover las barras fijas) y desactivado con movimiento reducido.
+12. **Mosaicos** (landing): «Para negocios», «Así se ve» y «Precio» van en mosaicos redondeados de `--subtle` con titular centrado y la captura recortada por el borde, como una página de producto de Apple. La ficha del local en la carta tiene acciones rápidas (Llamar, Cómo llegar, Compartir) y un bloque agrupado con dirección, teléfono y horarios; las tarjetas del explorador llevan la foto arriba; Lista/Mapa es un control segmentado.
+
+Límites conocidos: la base `font: -apple-system-body` solo se probó en Chromium (sin efecto); en Safari real la base es 17 px. No se probó en un iPhone.
 
 `tests/e2e/rediseno.spec.ts` comprueba estas reglas en el producto renderizado.
 

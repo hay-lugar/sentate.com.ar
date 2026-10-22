@@ -24,14 +24,14 @@ export function DetailsStep({ draft, errors, update, onEdit, live = false, notif
       <Summary guests={draft.guests} serviceDate={draft.serviceDate} time={draft.time} onEdit={onEdit} />
 
       {live ? (
-        <div className="mt-4 rounded-xl bg-subtle p-3 text-[13px] leading-snug text-muted">
+        <div className="mt-4 rounded-xl bg-subtle p-3 text-[0.8125rem] leading-snug text-muted">
           <span>
             Tu nombre y teléfono se comparten solo con este local para gestionar la solicitud. El local te responde por su cuenta (teléfono o WhatsApp).
             {notifications ? " Si querés, también te avisamos por email." : ` ${BRAND.name} no envía mensajes automáticos.`}
           </span>
         </div>
       ) : (
-        <div className="mt-4 rounded-xl bg-subtle p-3 text-[13px] leading-snug text-muted">
+        <div className="mt-4 rounded-xl bg-subtle p-3 text-[0.8125rem] leading-snug text-muted">
           <span>
             <b className="font-semibold text-foreground">Modo demo:</b> no se guarda ni se envía nada. Podés usar datos inventados.
           </span>
@@ -91,7 +91,7 @@ export function DetailsStep({ draft, errors, update, onEdit, live = false, notif
           <div className="rounded-2xl border border-line/70 p-3">
             <label className="flex min-h-11 cursor-pointer items-start gap-3">
               <input type="checkbox" checked={!!draft.notify} onChange={(e) => update("notify", e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-foreground" />
-              <span className="text-[15px]">
+              <span className="text-[0.9375rem]">
                 Avisarme por email cuando el local responda
                 <span className="block type-help">Solo usamos tu email para avisarte del estado de esta solicitud. No es una confirmación.</span>
               </span>
@@ -144,7 +144,7 @@ function Field({
       <label htmlFor={htmlFor} className="mb-1.5 flex items-baseline justify-between type-label">
         {label}
         {(optional || counter) && (
-          <span className="text-[13px] font-normal text-muted">
+          <span className="text-[0.8125rem] font-normal text-muted">
             {optional && "Opcional"}
             {counter && ` · ${counter}`}
           </span>
@@ -171,8 +171,8 @@ function SummaryItem({ label, value, onClick }: { label: string; value: string; 
   return (
     <button type="button" onClick={onClick} aria-label={`Cambiar ${label.toLowerCase()}: ${value}`} className="pressable flex-1 px-3 py-3 text-center">
       <span className="block type-help">{label}</span>
-      <span className="mt-0.5 block text-[17px] font-semibold">{value}</span>
-      <span className="block text-[13px] underline underline-offset-2">Cambiar</span>
+      <span className="mt-0.5 block text-[1.0625rem] font-semibold">{value}</span>
+      <span className="block text-[0.8125rem] underline underline-offset-2">Cambiar</span>
     </button>
   );
 }

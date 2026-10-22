@@ -35,7 +35,7 @@ export default async function ComerciosPage({ searchParams }: { searchParams: Pr
                     <span className="block font-semibold [overflow-wrap:anywhere]">{r.name} <span className="font-normal text-muted">/{r.slug}</span></span>
                     <span className="block type-help">{r.owner_email ?? "sin dueño"}</span>
                   </span>
-                  <span className="text-[13px] text-muted">
+                  <span className="text-[0.8125rem] text-muted">
                     {[MODERATION_COPY[r.moderation].title, r.tenant_status === "suspended" ? "Pausado" : null, r.is_published ? "Publicado" : "Sin publicar", r.subscription ? `Suscripción ${SUB_LABEL[r.subscription] ?? r.subscription}` : null, r.featured ? "Destacado" : null].filter(Boolean).join(" · ")}
                   </span>
                 </Link>

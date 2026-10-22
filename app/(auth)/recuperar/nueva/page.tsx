@@ -12,7 +12,7 @@ export default async function NewPasswordPage() {
     return (
       <>
         <h1 className="type-heading">No pudimos validar el enlace</h1>
-        <p role="alert" className="mt-4 rounded-xl border border-danger/40 bg-danger/5 p-3 text-[14px] leading-snug text-danger">
+        <p role="alert" className="mt-4 rounded-xl border border-danger/40 bg-danger/5 p-3 text-[0.875rem] leading-snug text-danger">
           {RECOVERY_LINK_ERROR}
         </p>
         <p className="mt-6 text-center type-help">

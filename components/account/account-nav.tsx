@@ -21,7 +21,7 @@ export function AccountNav() {
             key={i.href}
             href={i.href}
             aria-current={active ? "page" : undefined}
-            className={cn("inline-flex min-h-11 items-center border-b-2 px-3 text-[15px]", active ? "border-foreground font-medium" : "border-transparent text-muted hover:text-foreground")}
+            className={cn("inline-flex min-h-11 items-center border-b-2 px-3 text-[0.9375rem]", active ? "border-foreground font-medium" : "border-transparent text-muted hover:text-foreground")}
           >
             {i.label}
           </Link>

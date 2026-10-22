@@ -390,7 +390,7 @@ export function AdminDemoProvider({
               ) : (
                 <Info className="size-4 shrink-0" strokeWidth={2.25} aria-hidden />
               )}
-              <span className="text-[15px]">{toast.message}</span>
+              <span className="text-[0.9375rem]">{toast.message}</span>
               {toast.action && (
                 <button
                   type="button"

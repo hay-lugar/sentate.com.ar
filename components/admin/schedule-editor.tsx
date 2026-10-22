@@ -49,7 +49,7 @@ export function ScheduleEditor({
   return (
     <div>
       <fieldset aria-describedby={errors.schedule ? id("schedule-error") : undefined}>
-        <legend className="mb-1 text-[15px] font-medium">Horarios por día</legend>
+        <legend className="mb-1 text-[0.9375rem] font-medium">Horarios por día</legend>
         <p className="mb-3 type-help">
           Cada día puede tener turnos distintos. Si un turno cierra después de medianoche (ej. 20:00–00:30), esos horarios pertenecen
           al día en que abrió.
@@ -64,7 +64,7 @@ export function ScheduleEditor({
             return (
               <li key={day} className="py-3" aria-label={`Horarios del ${dayName}`}>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="min-w-[5.5rem] text-[15px] font-medium capitalize">{dayName}</span>
+                  <span className="min-w-[5.5rem] text-[0.9375rem] font-medium capitalize">{dayName}</span>
                   <button
                     type="button"
                     aria-pressed={open}
@@ -73,7 +73,7 @@ export function ScheduleEditor({
                       setDay(day, open ? [] : [{ id: newShiftId(day), label: "Turno", open: "12:00", close: "16:00" }])
                     }
                     className={cn(
-                      "pressable h-11 rounded-full px-4 text-[14px] ring-1",
+                      "pressable h-11 rounded-full px-4 text-[0.875rem] ring-1",
                       open ? "bg-brand font-medium text-brand-fg ring-brand" : "bg-surface text-muted ring-line-strong",
                     )}
                   >
@@ -194,12 +194,12 @@ function ClosuresEditor({
 
   return (
     <fieldset className="mt-5" aria-describedby={error || localError ? id("error") : undefined}>
-      <legend className="mb-1 text-[15px] font-medium">Cierres excepcionales</legend>
+      <legend className="mb-1 text-[0.9375rem] font-medium">Cierres excepcionales</legend>
       <p className="mb-3 type-help">Feriados, vacaciones o eventos privados: ese día no se toman reservas.</p>
       {upcoming.length > 0 && (
         <ul className="mb-2 space-y-1.5">
           {upcoming.map((c) => (
-            <li key={c.date} className="flex items-center gap-2 rounded-lg border border-line px-3 py-2 text-[14px]">
+            <li key={c.date} className="flex items-center gap-2 rounded-lg border border-line px-3 py-2 text-[0.875rem]">
               <span className="font-medium capitalize">{formatPlainDate(c.date, { weekday: "short", day: "numeric", month: "short" })}</span>
               {c.reason && <span className="min-w-0 truncate text-muted">· {c.reason}</span>}
               <button

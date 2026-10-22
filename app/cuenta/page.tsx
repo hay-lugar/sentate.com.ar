@@ -25,7 +25,7 @@ export default async function CuentaPage() {
         <h2 id="acc" className="mb-3 type-section">
           Tu cuenta
         </h2>
-        <dl className="space-y-1 text-[15px]">
+        <dl className="space-y-1 text-[0.9375rem]">
           <div className="flex gap-2">
             <dt className="text-muted">Email:</dt>
             <dd>{user?.email}</dd>

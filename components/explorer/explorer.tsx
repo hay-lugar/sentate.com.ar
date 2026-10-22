@@ -225,10 +225,10 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
 
       {ambiguous.map((a) => (
         <div key={a.term} role="group" aria-label={`Aclarar «${a.term}»`} className="mt-3 rounded-2xl border border-line/70 bg-subtle p-3">
-          <p className="mb-2 text-[15px]">¿Qué querés decir con «{a.term}»?</p>
+          <p className="mb-2 text-[0.9375rem]">¿Qué querés decir con «{a.term}»?</p>
           <div className="flex flex-wrap gap-2">
             {a.choices.map((c, i) => (
-              <button key={i} type="button" onClick={() => pick(c, a.term)} className="pressable min-h-11 rounded-full border border-line-strong bg-background px-4 text-[15px] hover:bg-subtle">
+              <button key={i} type="button" onClick={() => pick(c, a.term)} className="pressable min-h-11 rounded-full border border-line-strong bg-background px-4 text-[0.9375rem] hover:bg-subtle">
                 {c.kind === "locality" ? `${c.label} (${c.province})` : c.kind === "business_type" ? `Tipo: ${c.label}` : `Cocina: ${c.label}`}
               </button>
             ))}
@@ -238,14 +238,14 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
 
       {filters.nearby && !point && (
         <div role="status" className="mt-3 flex flex-wrap items-center gap-3 rounded-2xl border border-line/70 bg-subtle p-3">
-          <p className="min-w-0 flex-1 text-[15px]">Para ordenar por cercanía necesitamos tu ubicación. Solo se usa para calcular distancias y no se guarda.</p>
+          <p className="min-w-0 flex-1 text-[0.9375rem]">Para ordenar por cercanía necesitamos tu ubicación. Solo se usa para calcular distancias y no se guarda.</p>
           <Button variant="secondary" onClick={locate} pending={geo === "asking"}>
             Usar mi ubicación
           </Button>
         </div>
       )}
       {geo === "denied" && (
-        <p role="status" className="mt-3 text-[15px] text-muted">
+        <p role="status" className="mt-3 text-[0.9375rem] text-muted">
           No tenemos permiso para usar tu ubicación. Elegí una localidad en los filtros para ver comercios de esa zona.
         </p>
       )}
@@ -254,14 +254,14 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
         <ul aria-label="Filtros activos" className="mt-3 flex flex-wrap items-center gap-2">
           {chips.map((c) => (
             <li key={c.id}>
-              <button type="button" onClick={c.remove} className="pressable inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line-strong px-3.5 text-[15px] hover:bg-subtle" aria-label={`Quitar filtro: ${c.label}`}>
+              <button type="button" onClick={c.remove} className="pressable inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line-strong px-3.5 text-[0.9375rem] hover:bg-subtle" aria-label={`Quitar filtro: ${c.label}`}>
                 {c.label}
                 <X className="size-4 text-muted" aria-hidden />
               </button>
             </li>
           ))}
           <li>
-            <button type="button" onClick={clearAll} className="pressable min-h-11 rounded-full px-3 text-[15px] text-muted underline underline-offset-2 hover:text-foreground">
+            <button type="button" onClick={clearAll} className="pressable min-h-11 rounded-full px-3 text-[0.9375rem] text-muted underline underline-offset-2 hover:text-foreground">
               Limpiar todo
             </button>
           </li>
@@ -275,7 +275,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
 
         <div className={cn("min-w-0", !isDesktop && filters.view === "map" && "hidden")}>
           <div className="mb-3 flex items-center gap-3">
-            <p role="status" aria-live="polite" className="mr-auto text-[15px]">
+            <p role="status" aria-live="polite" className="mr-auto text-[0.9375rem]">
               {total === null ? "Buscando…" : total === 0 ? "Sin resultados" : `${total} ${total === 1 ? "comercio" : "comercios"}${pages > 1 ? ` · página ${filters.page} de ${pages}` : ""}`}
             </p>
             {!isDesktop && (
@@ -285,7 +285,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
 
           {list.status === "error" && (
             <div role="alert" className="rounded-2xl border border-line/70 p-4">
-              <p className="mb-3 text-[15px]">{list.message}</p>
+              <p className="mb-3 text-[0.9375rem]">{list.message}</p>
               <Button variant="secondary" onClick={retry}>
                 Reintentar
               </Button>
@@ -294,7 +294,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
           {list.status === "loading" && <ListSkeleton />}
           {list.status === "ok" && total === 0 && (
             <div className="rounded-2xl border border-line/70 p-6 text-center">
-              <p className="text-[16px] font-medium">{facets.total === 0 ? "Todavía no hay comercios en el explorador." : "No encontramos comercios con esos criterios."}</p>
+              <p className="text-[1rem] font-medium">{facets.total === 0 ? "Todavía no hay comercios en el explorador." : "No encontramos comercios con esos criterios."}</p>
               {facets.total > 0 && (
                 <>
                   <p className="mt-1 type-help">Probá con otra palabra o quitá algún filtro.</p>
@@ -380,7 +380,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
                   </Button>
                 )}
               </div>
-              <p className="pointer-events-none absolute right-3 bottom-10 rounded-md bg-background/90 px-2 py-1 text-[13px]" role="status">
+              <p className="pointer-events-none absolute right-3 bottom-10 rounded-md bg-background/90 px-2 py-1 text-[0.8125rem]" role="status">
                 {markerRes.status === "ok" ? `${markers.length} en esta vista${markerRes.data.total > markers.length ? ` de ${markerRes.data.total}` : ""}` : "Cargando mapa…"}
               </p>
               {selected && (
@@ -399,7 +399,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
       </div>
 
       {mapFailed && (
-        <p role="status" className="mt-4 rounded-2xl border border-line/70 bg-subtle p-3 text-[15px]">
+        <p role="status" className="mt-4 rounded-2xl border border-line/70 bg-subtle p-3 text-[0.9375rem]">
           No pudimos cargar el mapa. La lista sigue funcionando con los mismos filtros.
         </p>
       )}
@@ -428,11 +428,11 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
 
 function ViewToggle({ view, onChange, mapDisabled }: { view: "list" | "map"; onChange: (v: "list" | "map") => void; mapDisabled: boolean }) {
   return (
-    <div role="group" aria-label="Vista" className="inline-flex rounded-xl border border-line-strong p-0.5">
-      <button type="button" aria-pressed={view === "list"} onClick={() => onChange("list")} className={cn("pressable inline-flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-[15px]", view === "list" && "bg-foreground text-background")}>
+    <div role="group" aria-label="Vista" className="inline-flex rounded-xl bg-subtle p-1">
+      <button type="button" aria-pressed={view === "list"} onClick={() => onChange("list")} className={cn("pressable inline-flex min-h-11 items-center gap-1.5 rounded-[0.625rem] px-3.5 text-[0.9375rem] font-medium", view === "list" ? "bg-surface text-foreground shadow-soft" : "text-muted")}>
         <List className="size-4" aria-hidden /> Lista
       </button>
-      <button type="button" aria-pressed={view === "map"} disabled={mapDisabled} onClick={() => onChange("map")} className={cn("pressable inline-flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-[15px] disabled:opacity-40", view === "map" && "bg-foreground text-background")}>
+      <button type="button" aria-pressed={view === "map"} disabled={mapDisabled} onClick={() => onChange("map")} className={cn("pressable inline-flex min-h-11 items-center gap-1.5 rounded-[0.625rem] px-3.5 text-[0.9375rem] font-medium disabled:opacity-40", view === "map" ? "bg-surface text-foreground shadow-soft" : "text-muted")}>
         <MapIcon className="size-4" aria-hidden /> Mapa
       </button>
     </div>

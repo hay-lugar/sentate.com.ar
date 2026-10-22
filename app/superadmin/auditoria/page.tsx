@@ -22,17 +22,17 @@ export default async function AuditoriaPage({ searchParams }: { searchParams: Pr
       <p className="mb-4 type-help">Todo lo que hace un superadministrador queda acá: quién, cuándo, qué y por qué. No se puede editar ni borrar desde la app.</p>
       <form className="mb-4 flex gap-2">
         <label htmlFor="a" className="sr-only">Filtrar por acción</label>
-        <select id="a" name="a" defaultValue={action} className="h-12 min-w-0 flex-1 rounded-xl bg-surface px-3 text-[16px] ring-1 ring-field">
+        <select id="a" name="a" defaultValue={action} className="h-12 min-w-0 flex-1 rounded-xl bg-surface px-3 text-[1rem] ring-1 ring-field">
           <option value="">Todas las acciones</option>
           {actions.map((x) => <option key={x} value={x}>{ACTION_LABEL[x] ?? x}</option>)}
         </select>
-        <button type="submit" className="pressable h-12 rounded-xl bg-foreground px-5 text-[15px] font-medium text-background">Filtrar</button>
+        <button type="submit" className="pressable h-12 rounded-xl bg-foreground px-5 text-[0.9375rem] font-medium text-background">Filtrar</button>
       </form>
       <p role="status" className="mb-3 type-help">{total} {total === 1 ? "registro" : "registros"}</p>
       {items.length === 0 ? <Empty>Sin movimientos</Empty> : (
         <ul className="divide-y divide-line/70 rounded-2xl border border-line/70">
           {items.map((i) => (
-            <li key={i.id} className="px-4 py-3 text-[15px]">
+            <li key={i.id} className="px-4 py-3 text-[0.9375rem]">
               <span className="font-medium">{ACTION_LABEL[i.action] ?? i.action}</span>
               {i.tenant_id && (i.tenant_name ? <> · <Link href={`/superadmin/${i.tenant_id}`} className="underline underline-offset-4">{i.tenant_name}</Link></> : <> · {String(i.detail.name ?? i.detail.slug ?? "comercio eliminado")}</>)}
               <span className="text-muted"> · {i.actor ?? "sistema"} · {fmt(i.at)}</span>

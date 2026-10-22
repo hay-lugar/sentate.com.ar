@@ -193,7 +193,7 @@ export function ImageUploader({ tenantId, kind, value, onChange, disabled, shape
       )}
 
       {error && (
-        <p id={errorId} role="alert" className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-danger/40 bg-danger/5 p-3 text-[14px] leading-snug text-danger">
+        <p id={errorId} role="alert" className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-danger/40 bg-danger/5 p-3 text-[0.875rem] leading-snug text-danger">
           <span>{error.message}</span>
           {error.retryable && (
             <button type="button" onClick={() => lastFile.current && void start(lastFile.current)} className="font-medium underline underline-offset-2">

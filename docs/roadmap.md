@@ -36,6 +36,9 @@ Preview automático por PR en Vercel; producción solo con autorización. Migrac
 - **Sin hacer, a propósito:** catálogo de planes en base (un único plan; duplicaría `lib/config/plan.ts` sin necesidad), analítica de uso (requiere decidir consentimiento y qué medir), multisucursal (diseño arriba, sin caso real), pruebas de carga y Lighthouse (no hay entorno de producción accesible para medir con datos reales).
 - **Lanzamiento:** lista en `docs/AUDITORIA_ACTUAL.md` (acciones del dueño: credenciales, SMTP, OAuth, dominio, primer superadmin).
 
+### Plan de 30 pasos — PR3: vida completa de la reserva
+Nuevo estado **«no se presentó»** (solo desde confirmada y después de la hora; acción «No se presentó» en el panel, filtro y mensaje de contacto). Quien pidió la mesa ve **hasta cuándo puede responder el local** (`respond_by`, el vencimiento ya existía: 4 h por defecto, configurable en Capacidad) y qué pasa si no responde; las reservas rechazadas, canceladas, vencidas o no presentadas ofrecen «Pedir otra mesa». **Modificar = pedir una mesa nueva y cancelar la anterior** (no se edita una reserva). Migración aditiva `20261104000100`, pgTAP 270.
+
 ### Fase 4 (experiencia del comensal)
 Carta: buscador por nombre/descripción (sin tildes) en cartas de 10 o más platos, combinable con el filtro dietario; enlace «Cómo llegar» con las coordenadas confirmadas del local (o la dirección si no las hay); texto de carta vacía coherente con reservas apagadas. Cubierto por pruebas unitarias y E2E demo. No se agregó nada que dependa de datos de uso, que todavía no existen.
 

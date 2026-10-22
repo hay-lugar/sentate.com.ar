@@ -87,6 +87,7 @@ const STATUS_MESSAGES: Record<ReservationStatus, (name: string) => string> = {
   pending: (n) => `Solicitud de ${n} pendiente`,
   expired: (n) => `Solicitud de ${n} vencida`,
   finished: (n) => `Reserva de ${n} finalizada`,
+  no_show: (n) => `${n} no se presentó`,
 };
 
 /**

@@ -1,6 +1,6 @@
 "use client";
 
-import { Ban, Check, CheckCheck, Clock3, MessageCircle, Phone, Radio, Volume2, VolumeX, WifiOff, X } from "lucide-react";
+import { Ban, Check, CheckCheck, Clock3, MessageCircle, Phone, Radio, UserX, Volume2, VolumeX, WifiOff, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { Reservation, ReservationStatus } from "@/lib/domain/types";
@@ -26,6 +26,7 @@ const FILTERS: { id: Filter; label: string }[] = [
   { id: "rejected", label: "Rechazadas" },
   { id: "cancelled", label: "Canceladas" },
   { id: "finished", label: "Finalizadas" },
+  { id: "no_show", label: "No se presentaron" },
   { id: "expired", label: "Vencidas" },
   { id: "all", label: "Todas" },
 ];
@@ -46,7 +47,7 @@ export function ReservationsList({
   const [filter, setFilter] = useState<Filter>("pending");
 
   const counts = useMemo(() => {
-    const c: Record<Filter, number> = { today: 0, pending: 0, confirmed: 0, rejected: 0, cancelled: 0, expired: 0, finished: 0, all: reservations.length };
+    const c: Record<Filter, number> = { today: 0, pending: 0, confirmed: 0, rejected: 0, cancelled: 0, expired: 0, finished: 0, no_show: 0, all: reservations.length };
     reservations.forEach((r) => {
       c[r.status]++;
       if (isToday(r)) c.today++;
@@ -190,9 +191,14 @@ function ReservationRow({
               Cancelar<span className="sr-only"> reserva de {r.name}</span>
             </Button>
             {started && (
-              <Button onClick={() => onAction(r.id, "finished")} className="lg:flex-none">
-                Finalizar<span className="sr-only"> reserva de {r.name}</span>
-              </Button>
+              <>
+                <Button variant="secondary" onClick={() => onAction(r.id, "no_show")} className="lg:flex-none">
+                  No se presentó<span className="sr-only"> ({r.name})</span>
+                </Button>
+                <Button onClick={() => onAction(r.id, "finished")} className="lg:flex-none">
+                  Finalizar<span className="sr-only"> reserva de {r.name}</span>
+                </Button>
+              </>
             )}
           </>
         ) : (
@@ -268,6 +274,7 @@ const BADGES = {
   cancelled: { label: "Cancelada", Icon: Ban },
   expired: { label: "Vencida sin respuesta", Icon: Clock3 },
   finished: { label: "Finalizada", Icon: CheckCheck },
+  no_show: { label: "No se presentó", Icon: UserX },
 } as const;
 
 function StatusBadge({ status }: { status: Exclude<ReservationStatus, "pending"> }) {

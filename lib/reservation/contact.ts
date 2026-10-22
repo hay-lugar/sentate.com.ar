@@ -92,5 +92,7 @@ export function contactMessage(c: ContactContext): string {
       return `${intro} No llegamos a responder tu solicitud de mesa para ${slot}. Si querés, buscamos otro día u horario.`;
     case "finished":
       return `${intro} ¡Gracias por visitarnos! Esperamos verte de nuevo.`;
+    case "no_show":
+      return `${intro} Vimos que no pudiste venir a tu mesa para ${slot}. Si querés, buscamos otro día u horario.`;
   }
 }

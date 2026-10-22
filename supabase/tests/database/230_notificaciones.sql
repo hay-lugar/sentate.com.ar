@@ -68,12 +68,14 @@ select throws_ok($$ select public.claim_notifications('otro-secreto', 10) $$, '4
 select throws_ok($$ select public.claim_notifications('', 10) $$, '42501', 'forbidden', 'un secreto vacío se rechaza');
 create temp table claimed as select public.claim_notifications('secreto-de-prueba', 10) as rows;
 select is(jsonb_array_length((select rows from claimed)), 3, 'con el secreto correcto se reclaman los avisos pendientes');
-select is((select count(*)::int from private.notification_outbox where status = 'sending' and attempts = 1), 3, 'quedan «enviando» con un intento');
 select is(jsonb_array_length(public.claim_notifications('secreto-de-prueba', 10)), 0, 'un aviso reclamado no se entrega dos veces');
+select tests.as_postgres();
+select is((select count(*)::int from private.notification_outbox where status = 'sending' and attempts = 1), 3, 'quedan «enviando» con un intento');
 
 -- Resultado del proveedor.
 select tests.as_postgres();
 create temp table ids as select id, kind from private.notification_outbox order by kind;
+grant select on ids to anon;
 select tests.as_anon();
 select is((public.complete_notification('secreto-de-prueba', (select id from ids where kind = 'reservation_confirmed'), true, 'msg-123') ->> 'status'), 'sent',
   '«enviado» solo cuando el proveedor lo confirma');

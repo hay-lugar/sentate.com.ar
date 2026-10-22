@@ -6,6 +6,7 @@ import { Check, Clock3, MapPin, Phone, Share2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { PublicTenant } from "@/lib/domain/types";
 import { describeWeek, type OpenState } from "@/lib/domain/schedule";
+import { directionsUrl } from "@/lib/map/directions";
 import { TenantLogo } from "@/components/ui/tenant-logo";
 import { OpenStatusPill, StatusDot } from "./open-status";
 
@@ -82,14 +83,14 @@ export function RestaurantHeader({
         <ul className="mt-3 divide-y divide-line border-y border-line text-[15px]">
           <li>
             <a
-              href={`https://maps.google.com/?q=${encodeURIComponent(tenant.address)}`}
+              href={directionsUrl(tenant)}
               target="_blank"
               rel="noreferrer"
               className="pressable flex min-h-12 items-center gap-3 py-2"
             >
               <MapPin className="size-[18px] shrink-0 text-muted" aria-hidden />
               <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{tenant.address}</span>
-              <span className="sr-only">(abre Google Maps)</span>
+              <span className="sr-only">(cómo llegar, abre Google Maps)</span>
             </a>
           </li>
           <li>

@@ -127,6 +127,19 @@ test.describe("estado de demo por tenant", () => {
     await expect(page.getByRole("heading", { name: "Las reservas están desactivadas" })).toHaveCount(0);
   });
 
+  test("la carta larga se puede buscar (sin tildes) y se vuelve a la carta completa", async ({ page }) => {
+    await page.goto("/el-bodegon");
+    const box = page.getByRole("searchbox", { name: "Buscar en la carta" });
+    await box.fill("TIRAMISU");
+    await expect(page.getByRole("heading", { name: "Tiramisú" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Tagliatelle al ragú" })).toHaveCount(0);
+    await box.fill("zzzz");
+    await expect(page.getByRole("heading", { name: "Ningún plato coincide" })).toBeVisible();
+    await page.getByRole("button", { name: "Quitar filtros" }).click();
+    await expect(page.getByRole("heading", { name: "Tagliatelle al ragú" })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Av\. Corrientes 4120/ })).toHaveAttribute("href", /google\.com\/maps\/search\/\?api=1&query=/);
+  });
+
   test("crear un plato lo muestra en el menú público", async ({ page }) => {
     await page.goto("/admin/la-esquina/menu");
     await page.getByRole("button", { name: "Plato en Burgers" }).click();

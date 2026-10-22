@@ -1,16 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
+import { DangerZone, PromotionPanel } from "@/components/superadmin/forms";
 import { ReviewPanel } from "@/components/superadmin/review-panel";
+import { ACTION_LABEL, fmt } from "@/lib/superadmin/format";
 import { supabaseServer } from "@/lib/data/live/queries";
 import { TemporaryDataError } from "@/lib/data/live/result";
 import { MISSING_LABELS, MODERATION_COPY, type ModerationStatus } from "@/lib/explorer/profile";
 
-const ACTION_LABEL: Record<string, string> = {
-  submit_for_review: "Envió a revisión", review_approve: "Aprobó", review_reject: "Rechazó", review_request_changes: "Pidió correcciones",
-  suspend: "Suspendió", reactivate: "Reactivó", subscription_extend_trial: "Extendió la prueba", subscription_activate: "Activó la suscripción",
-  subscription_mark_past_due: "Marcó en mora", subscription_cancel: "Canceló la suscripción", featured_set: "Destacó", featured_clear: "Quitó el destacado",
-};
 
 type Detail = {
   tenant: Record<string, string | boolean | null>;
@@ -24,7 +21,7 @@ type Detail = {
   history: { at: string; action: string; by: string | null; detail: { reason?: string } }[];
 };
 
-const fmt = (iso: string | null | undefined) => (iso ? new Intl.DateTimeFormat("es-AR", { dateStyle: "medium", timeStyle: "short", timeZone: "America/Argentina/Buenos_Aires" }).format(new Date(iso)) : "—");
+type Extras = { promotion: { title: string; detail: string; starts_at: string; ends_at: string } | null; reservations: number; dishes: number };
 
 export default async function FichaPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -35,13 +32,15 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
   if (!data) notFound();
   const d = data as Detail;
   const t = d.tenant;
+  const { data: extrasData } = await supabase.rpc("admin_tenant_extras", { p_tenant_id: id });
+  const extras = (extrasData as Extras | null) ?? { promotion: null, reservations: 0, dishes: 0 };
 
   return (
     <div className="space-y-8">
-      <Link href="/superadmin" className="inline-flex min-h-11 items-center text-[15px] text-muted hover:text-foreground">← Bandeja</Link>
+      <Link href="/superadmin/comercios" className="inline-flex min-h-11 items-center text-[15px] text-muted hover:text-foreground">← Comercios</Link>
       <div>
         <h1 className="type-title [overflow-wrap:anywhere]">{String(t.name)}</h1>
-        <p className="type-help">/{String(t.slug)} · {MODERATION_COPY[d.moderation.status].title}{t.status === "suspended" ? " · Suspendido" : ""}</p>
+        <p className="type-help">/{String(t.slug)} · {MODERATION_COPY[d.moderation.status].title}{t.status === "suspended" ? " · Pausado" : ""}</p>
       </div>
 
       <section aria-labelledby="perfil" className="space-y-1 text-[15px]">
@@ -66,9 +65,15 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
         {d.moderation.suspension_reason && <Row k="Suspensión" v={d.moderation.suspension_reason} />}
         <Row k="Suscripción" v={d.subscription ? `${d.subscription.status} · prueba hasta ${fmt(d.subscription.trial_ends_at)}${d.subscription.current_period_ends_at ? ` · período hasta ${fmt(d.subscription.current_period_ends_at)}` : ""}` : "—"} />
         <Row k="Destacado" v={d.featured ? `Hasta ${fmt(d.featured.ends_at)} (${d.featured.reason})` : "No"} />
+        <Row k="Promoción" v={extras.promotion ? `${extras.promotion.title} — hasta ${fmt(extras.promotion.ends_at)}` : "No"} />
+        <Row k="Uso" v={`${extras.dishes} platos · ${extras.reservations} reservas`} />
       </section>
 
       <ReviewPanel tenantId={id} moderation={d.moderation.status} suspended={t.status === "suspended"} featured={!!d.featured} />
+
+      <PromotionPanel tenantId={id} current={extras.promotion} />
+
+      <DangerZone tenantId={id} slug={String(t.slug)} reservations={extras.reservations} dishes={extras.dishes} />
 
       <section aria-labelledby="hist">
         <h2 id="hist" className="mb-2 type-section">Historial</h2>

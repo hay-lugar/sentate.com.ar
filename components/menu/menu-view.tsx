@@ -123,6 +123,14 @@ export function MenuView({
       <CompactBar tenant={tenant} status={status} visible={compact} />
       <RestaurantHeader tenant={tenant} status={status} demo={source === "demo"} localEdits={localEdits} />
 
+      {tenant.promotion && (
+        <aside aria-label="Promoción" className="mx-4 mt-4 rounded-xl border border-line-strong bg-subtle px-4 py-3">
+          <p className="text-[13px] font-medium text-muted">Promoción</p>
+          <p className="text-[17px] font-semibold [overflow-wrap:anywhere]">{tenant.promotion.title}</p>
+          {tenant.promotion.detail && <p className="mt-0.5 text-[15px] text-muted [overflow-wrap:anywhere]">{tenant.promotion.detail}</p>}
+        </aside>
+      )}
+
       {categories.length > 0 ? (
         <>
           {searchable && (

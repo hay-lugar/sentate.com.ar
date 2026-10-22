@@ -47,11 +47,11 @@ export function ReviewPanel({ tenantId, moderation, suspended, featured }: { ten
       </div>
 
       <div className="space-y-2">
-        <p className="type-label">Suspensión administrativa</p>
+        <p className="type-label">Pausa (suspensión administrativa)</p>
         <Button variant={suspended ? "secondary" : "danger"} onClick={() => run("susp", () => suspensionAction(tenantId, !suspended, reason))} pending={busy === "susp"} disabled={!!busy}>
-          {suspended ? "Reactivar comercio" : "Suspender comercio"}
+          {suspended ? "Reactivar comercio" : "Pausar comercio"}
         </Button>
-        <p className="type-help">Suspender oculta la carta y el comercio del explorador. Las reservas existentes no se cancelan solas.</p>
+        <p className="type-help">Pausar oculta la carta y el comercio del explorador. Las reservas existentes no se cancelan solas.</p>
       </div>
 
       <div className="space-y-2">

@@ -35,7 +35,7 @@ export default async function ReservaPage({ params }: { params: Promise<{ id: st
       {r.status === "pending" && r.respond_by && (
         <p className="rounded-2xl bg-subtle p-3 text-[0.9375rem] leading-relaxed">
           El local puede responder hasta el <b className="font-semibold">{formatWhen(r.respond_by, r.tenant.timezone)}</b>. Si no lo hace, la solicitud vence sola y no queda
-          ninguna mesa reservada.
+          ninguna mesa guardada.
         </p>
       )}
       {r.can_cancel && <CancelReservation id={r.id} pending={r.status === "pending"} cutoffHours={r.cancel_cutoff_hours} />}

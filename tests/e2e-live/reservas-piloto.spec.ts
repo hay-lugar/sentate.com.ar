@@ -56,7 +56,7 @@ test.describe("lo que ve el comensal", () => {
     await expect(dialog.getByText(/se comunica con vos al teléfono que dejaste \(llamada o WhatsApp\)/)).toBeVisible();
     await expect(dialog.getByText("{Sin Nombre} todavía no envía mensajes ni emails automáticos")).toBeVisible();
     await expect(dialog.getByText(/podés ver el estado en Mi cuenta/)).toBeVisible();
-    await expect(dialog.getByText(/la solicitud vence sola y no queda ninguna mesa reservada/)).toBeVisible();
+    await expect(dialog.getByText(/la solicitud vence sola y no queda ninguna mesa guardada/)).toBeVisible();
 
     // Y puede llamar al local si no tiene novedades (el teléfono público de la carta).
     await expect(dialog.getByRole("link", { name: "+54 11 0000-0101" })).toHaveAttribute("href", "tel:+541100000101");

@@ -16,7 +16,7 @@ export const STATUS_HELP: Record<DisplayStatus, string> = {
   rejected: "El local no pudo aceptar tu solicitud.",
   cancelled: "Esta reserva fue cancelada.",
   finished: "Esta reserva ya pasó.",
-  expired: "El local no respondió a tiempo y la solicitud venció. No quedó ninguna mesa reservada.",
+  expired: "El local no respondió a tiempo y la solicitud venció. No quedó ninguna mesa guardada.",
   no_show: "El local registró que no llegaste a esta reserva. Si fue un error, comunicate con el local.",
 };
 

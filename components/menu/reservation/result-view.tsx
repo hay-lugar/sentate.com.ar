@@ -67,7 +67,7 @@ export function SubmittedView({
           <p className="mt-1.5">
             El local revisa las solicitudes por su cuenta y, si puede recibirte, se comunica con vos al teléfono que dejaste (llamada o WhatsApp).{" "}
             <b className="font-semibold text-foreground">{BRAND.name} todavía no envía mensajes ni emails automáticos</b>. Si pediste la mesa con tu cuenta,
-            podés ver el estado en Mi cuenta → Mis reservas. Si el local no responde a tiempo, la solicitud vence sola y no queda ninguna mesa reservada.
+            podés ver el estado en Mi cuenta → Mis reservas. Si el local no responde a tiempo, la solicitud vence sola y no queda ninguna mesa guardada.
           </p>
           <p className="mt-1.5">
             Si no tenés novedades, llamá al local

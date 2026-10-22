@@ -132,13 +132,13 @@ test("consola: cerrar sesión, crear un restaurante, ponerle una promoción visi
   await page.getByRole("navigation", { name: "Superadmin" }).getByRole("link", { name: "Comercios", exact: true }).click();
   await page.getByLabel("Nombre", { exact: true }).fill("Local de Consola");
   await page.getByLabel(/Dirección web/).fill(slug);
-  await page.getByLabel("Motivo").first().fill("prueba de la consola");
+  await page.getByLabel("Razón").fill("prueba de la consola");
   await page.getByRole("button", { name: "Crear restaurante" }).click();
   await expect(page.getByRole("heading", { name: "Local de Consola" })).toBeVisible({ timeout: 20_000 });
 
   // Promoción: la ficha la guarda (visible en la carta solo si el comercio es visible; acá solo se valida el registro).
   await page.getByLabel("Título").fill("2x1 en pizzas");
-  await page.getByLabel("Motivo", { exact: false }).nth(1).fill("campaña de prueba");
+  await page.getByRole("region", { name: "Promoción" }).getByLabel("Razón").fill("campaña de prueba");
   await page.getByRole("button", { name: "Publicar promoción" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Promoción publicada." })).toBeVisible();
   await expect(page.getByText("2x1 en pizzas — hasta")).toBeVisible();
@@ -147,7 +147,7 @@ test("consola: cerrar sesión, crear un restaurante, ponerle una promoción visi
   const del = page.getByRole("button", { name: "Eliminar definitivamente" });
   await expect(del).toBeDisabled();
   await page.getByLabel(/Escribí «/).fill(slug);
-  await page.getByRole("region", { name: "Eliminar comercio" }).getByLabel("Motivo").fill("limpieza de prueba");
+  await page.getByRole("region", { name: "Eliminar comercio" }).getByLabel("Razón").fill("limpieza de prueba");
   await del.click();
   await expect(page).toHaveURL(/\/superadmin\/comercios/, { timeout: 20_000 });
   await page.goto(`/${slug}`);

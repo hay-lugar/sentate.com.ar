@@ -71,7 +71,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
 
       <ReviewPanel tenantId={id} moderation={d.moderation.status} suspended={t.status === "suspended"} featured={!!d.featured} />
 
-      <PromotionPanel key={extras.promotion?.title ?? "sin"} tenantId={id} current={extras.promotion} />
+      <PromotionPanel tenantId={id} current={extras.promotion} />
 
       <DangerZone tenantId={id} slug={String(t.slug)} reservations={extras.reservations} dishes={extras.dishes} />
 

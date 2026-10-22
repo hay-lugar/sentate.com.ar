@@ -66,13 +66,17 @@ export async function getLivePublicTenant(slug: string): Promise<LiveResult<Publ
   if (error) return fail("public tenant", error);
   if (!tenant) return { status: "not_found" };
 
-  const [shifts, closures, categories, items] = await Promise.all([
+  const [shifts, closures, categories, items, settings, location] = await Promise.all([
     supabase.from("tenant_shifts").select(SHIFT_COLUMNS).eq("tenant_id", tenant.id),
     supabase.from("tenant_closures").select(CLOSURE_COLUMNS).eq("tenant_id", tenant.id).gte("service_date", reservationsSince(tenant.timezone)),
     supabase.from("categories").select(CATEGORY_COLUMNS).eq("tenant_id", tenant.id).eq("is_visible", true),
     supabase.from("menu_items").select(MENU_ITEM_COLUMNS).eq("tenant_id", tenant.id).eq("is_available", true),
+    // Sin fila = reservas habilitadas (comportamiento por defecto). La columna es pública por diseño.
+    supabase.from("tenant_reservation_settings").select("accepts_reservations").eq("tenant_id", tenant.id).maybeSingle(),
+    // RLS solo entrega la ubicación de comercios LISTADOS: su presencia es la señal para indexar la ficha.
+    supabase.from("tenant_locations").select("lat, lng, locality, province_code").eq("tenant_id", tenant.id).maybeSingle(),
   ]);
-  const failed = [shifts, closures, categories, items].find((r) => r.error);
+  const failed = [shifts, closures, categories, items, settings, location].find((r) => r.error);
   if (failed) return fail("public menu", failed.error);
 
   // Las imágenes viven en un bucket privado: se firman acá (RLS limita lo firmable a la carta visible) y el resto del
@@ -87,7 +91,11 @@ export async function getLivePublicTenant(slug: string): Promise<LiveResult<Publ
   const publicItems = menuItems.map((i) => ({ ...i, image_url: resolveImageRef(signed, i.image_url) }));
   return {
     status: "ok",
-    data: liveToPublicTenant(publicRow, shifts.data as ShiftRow[], categories.data as CategoryRow[], publicItems, closures.data as ClosureRow[]),
+    data: {
+      ...liveToPublicTenant(publicRow, shifts.data as ShiftRow[], categories.data as CategoryRow[], publicItems, closures.data as ClosureRow[]),
+      reservationsEnabled: settings.data?.accepts_reservations ?? true,
+      discovery: location.data ? { lat: location.data.lat, lng: location.data.lng, locality: location.data.locality, province: location.data.province_code } : undefined,
+    },
   };
 }
 

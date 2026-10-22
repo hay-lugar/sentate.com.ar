@@ -457,6 +457,7 @@ function buildChips(f: Filters, facets: FacetData, hasArea: boolean, apply: (n: 
   for (const c of f.cuisines) out.push({ id: `cu-${c}`, label: `Cocina: ${facets.cuisines.find((x) => x.code === c)?.label ?? c}`, remove: () => apply({ ...f, cuisines: f.cuisines.filter((x) => x !== c), page: 1 }) });
   for (const p of f.price) out.push({ id: `pr-${p}`, label: `Precio ${p}`, remove: () => apply({ ...f, price: f.price.filter((x) => x !== p), page: 1 }) });
   if (f.openNow) out.push({ id: "open", label: "Abierto ahora", remove: () => apply({ ...f, openNow: false, page: 1 }) });
+  if (f.acceptsReservations) out.push({ id: "res", label: "Acepta reservas", remove: () => apply({ ...f, acceptsReservations: false, page: 1 }) });
   if (f.nearby) out.push({ id: "near", label: f.radiusKm ? `Cerca de mí · ${f.radiusKm} km` : "Cerca de mí", remove: () => apply({ ...f, nearby: false, radiusKm: null, sort: f.sort === "distance" ? "relevance" : f.sort, page: 1 }) });
   if (hasArea) out.push({ id: "area", label: "En esta zona del mapa", remove: clearArea });
   return out;

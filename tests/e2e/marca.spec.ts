@@ -40,7 +40,7 @@ test.describe("marca «{Sin Nombre}»", () => {
     await page.goto("/");
     await expect(page.getByRole("banner").getByText(NAME, { exact: true })).toBeVisible();
     await expect(page.getByRole("contentinfo")).toContainText(`© ${NAME}`);
-    await expect(page).toHaveTitle(new RegExp(`^${NAME.replace(/[{}]/g, "\\$&")} — Carta digital`));
+    await expect(page).toHaveTitle(new RegExp(`^${NAME.replace(/[{}]/g, "\\$&")} — Descubrí dónde comer`));
   });
 
   for (const path of ["/login", "/registro", "/recuperar"]) {

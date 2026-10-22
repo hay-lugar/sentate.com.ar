@@ -6,6 +6,7 @@ import { isSupabaseConfigured } from "@/utils/supabase/env";
 import { z } from "zod";
 import { checkIpBudget } from "@/lib/abuse/rate-limit";
 import { redact } from "@/lib/log/redact";
+import { notificationsAvailable } from "@/lib/notifications/provider";
 
 export type ReservationRequestInput = {
   tenantId: string;
@@ -16,6 +17,8 @@ export type ReservationRequestInput = {
   phone: string;
   notes: string;
   idempotencyKey: string;
+  email?: string;
+  notifyConsent?: boolean;
 };
 
 export type ReservationRequestResult =
@@ -32,6 +35,8 @@ const requestSchema = z.object({
   name: z.string().max(200),
   phone: z.string().max(40),
   notes: z.string().max(1000),
+  email: z.string().max(120).optional(),
+  notifyConsent: z.boolean().optional(),
 });
 
 /**
@@ -69,6 +74,9 @@ export async function requestReservationAction(input: ReservationRequestInput | 
     p_customer_phone: req.phone,
     p_notes: req.notes,
     p_idempotency_key: req.idempotencyKey,
+    // El email solo viaja con consentimiento explícito (la base lo descarta si no hay consentimiento).
+    p_customer_email: req.notifyConsent ? (req.email?.trim() || null) : null,
+    p_notify_consent: req.notifyConsent === true,
   });
   if (error) {
     // Errores de negocio: P0001 con código estable en message. El resto se reporta como genérico.
@@ -88,7 +96,7 @@ export type LiveSlot = {
   reason: string | null;
 };
 export type LiveAvailability = { closed_reason: string | null; slots: LiveSlot[] };
-export type LiveReservationConfig = { accepts_reservations: boolean; max_party_size: number; slot_interval_minutes: number };
+export type LiveReservationConfig = { accepts_reservations: boolean; max_party_size: number; slot_interval_minutes: number; notifications: boolean };
 
 /**
  * Disponibilidad INFORMATIVA de un día para N personas (cupo real calculado en la base). No reserva nada: el pedido
@@ -114,7 +122,8 @@ export async function reservationAvailabilityAction(tenantId: unknown, serviceDa
 
 /** Configuración pública de reservas del comercio (sin capacidad). Sin fila = valores por defecto. */
 export async function reservationConfigAction(tenantId: unknown): Promise<LiveReservationConfig> {
-  const fallback: LiveReservationConfig = { accepts_reservations: true, max_party_size: 8, slot_interval_minutes: 30 };
+  const notifications = notificationsAvailable();
+  const fallback: LiveReservationConfig = { accepts_reservations: true, max_party_size: 8, slot_interval_minutes: 30, notifications };
   const id = z.uuid().safeParse(tenantId);
   if (!id.success || !isSupabaseConfigured()) return fallback;
   const supabase = createClient(await cookies());
@@ -123,5 +132,5 @@ export async function reservationConfigAction(tenantId: unknown): Promise<LiveRe
     .select("accepts_reservations, max_party_size, slot_interval_minutes")
     .eq("tenant_id", id.data)
     .maybeSingle();
-  return data ? (data as LiveReservationConfig) : fallback;
+  return data ? { ...(data as Omit<LiveReservationConfig, "notifications">), notifications } : fallback;
 }

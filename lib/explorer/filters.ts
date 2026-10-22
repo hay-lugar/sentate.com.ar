@@ -12,6 +12,8 @@ export type Filters = {
   cuisines: string[];
   price: Price[];
   openNow: boolean;
+  /** Solo locales que reciben reservas por la web. */
+  acceptsReservations: boolean;
   nearby: boolean;
   radiusKm: number | null;
   sort: Sort;
@@ -30,6 +32,7 @@ export const DEFAULT_FILTERS: Filters = {
   cuisines: [],
   price: [],
   openNow: false,
+  acceptsReservations: false,
   nearby: false,
   radiusKm: null,
   sort: "relevance",
@@ -55,6 +58,7 @@ export function filtersFromParams(sp: URLSearchParams): Filters {
     cuisines: csv(sp.get("cocina"), 10),
     price: (sp.get("precio") ?? "").split(",").filter((p): p is Price => p === "$" || p === "$$" || p === "$$$").slice(0, 3),
     openNow: sp.get("abierto") === "1",
+    acceptsReservations: sp.get("reserva") === "1",
     nearby: sp.get("cerca") === "1",
     radiusKm: RADIUS_OPTIONS.includes(radius) ? radius : null,
     sort: sort === "distance" || sort === "name" ? sort : "relevance",
@@ -71,6 +75,7 @@ export function filtersToParams(f: Filters): URLSearchParams {
   if (f.cuisines.length) sp.set("cocina", f.cuisines.join(","));
   if (f.price.length) sp.set("precio", f.price.join(","));
   if (f.openNow) sp.set("abierto", "1");
+  if (f.acceptsReservations) sp.set("reserva", "1");
   if (f.nearby) sp.set("cerca", "1");
   if (f.radiusKm) sp.set("radio", String(f.radiusKm));
   if (f.sort !== "relevance") sp.set("orden", f.sort);
@@ -81,7 +86,7 @@ export function filtersToParams(f: Filters): URLSearchParams {
 
 /** Cantidad de filtros activos (sin contar vista, orden ni página). */
 export function activeFilterCount(f: Filters): number {
-  return (f.q ? 1 : 0) + (f.locality ? 1 : 0) + f.businessTypes.length + f.cuisines.length + f.price.length + (f.openNow ? 1 : 0) + (f.nearby ? 1 : 0);
+  return (f.q ? 1 : 0) + (f.locality ? 1 : 0) + f.businessTypes.length + f.cuisines.length + f.price.length + (f.openNow ? 1 : 0) + (f.acceptsReservations ? 1 : 0) + (f.nearby ? 1 : 0);
 }
 
 export type Point = { lat: number; lng: number };
@@ -104,6 +109,7 @@ export function toSearchBody(f: Filters, opts: { point?: Point | null; bbox?: Bb
   if (f.cuisines.length) body.cuisines = f.cuisines;
   if (f.price.length) body.price = f.price;
   if (f.openNow) body.open_now = true;
+  if (f.acceptsReservations) body.accepts_reservations = true;
   if (point) {
     const c = coarsePoint(point);
     body.lat = c.lat;

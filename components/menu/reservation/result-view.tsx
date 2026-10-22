@@ -32,6 +32,7 @@ export function SubmittedView({
           <>
             Gracias, {summary.firstName}. {tenantName} recibió tu pedido. <b className="font-semibold text-foreground">Todavía no es una reserva:</b> no
             hay una mesa guardada para vos hasta que el local la confirme.
+            {summary.notify && " Te escribimos por email cuando responda; si no te llega, revisá el correo no deseado o llamá al local."}
           </>
         ) : (
           <>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { loadMapLibre } from "@/lib/map/load-maplibre";
 import { AR_CENTER } from "@/lib/explorer/profile";
 
 export const MAP_STYLE_URL = process.env.NEXT_PUBLIC_MAP_STYLE_URL || "https://tiles.openfreemap.org/styles/positron";
@@ -31,7 +32,7 @@ export default function LocationPicker({ lat, lng, onChange, label }: Props) {
     let cleanup = () => {};
     (async () => {
       try {
-        const [{ default: maplibregl }] = await Promise.all([import("maplibre-gl"), import("maplibre-gl/dist/maplibre-gl.css")]);
+        const maplibregl = await loadMapLibre();
         if (disposed || !box.current) return;
         const hasPoint = lat !== null && lng !== null;
         const map = new maplibregl.Map({

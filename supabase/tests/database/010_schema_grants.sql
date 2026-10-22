@@ -33,7 +33,7 @@ select is(
   0, 'toda función SECURITY DEFINER fija search_path vacío');
 
 select ok(not has_function_privilege('anon', 'public.create_tenant(text,text,text)', 'EXECUTE'), 'anon no puede dar de alta comercios');
-select ok(has_function_privilege('anon', 'public.request_reservation(uuid,date,time,integer,text,text,text,uuid)', 'EXECUTE'),
+select ok(has_function_privilege('anon', 'public.request_reservation(uuid,date,time,integer,text,text,text,uuid,text,boolean)', 'EXECUTE'),
   'anon puede solicitar reservas solo por la función controlada');
 
 select * from finish();

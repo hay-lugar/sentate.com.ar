@@ -8,7 +8,7 @@ import { formatPrice } from "@/lib/format";
 import { DishImage } from "./dish-image";
 import { DishTags } from "./dish-tags";
 
-export function DishSheet({ dish, onClose, onReserve }: { dish: PublicDish | null; onClose: () => void; onReserve: () => void }) {
+export function DishSheet({ dish, onClose, onReserve }: { dish: PublicDish | null; onClose: () => void; onReserve?: () => void }) {
   // Conserva el último plato durante la animación de salida (estado derivado en render).
   const [shown, setShown] = useState(dish);
   if (dish && dish !== shown) setShown(dish);
@@ -28,9 +28,11 @@ export function DishSheet({ dish, onClose, onReserve }: { dish: PublicDish | nul
 
           <div className="mt-6 flex items-center gap-4 border-t border-line pt-5">
             <p className="type-heading tabular-nums">{formatPrice(shown.price)}</p>
-            <Button variant="secondary" onClick={onReserve} className="ml-auto">
-              Solicitar mesa
-            </Button>
+            {onReserve && (
+              <Button variant="secondary" onClick={onReserve} className="ml-auto">
+                Solicitar mesa
+              </Button>
+            )}
           </div>
         </div>
       )}

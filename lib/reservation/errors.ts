@@ -9,6 +9,7 @@ const MAP: Record<string, ReservationErrorInfo> = {
   invalid_guests: { field: "guests", message: "Esa cantidad de personas no está disponible. Para grupos más grandes, llamá al local.", retryable: false },
   invalid_name: { field: "name", message: "Revisá tu nombre.", retryable: false },
   invalid_phone: { field: "phone", message: "Revisá el teléfono (8 a 15 dígitos).", retryable: false },
+  invalid_email: { field: "email", message: "Revisá el email o desactivá los avisos.", retryable: false },
   invalid_notes: { field: "notes", message: "El comentario es demasiado largo.", retryable: false },
   invalid_slot: { field: "time", message: "Ese horario no es válido. Elegí otro.", retryable: false },
   outside_opening_hours: { field: "time", message: "Ese horario está fuera de la atención del local.", retryable: false },

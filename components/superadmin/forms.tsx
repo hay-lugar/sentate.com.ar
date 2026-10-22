@@ -30,13 +30,13 @@ function useRunner() {
 }
 
 const Msg = ({ msg }: { msg: AdminResult | null }) =>
-  msg ? <p role={msg.ok ? "status" : "alert"} className={msg.ok ? "text-[15px] text-success" : "text-[15px] text-danger"}>{msg.message}</p> : null;
+  msg ? <p role={msg.ok ? "status" : "alert"} className={msg.ok ? "text-[0.9375rem] text-success" : "text-[0.9375rem] text-danger"}>{msg.message}</p> : null;
 
 function Field({ label, hint, children, id }: { label: string; hint?: string; children: React.ReactNode; id: string }) {
   return (
     <div>
       <label htmlFor={id} className="mb-1.5 block type-label">
-        {label} {hint && <span className="text-[13px] font-normal text-muted">{hint}</span>}
+        {label} {hint && <span className="text-[0.8125rem] font-normal text-muted">{hint}</span>}
       </label>
       {children}
     </div>
@@ -102,7 +102,7 @@ export function DangerZone({ tenantId, slug, reservations, dishes }: { tenantId:
   return (
     <section aria-labelledby={`${uid}-t`} className="space-y-4 rounded-xl border border-danger/50 p-4">
       <h2 id={`${uid}-t`} className="type-section">Eliminar comercio</h2>
-      <p className="text-[15px]">
+      <p className="text-[0.9375rem]">
         Borra <strong>definitivamente</strong> este comercio y todo lo suyo: {dishes} {dishes === 1 ? "plato" : "platos"}, {reservations} {reservations === 1 ? "reserva" : "reservas"}, horarios, membresías y favoritos. <strong>No se puede deshacer.</strong> Si solo querés sacarlo de circulación, usá «Pausar comercio».
       </p>
       <Field id={`${uid}-slug`} label={`Escribí «${slug}» para confirmar`}><input id={`${uid}-slug`} value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="off" className={inputClass} /></Field>
@@ -163,7 +163,7 @@ export function SettingPanel({ value }: { value: "visible" | "hidden" }) {
   return (
     <section aria-labelledby={`${uid}-t`} className="space-y-3 rounded-2xl border border-line/70 p-4">
       <h2 id={`${uid}-t`} className="type-section">Carta con acceso vencido</h2>
-      <p className="text-[15px]">Hoy: <strong>{value === "visible" ? "la carta sigue visible" : "la carta se oculta"}</strong> cuando vence la prueba o la suscripción. Las reservas se bloquean en ambos casos.</p>
+      <p className="text-[0.9375rem]">Hoy: <strong>{value === "visible" ? "la carta sigue visible" : "la carta se oculta"}</strong> cuando vence la prueba o la suscripción. Las reservas se bloquean en ambos casos.</p>
       <Field id={`${uid}-why`} label="Razón del cambio"><input id={`${uid}-why`} value={why} onChange={(e) => setWhy(e.target.value)} maxLength={500} className={inputClass} /></Field>
       <Button variant="secondary" pending={busy} disabled={busy || why.trim().length < 3} onClick={() => run(() => platformSettingAction(next, why), () => setWhy(""))}>
         {next === "hidden" ? "Ocultar la carta al vencer" : "Mantener la carta visible al vencer"}

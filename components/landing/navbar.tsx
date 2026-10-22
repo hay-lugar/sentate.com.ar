@@ -10,13 +10,13 @@ export function Navbar() {
         <Link href="/" aria-label={`${BRAND.name}, inicio`} className="mr-auto inline-flex min-h-11 items-center">
           <Logo size="md" />
         </Link>
-        <Link href="/explorar" className="hidden h-11 items-center rounded-xl px-2 text-[15px] text-muted hover:text-foreground min-[430px]:inline-flex sm:px-3">
+        <Link href="/explorar" className="hidden h-11 items-center rounded-xl px-2 text-[0.9375rem] text-muted hover:text-foreground min-[430px]:inline-flex sm:px-3">
           Explorar
         </Link>
-        <Link href="#negocios" className="hidden h-11 items-center rounded-xl px-3 text-[15px] text-muted hover:text-foreground sm:inline-flex">
+        <Link href="#negocios" className="hidden h-11 items-center rounded-xl px-3 text-[0.9375rem] text-muted hover:text-foreground sm:inline-flex">
           Para negocios
         </Link>
-        <Link href="#precio" className="hidden h-11 items-center rounded-xl px-3 text-[15px] text-muted hover:text-foreground sm:inline-flex">
+        <Link href="#precio" className="hidden h-11 items-center rounded-xl px-3 text-[0.9375rem] text-muted hover:text-foreground sm:inline-flex">
           Precio
         </Link>
         <Link href="/login" className={buttonClass({ variant: "quiet", size: "sm", className: "px-2 sm:px-3.5" })}>

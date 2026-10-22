@@ -89,7 +89,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </div>
 
         <div className={cn("mt-4 flex items-center gap-3 border-y border-line py-3", collapsed && "justify-center")}>
-          {logo("size-10 rounded-lg text-[14px]")}
+          {logo("size-10 rounded-lg text-[0.875rem]")}
           {!collapsed && (
             <div className="min-w-0 leading-tight">
               <p className="truncate font-semibold">{tenant.name}</p>
@@ -109,7 +109,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             href={`/${tenant.slug}`}
             target="_blank"
             title="Ver menú público"
-            className={cn("pressable flex h-11 items-center gap-3 rounded-lg px-3 text-[15px] text-muted hover:bg-subtle hover:text-foreground", collapsed && "justify-center px-0")}
+            className={cn("pressable flex h-11 items-center gap-3 rounded-lg px-3 text-[0.9375rem] text-muted hover:bg-subtle hover:text-foreground", collapsed && "justify-center px-0")}
           >
             <ExternalLink className="size-[18px] shrink-0" aria-hidden />
             {collapsed ? <span className="sr-only">Ver menú público (nueva pestaña)</span> : "Ver menú público"}
@@ -119,7 +119,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
               <button
                 type="submit"
                 title={`Cerrar sesión (${live.email})`}
-                className={cn("pressable flex h-11 w-full items-center gap-3 rounded-lg px-3 text-[15px] text-muted hover:bg-subtle hover:text-foreground", collapsed && "justify-center px-0")}
+                className={cn("pressable flex h-11 w-full items-center gap-3 rounded-lg px-3 text-[0.9375rem] text-muted hover:bg-subtle hover:text-foreground", collapsed && "justify-center px-0")}
               >
                 <LogOut className="size-[18px] shrink-0" aria-hidden />
                 {collapsed ? <span className="sr-only">Cerrar sesión</span> : "Cerrar sesión"}
@@ -131,7 +131,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
       {/* ── Barra superior mobile ── */}
       <header className="bar-blur sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line/70 px-4 lg:hidden print:hidden!">
-        {logo("size-9 rounded-lg text-[13px]")}
+        {logo("size-9 rounded-lg text-[0.8125rem]")}
         <div className="min-w-0 leading-tight">
           <p className="truncate font-semibold">{tenant.name}</p>
           <p className="type-help">
@@ -167,7 +167,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 aria-current={active ? "page" : undefined}
                 aria-label={item.badge ? `${item.label} (${item.badge} pendientes)` : undefined}
                 className={cn(
-                  "pressable relative flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[13px]",
+                  "pressable relative flex min-h-16 flex-1 flex-col items-center justify-center gap-1 text-[0.8125rem]",
                   active ? "font-semibold text-foreground" : "text-muted",
                 )}
               >
@@ -175,7 +175,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 <span className="relative" aria-hidden>
                   <Icon className="size-[22px]" strokeWidth={active ? 2.25 : 1.75} />
                   {!!item.badge && (
-                    <span className="absolute -top-1.5 -right-3 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-foreground px-1 text-[13px] leading-none font-medium text-background">
+                    <span className="absolute -top-1.5 -right-3 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-foreground px-1 text-[0.8125rem] leading-none font-medium text-background">
                       {item.badge}
                     </span>
                   )}
@@ -199,7 +199,7 @@ function SidebarLink({ item, active, collapsed }: { item: NavItem; active: boole
       aria-current={active ? "page" : undefined}
       aria-label={collapsed || item.badge ? `${item.label}${item.badge ? ` (${item.badge} pendientes)` : ""}` : undefined}
       className={cn(
-        "pressable relative flex h-11 items-center gap-3 rounded-lg px-3 text-[15px]",
+        "pressable relative flex h-11 items-center gap-3 rounded-lg px-3 text-[0.9375rem]",
         active ? "bg-subtle font-semibold text-foreground" : "text-muted hover:bg-subtle hover:text-foreground",
         collapsed && "justify-center px-0",
       )}
@@ -209,7 +209,7 @@ function SidebarLink({ item, active, collapsed }: { item: NavItem; active: boole
       {!!item.badge && (
         <span
           aria-hidden
-          className={cn("grid h-5 min-w-5 place-items-center rounded-full bg-foreground px-1.5 text-[13px] leading-none font-medium text-background", collapsed ? "absolute top-0.5 right-2" : "ml-auto")}
+          className={cn("grid h-5 min-w-5 place-items-center rounded-full bg-foreground px-1.5 text-[0.8125rem] leading-none font-medium text-background", collapsed ? "absolute top-0.5 right-2" : "ml-auto")}
         >
           {item.badge}
         </span>

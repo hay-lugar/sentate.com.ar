@@ -24,8 +24,8 @@ export default async function UsuariosPage({ searchParams }: { searchParams: Pro
         <ul className="divide-y divide-line/70 rounded-2xl border border-line/70">
           {items.map((u) => (
             <li key={u.id} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:gap-4">
-              <span className="min-w-0 flex-1 [overflow-wrap:anywhere]"><span className="font-medium">{u.email ?? "(sin email)"}</span>{u.is_admin && <span className="ml-2 rounded-md border border-line-strong px-1.5 py-1 text-[13px]">Superadmin</span>}</span>
-              <span className="text-[14px] text-muted">{u.tenants} {u.tenants === 1 ? "comercio" : "comercios"} · alta {fmt(u.created_at)} · último ingreso {fmt(u.last_sign_in_at)}{u.confirmed ? "" : " · sin confirmar"}</span>
+              <span className="min-w-0 flex-1 [overflow-wrap:anywhere]"><span className="font-medium">{u.email ?? "(sin email)"}</span>{u.is_admin && <span className="ml-2 rounded-md border border-line-strong px-1.5 py-1 text-[0.8125rem]">Superadmin</span>}</span>
+              <span className="text-[0.875rem] text-muted">{u.tenants} {u.tenants === 1 ? "comercio" : "comercios"} · alta {fmt(u.created_at)} · último ingreso {fmt(u.last_sign_in_at)}{u.confirmed ? "" : " · sin confirmar"}</span>
             </li>
           ))}
         </ul>

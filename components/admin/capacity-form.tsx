@@ -49,10 +49,10 @@ export function CapacityForm({ tenantId, timezone, initial, blocks }: { tenantId
         <h2 className="border-b border-line pb-3 type-section">Cupo</h2>
         <label className="flex min-h-11 cursor-pointer items-center gap-3">
           <input type="checkbox" checked={s.acceptsReservations} onChange={(e) => set("acceptsReservations", e.target.checked)} className="size-5 accent-foreground" />
-          <span className="text-[15px] font-medium">Recibir solicitudes de mesa por la web</span>
+          <span className="text-[0.9375rem] font-medium">Recibir solicitudes de mesa por la web</span>
         </label>
         <div>
-          <label htmlFor={id("cap")} className="mb-1.5 block type-label">Comensales simultáneos <span className="text-[13px] font-normal text-muted">Vacío = sin tope</span></label>
+          <label htmlFor={id("cap")} className="mb-1.5 block type-label">Comensales simultáneos <span className="text-[0.8125rem] font-normal text-muted">Vacío = sin tope</span></label>
           <input id={id("cap")} inputMode="numeric" value={s.capacityGuests ?? ""} onChange={(e) => set("capacityGuests", num(e.target.value))} className={inputClass} />
           <p className="mt-1.5 type-help">Cuántas personas pueden estar a la vez. Es capacidad de personas, no mesas: no se asigna una mesa concreta.</p>
         </div>
@@ -75,7 +75,7 @@ export function CapacityForm({ tenantId, timezone, initial, blocks }: { tenantId
         <h2 className="border-b border-line pb-3 type-section">Solicitudes pendientes</h2>
         <label className="flex min-h-11 cursor-pointer items-center gap-3">
           <input type="checkbox" checked={s.holdPending} onChange={(e) => set("holdPending", e.target.checked)} className="size-5 accent-foreground" />
-          <span className="text-[15px] font-medium">Una solicitud pendiente reserva cupo hasta que la respondas</span>
+          <span className="text-[0.9375rem] font-medium">Una solicitud pendiente reserva cupo hasta que la respondas</span>
         </label>
         <Num id={id("hold")} label="Se libera sola a los (min)" value={s.pendingHoldMinutes} onChange={(v) => set("pendingHoldMinutes", v ?? 240)} help="Si no respondés en ese tiempo, la solicitud vence y el cupo se libera. Al rechazar o cancelar, se libera enseguida." />
         <p className="type-help">Cambiar esta configuración no modifica ni cancela las reservas que ya existen: solo afecta a los pedidos nuevos.</p>
@@ -83,20 +83,20 @@ export function CapacityForm({ tenantId, timezone, initial, blocks }: { tenantId
 
       <div className="flex flex-wrap items-center gap-3">
         <Button onClick={save} pending={busy} disabled={!dirty || busy}>Guardar</Button>
-        {msg && <p role="status" className="text-[15px] text-success">{msg}</p>}
-        {error && <p role="alert" className="text-[15px] text-danger">{error}</p>}
+        {msg && <p role="status" className="text-[0.9375rem] text-success">{msg}</p>}
+        {error && <p role="alert" className="text-[0.9375rem] text-danger">{error}</p>}
       </div>
 
       <section className="space-y-4">
         <h2 className="border-b border-line pb-3 type-section">Bloqueos</h2>
         <p className="type-help">Fechas u horarios en los que no se reciben reservas (hora de tu local). Para cerrar un día completo, usá cierres en Ajustes.</p>
         {blocks.length === 0 ? (
-          <p className="text-[15px] text-muted">No hay bloqueos vigentes.</p>
+          <p className="text-[0.9375rem] text-muted">No hay bloqueos vigentes.</p>
         ) : (
           <ul className="divide-y divide-line/70 rounded-2xl border border-line/70">
             {blocks.map((b) => (
               <li key={b.id} className="flex items-center gap-3 p-3">
-                <span className="min-w-0 flex-1 text-[15px]">
+                <span className="min-w-0 flex-1 text-[0.9375rem]">
                   {fmt(b.starts_at)} → {fmt(b.ends_at)}
                   {b.reason && <span className="block type-help">{b.reason}</span>}
                 </span>
@@ -122,7 +122,7 @@ export function CapacityForm({ tenantId, timezone, initial, blocks }: { tenantId
           </div>
         </div>
         <div>
-          <label htmlFor={id("breason")} className="mb-1.5 block type-label">Motivo <span className="text-[13px] font-normal text-muted">Opcional</span></label>
+          <label htmlFor={id("breason")} className="mb-1.5 block type-label">Motivo <span className="text-[0.8125rem] font-normal text-muted">Opcional</span></label>
           <input id={id("breason")} value={reason} maxLength={120} onChange={(e) => setReason(e.target.value)} className={inputClass} />
         </div>
         <FieldError id={id("berr")}>{blockError ?? undefined}</FieldError>

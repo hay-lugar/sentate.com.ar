@@ -31,7 +31,7 @@ export function CancelReservation({ id, pending: isPending, cutoffHours }: { id:
         </Button>
         {!isPending && <p className="mt-2 type-help">Se puede cancelar hasta {cutoffHours} h antes de la reserva.</p>}
         {error && (
-          <p role="alert" className="mt-2 text-[14px] text-danger">
+          <p role="alert" className="mt-2 text-[0.875rem] text-danger">
             {error}
           </p>
         )}
@@ -40,7 +40,7 @@ export function CancelReservation({ id, pending: isPending, cutoffHours }: { id:
   }
   return (
     <div role="group" aria-label="Confirmar cancelación" className="space-y-3 rounded-2xl border border-line/70 p-4">
-      <p className="text-[15px]">{isPending ? "¿Retirar esta solicitud?" : "¿Cancelar esta reserva? El local va a ver la cancelación."}</p>
+      <p className="text-[0.9375rem]">{isPending ? "¿Retirar esta solicitud?" : "¿Cancelar esta reserva? El local va a ver la cancelación."}</p>
       <div className="flex gap-2">
         <Button variant="danger" onClick={run} pending={busy}>
           Sí, cancelar

@@ -21,7 +21,7 @@ export function DataError({ error, reset, title = "No pudimos cargar esto" }: { 
     <main className="grid min-h-[60dvh] place-items-center px-6 py-16">
       <div role="alert" className="max-w-sm text-center">
         <h1 className="type-heading">{title}</h1>
-        <p className="mt-2 text-[15px] text-muted">
+        <p className="mt-2 text-[0.9375rem] text-muted">
           Puede ser un problema de conexión o una falla temporal. Tus datos no se perdieron.
         </p>
         <Button

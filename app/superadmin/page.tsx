@@ -38,20 +38,20 @@ export default async function BandejaPage({ searchParams }: { searchParams: Prom
       <form role="search" className="mb-4 flex gap-2">
         <input type="hidden" name="estado" value={estado} />
         <label htmlFor="q" className="sr-only">Buscar comercio</label>
-        <input id="q" name="q" defaultValue={q} placeholder="Nombre o dirección web (slug)" className="h-12 min-w-0 flex-1 rounded-xl bg-surface px-4 text-[16px] ring-1 ring-field outline-none focus:ring-2 focus:ring-foreground" />
-        <button type="submit" className="pressable h-12 rounded-xl bg-foreground px-5 text-[15px] font-medium text-background">Buscar</button>
+        <input id="q" name="q" defaultValue={q} placeholder="Nombre o dirección web (slug)" className="h-12 min-w-0 flex-1 rounded-xl bg-surface px-4 text-[1rem] ring-1 ring-field outline-none focus:ring-2 focus:ring-foreground" />
+        <button type="submit" className="pressable h-12 rounded-xl bg-foreground px-5 text-[0.9375rem] font-medium text-background">Buscar</button>
       </form>
       <nav aria-label="Estado" className="no-scrollbar -mx-4 mb-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         {TABS.map((t) => (
           <Link key={t.id} href={`/superadmin?estado=${t.id}${q ? `&q=${encodeURIComponent(q)}` : ""}`} aria-current={estado === t.id ? "page" : undefined}
-            className={cn("inline-flex h-11 shrink-0 items-center rounded-full border px-4 text-[14px]", estado === t.id ? "border-foreground bg-foreground font-medium text-background" : "border-line-strong hover:bg-subtle")}>
+            className={cn("inline-flex h-11 shrink-0 items-center rounded-full border px-4 text-[0.875rem]", estado === t.id ? "border-foreground bg-foreground font-medium text-background" : "border-line-strong hover:bg-subtle")}>
             {t.label}
           </Link>
         ))}
       </nav>
       <p role="status" className="mb-3 type-help">{total} {total === 1 ? "comercio" : "comercios"}</p>
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-line/70 px-6 py-10 text-center"><p className="text-[17px] font-semibold">Nada por revisar</p></div>
+        <div className="rounded-2xl border border-line/70 px-6 py-10 text-center"><p className="text-[1.0625rem] font-semibold">Nada por revisar</p></div>
       ) : (
         <ul className="divide-y divide-line/70 rounded-2xl border border-line/70">
           {items.map((r) => (
@@ -61,7 +61,7 @@ export default async function BandejaPage({ searchParams }: { searchParams: Prom
                   <span className="block font-semibold [overflow-wrap:anywhere]">{r.name} <span className="font-normal text-muted">/{r.slug}</span></span>
                   <span className="block type-help">{[r.owner_email, r.locality, r.business_type].filter(Boolean).join(" · ")}</span>
                 </span>
-                <span className="flex flex-wrap gap-1.5 text-[13px]">
+                <span className="flex flex-wrap gap-1.5 text-[0.8125rem]">
                   <Tag>{MODERATION_COPY[r.moderation].title}</Tag>
                   {r.tenant_status === "suspended" && <Tag danger>Suspendido</Tag>}
                   {!r.is_published && <Tag>Sin publicar</Tag>}

@@ -16,7 +16,7 @@ export default async function ExploradorPage({ params }: { params: Promise<{ slu
     return (
       <>
         <PageHeader title="Explorador" />
-        <p className="max-w-xl text-[15px] text-muted">
+        <p className="max-w-xl text-[0.9375rem] text-muted">
           El explorador usa datos reales (ubicación, moderación y aprobación), por eso no está disponible en la demo. Creá tu cuenta para configurarlo.
         </p>
       </>

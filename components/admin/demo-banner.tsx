@@ -16,7 +16,7 @@ export function DemoBanner() {
 
   return (
     <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-line/70 bg-subtle p-3 sm:flex-row sm:items-center">
-      <p className="min-w-0 text-[14px] leading-snug">
+      <p className="min-w-0 text-[0.875rem] leading-snug">
         <b className="font-semibold">Modo demo.</b> Reservas y clientes son ficticios. {status}
       </p>
       <div className="flex shrink-0 items-center gap-2 sm:ml-auto">

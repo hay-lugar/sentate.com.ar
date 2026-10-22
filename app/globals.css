@@ -25,6 +25,46 @@
   --danger: #b42318;
   --success: #067647;
   --warning: #93370d;
+
+  color-scheme: light dark;
+}
+
+/* Modo oscuro (sigue al sistema). Superficies como en iOS: negro de fondo y gris elevado para tarjetas. La carta de cada comercio
+   conserva SUS colores de marca (rellenos de botones y etiquetas); solo el fondo y el texto base se adaptan. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #000000;
+    --surface: #1c1c1e;
+    --subtle: #1c1c1e;
+    --foreground: #f5f5f7;
+    --muted: #a1a1a6;
+    --line: #38383a;
+    --line-strong: #545458;
+    --field: #8e8e93;
+
+    --brand: #f5f5f7;
+    --brand-fg: #1d1d1f;
+    --accent: #2c2c2e;
+    --accent-fg: #f5f5f7;
+
+    --danger: #ff6b61;
+    --success: #32d74b;
+    --warning: #ff9f0a;
+  }
+}
+
+/* Al imprimir (QR de la carta) siempre claro, aunque el sistema esté en oscuro. */
+@media print {
+  :root {
+    --background: #ffffff;
+    --surface: #ffffff;
+    --subtle: #f5f5f7;
+    --foreground: #1d1d1f;
+    --muted: #6e6e73;
+    --line: #e5e5ea;
+    --line-strong: #d2d2d7;
+    color-scheme: light;
+  }
 }
 
 @theme inline {
@@ -36,14 +76,13 @@
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
   --color-field: var(--field);
-  --color-ink: #1d1d1f;
 
   --color-brand: var(--brand);
   --color-brand-fg: var(--brand-fg);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
   /* Tinte suave del brand para fondos y estados activos */
-  --color-brand-soft: color-mix(in oklch, var(--brand) 7%, white);
+  --color-brand-soft: color-mix(in oklch, var(--brand) 9%, var(--background));
 
   --color-danger: var(--danger);
   --color-success: var(--success);
@@ -73,7 +112,16 @@
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
+  }
+  /* Tipografía dinámica: en Safari de iOS/macOS la base sigue el tamaño de texto que eligió la persona en el sistema (Ajustes →
+     Pantalla y brillo → Tamaño del texto). Todos los tamaños de la interfaz están en rem, así que escalan juntos. */
+  @supports (font: -apple-system-body) {
+    html {
+      font: -apple-system-body;
+    }
   }
   body {
     background: var(--background);
@@ -100,6 +148,21 @@
   }
   html {
     scroll-padding-top: 8rem;
+  }
+}
+
+/* Texto con el color de marca: en oscuro se aclara para conservar el contraste sobre el fondo negro. */
+@utility text-brand-ink {
+  color: var(--brand);
+  @media (prefers-color-scheme: dark) {
+    color: color-mix(in oklch, var(--brand) 40%, white);
+  }
+}
+
+/* Relleno de marca sobre fondo oscuro: un filo claro evita que un color muy oscuro desaparezca. */
+@media (prefers-color-scheme: dark) {
+  .bg-brand {
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
   }
 }
 
@@ -169,6 +232,14 @@
 
 @utility pb-safe {
   padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+}
+
+/* Entrada de página: un fundido breve al navegar (no en la primera carga, para no demorar el contenido). */
+@keyframes page-in {
+  from { opacity: 0; }
+}
+@utility page-in {
+  animation: page-in 260ms var(--ease-spring) backwards;
 }
 
 /* Movimiento reducido: sin transiciones ni animaciones. */

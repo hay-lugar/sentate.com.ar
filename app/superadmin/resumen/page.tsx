@@ -37,7 +37,7 @@ export default async function ResumenPage() {
           <Stat label="Pausados" value={o.tenants.suspended} />
           <Stat label="Destacados" value={o.tenants.featured_active} />
         </dl>
-        <p className="mt-3 text-[15px] text-muted">Moderación: {Object.keys(o.moderation).length ? Object.entries(o.moderation).map(([k, n]) => `${MODERATION_COPY[k as ModerationStatus]?.title ?? k}: ${n}`).join(" · ") : "sin comercios"}</p>
+        <p className="mt-3 text-[0.9375rem] text-muted">Moderación: {Object.keys(o.moderation).length ? Object.entries(o.moderation).map(([k, n]) => `${MODERATION_COPY[k as ModerationStatus]?.title ?? k}: ${n}`).join(" · ") : "sin comercios"}</p>
       </section>
       <section aria-labelledby="sus"><h2 id="sus" className="mb-3 type-section">Suscripciones</h2>
         <dl className="grid grid-cols-2 gap-3 sm:grid-cols-5">

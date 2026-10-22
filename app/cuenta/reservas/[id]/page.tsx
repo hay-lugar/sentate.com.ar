@@ -16,15 +16,15 @@ export default async function ReservaPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="max-w-xl space-y-6">
-      <Link href="/cuenta/reservas" className="inline-flex min-h-11 items-center text-[15px] text-muted hover:text-foreground">
+      <Link href="/cuenta/reservas" className="inline-flex min-h-11 items-center text-[0.9375rem] text-muted hover:text-foreground">
         ← Mis reservas
       </Link>
       <div>
         <p className="type-label">{STATUS_LABEL[r.display_status]}</p>
         <h2 className="type-heading">{r.tenant.name}</h2>
-        <p className="mt-1 text-[15px] text-muted">{STATUS_HELP[r.display_status]}</p>
+        <p className="mt-1 text-[0.9375rem] text-muted">{STATUS_HELP[r.display_status]}</p>
       </div>
-      <dl className="space-y-2 text-[15px]">
+      <dl className="space-y-2 text-[0.9375rem]">
         <Row label="Cuándo" value={formatWhen(r.starts_at, r.tenant.timezone)} />
         <Row label="Personas" value={String(r.guests)} />
         {r.tenant.address && <Row label="Dónde" value={r.tenant.address} />}
@@ -35,7 +35,7 @@ export default async function ReservaPage({ params }: { params: Promise<{ id: st
       {!r.can_cancel && (r.status === "pending" || r.status === "confirmed") && r.display_status !== "finished" && r.display_status !== "expired" && (
         <p className="type-help">Falta poco para esta reserva: para cambiarla o cancelarla, comunicate con el local.</p>
       )}
-      <div className="flex flex-wrap gap-4 text-[15px]">
+      <div className="flex flex-wrap gap-4 text-[0.9375rem]">
         {r.tenant.visible && (
           <Link href={`/${r.tenant.slug}`} className="inline-flex min-h-11 items-center underline underline-offset-4">
             Ver la carta

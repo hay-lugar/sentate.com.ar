@@ -95,8 +95,8 @@ export function ReservationsList({
             aria-pressed={filter === f.id}
             onClick={() => setFilter(f.id)}
             className={cn(
-              "pressable inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-[14px]",
-              filter === f.id ? "border-foreground bg-foreground font-medium text-background" : "border-line-strong text-foreground hover:bg-subtle",
+              "pressable inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-[0.875rem]",
+              filter === f.id ? "border-transparent bg-foreground font-medium text-background" : "border-transparent bg-subtle text-foreground hover:bg-line/60",
             )}
           >
             {f.label}
@@ -115,8 +115,8 @@ export function ReservationsList({
         </ul>
       ) : (
         <div className="mt-4 rounded-2xl border border-line/70 px-6 py-10 text-center">
-          <p className="text-[17px] font-semibold">Nada por acá</p>
-          <p className="mt-1 text-[15px] text-muted">No hay solicitudes ni reservas en esta vista.</p>
+          <p className="text-[1.0625rem] font-semibold">Nada por acá</p>
+          <p className="mt-1 text-[0.9375rem] text-muted">No hay solicitudes ni reservas en esta vista.</p>
         </div>
       )}
 
@@ -153,8 +153,8 @@ function ReservationRow({
       <div className="min-w-0">
         <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-semibold">
           <span className="[overflow-wrap:anywhere]">{r.name}</span>
-          {r.status === "pending" && <span className="rounded-md border border-line-strong px-1.5 py-1 text-[13px] leading-none font-medium">Pendiente</span>}
-          {isNew && <span className="text-[13px] font-medium text-muted">Nueva</span>}
+          {r.status === "pending" && <span className="rounded-md border border-line-strong px-1.5 py-1 text-[0.8125rem] leading-none font-medium">Pendiente</span>}
+          {isNew && <span className="text-[0.8125rem] font-medium text-muted">Nueva</span>}
         </p>
         <p className="mt-1 type-help">
           <span className="tabular-nums">{r.phone}</span> · {timeAgo(r.receivedMinutesAgo)}
@@ -162,7 +162,7 @@ function ReservationRow({
         {contact && <ContactActions r={r} when={when} tenantName={contact.tenantName} />}
       </div>
 
-      <div className="text-[15px]">
+      <div className="text-[0.9375rem]">
         <p className="font-medium">
           <span className="tabular-nums">{when.dayLabel} · {r.time}</span>
           {when.afterMidnight && <span className="font-normal text-muted"> (madrugada)</span>}
@@ -170,7 +170,7 @@ function ReservationRow({
         <p className="text-muted">
           {r.guests} {r.guests === 1 ? "persona" : "personas"}
         </p>
-        {r.notes && <p className="mt-1.5 text-[14px] [overflow-wrap:anywhere] text-muted">Nota: {r.notes}</p>}
+        {r.notes && <p className="mt-1.5 text-[0.875rem] [overflow-wrap:anywhere] text-muted">Nota: {r.notes}</p>}
       </div>
 
       <div className="flex gap-2 lg:justify-end">
@@ -220,7 +220,7 @@ function SoundToggle() {
         setSoundEnabled(next);
         if (next) playNewRequestSound();
       }}
-      className="pressable mt-1 ml-3 inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-[14px] text-muted hover:text-foreground"
+      className="pressable mt-1 ml-3 inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-[0.875rem] text-muted hover:text-foreground"
     >
       {on ? <Volume2 className="size-4" aria-hidden /> : <VolumeX className="size-4" aria-hidden />}
       Sonido de solicitudes: {on ? "activado" : "desactivado"}
@@ -248,7 +248,7 @@ function ContactActions({ r, when, tenantName }: { r: Reservation; when: ReturnT
       <a href={telLink(r.phone)} className={chip}>
         <Phone className="size-4" aria-hidden /> Llamar<span className="sr-only"> a {r.name}</span>
       </a>
-      <span className="text-[13px] leading-tight text-muted">
+      <span className="text-[0.8125rem] leading-tight text-muted">
         {target ? (
           <>
             {target.display}
@@ -273,7 +273,7 @@ const BADGES = {
 function StatusBadge({ status }: { status: Exclude<ReservationStatus, "pending"> }) {
   const { label, Icon } = BADGES[status];
   return (
-    <span className="inline-flex h-10 items-center gap-1.5 text-[15px] font-medium">
+    <span className="inline-flex h-10 items-center gap-1.5 text-[0.9375rem] font-medium">
       <Icon className="size-4" aria-hidden />
       {label}
     </span>

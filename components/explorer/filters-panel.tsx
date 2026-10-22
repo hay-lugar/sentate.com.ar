@@ -69,7 +69,7 @@ export function FiltersPanel({ filters, facets, onChange, onLocate, geo, hasPoin
       <label className="flex min-h-11 cursor-pointer items-center gap-3">
         <input type="checkbox" checked={filters.openNow} onChange={(e) => set({ openNow: e.target.checked })} className="size-5 shrink-0 accent-foreground" />
         <span>
-          <span className="block text-[15px] font-medium">Abierto ahora</span>
+          <span className="block text-[0.9375rem] font-medium">Abierto ahora</span>
           <span className="block type-help">Según el horario del local y su zona horaria.</span>
         </span>
       </label>
@@ -77,7 +77,7 @@ export function FiltersPanel({ filters, facets, onChange, onLocate, geo, hasPoin
       <label className="flex min-h-11 cursor-pointer items-center gap-3">
         <input type="checkbox" checked={filters.acceptsReservations} onChange={(e) => set({ acceptsReservations: e.target.checked })} className="size-5 shrink-0 accent-foreground" />
         <span>
-          <span className="block text-[15px] font-medium">Acepta reservas</span>
+          <span className="block text-[0.9375rem] font-medium">Acepta reservas</span>
           <span className="block type-help">Locales que reciben solicitudes de mesa por la web.</span>
         </span>
       </label>
@@ -85,7 +85,7 @@ export function FiltersPanel({ filters, facets, onChange, onLocate, geo, hasPoin
       <label className="flex min-h-11 cursor-pointer items-center gap-3">
         <input type="checkbox" checked={filters.withPromotion} onChange={(e) => set({ withPromotion: e.target.checked })} className="size-5 shrink-0 accent-foreground" />
         <span>
-          <span className="block text-[15px] font-medium">Con promoción</span>
+          <span className="block text-[0.9375rem] font-medium">Con promoción</span>
           <span className="block type-help">Locales que tienen una promoción vigente.</span>
         </span>
       </label>
@@ -97,7 +97,7 @@ export function FiltersPanel({ filters, facets, onChange, onLocate, geo, hasPoin
           <div className="space-y-3">
             <label className="flex min-h-11 cursor-pointer items-center gap-3">
               <input type="checkbox" checked={filters.nearby} onChange={(e) => set({ nearby: e.target.checked, sort: e.target.checked ? "distance" : "relevance", radiusKm: e.target.checked ? filters.radiusKm : null })} className="size-5 shrink-0 accent-foreground" />
-              <span className="text-[15px]">Solo cerca de mi ubicación</span>
+              <span className="text-[0.9375rem]">Solo cerca de mi ubicación</span>
             </label>
             {filters.nearby && (
               <div>
@@ -116,7 +116,7 @@ export function FiltersPanel({ filters, facets, onChange, onLocate, geo, hasPoin
             )}
           </div>
         ) : (
-          <button type="button" onClick={onLocate} disabled={geo === "asking"} className="pressable min-h-11 rounded-xl border border-line-strong px-4 text-[15px] font-medium hover:bg-subtle disabled:opacity-50">
+          <button type="button" onClick={onLocate} disabled={geo === "asking"} className="pressable min-h-11 rounded-xl border border-line-strong px-4 text-[0.9375rem] font-medium hover:bg-subtle disabled:opacity-50">
             {geo === "asking" ? "Buscando tu ubicación…" : "Usar mi ubicación"}
           </button>
         )}
@@ -155,7 +155,7 @@ function Pill({ on, onClick, children }: { on: boolean; onClick: () => void; chi
       type="button"
       aria-pressed={on}
       onClick={onClick}
-      className={cn("pressable min-h-11 rounded-full border px-4 text-[15px]", on ? "border-foreground bg-foreground text-background [&_span]:text-background" : "border-line-strong hover:bg-subtle")}
+      className={cn("pressable min-h-11 rounded-full border px-4 text-[0.9375rem]", on ? "border-foreground bg-foreground text-background [&_span]:text-background" : "border-line-strong hover:bg-subtle")}
     >
       {children}
     </button>

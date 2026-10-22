@@ -16,7 +16,7 @@ export function LoginForm({ next, initialError }: { next?: string; initialError?
       <AuthField label="Contraseña" htmlFor="password">
         <input id="password" name="password" type="password" autoComplete="current-password" required className={authInputClass} />
       </AuthField>
-      <p className="-mt-2 text-right text-[13px]">
+      <p className="-mt-2 text-right text-[0.8125rem]">
         <Link href="/recuperar" className="font-medium text-foreground underline underline-offset-4">
           Olvidé mi contraseña
         </Link>

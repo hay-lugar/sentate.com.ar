@@ -21,11 +21,11 @@ export function SetupChecklist({ input }: { input: ChecklistInput }) {
           <li key={i.id} className="flex items-start gap-3 py-3">
             {i.done ? <Check className="mt-0.5 size-5 shrink-0 text-success" aria-label="Hecho" /> : <Circle className="mt-0.5 size-5 shrink-0 text-muted" aria-label="Pendiente" />}
             <div className="min-w-0 flex-1">
-              <p className={cn("text-[15px] font-medium", i.done && "text-muted")}>{i.title}{i.optional && <span className="ml-2 text-[13px] font-normal text-muted">Opcional</span>}</p>
+              <p className={cn("text-[0.9375rem] font-medium", i.done && "text-muted")}>{i.title}{i.optional && <span className="ml-2 text-[0.8125rem] font-normal text-muted">Opcional</span>}</p>
               <p className="type-help">{i.why}</p>
             </div>
             {!i.done && (
-              <Link href={i.href} className="pressable inline-flex min-h-11 shrink-0 items-center rounded-lg border border-line-strong px-3 text-[14px] hover:bg-subtle">
+              <Link href={i.href} className="pressable inline-flex min-h-11 shrink-0 items-center rounded-lg border border-line-strong px-3 text-[0.875rem] hover:bg-subtle">
                 {i.cta}
               </Link>
             )}

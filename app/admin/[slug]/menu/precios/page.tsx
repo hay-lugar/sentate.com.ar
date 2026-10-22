@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 export default async function PreciosPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const back = (
-    <Link href={`/admin/${slug}/menu`} className="inline-flex min-h-11 items-center text-[15px] text-muted hover:text-foreground">
+    <Link href={`/admin/${slug}/menu`} className="inline-flex min-h-11 items-center text-[0.9375rem] text-muted hover:text-foreground">
       ← Menú
     </Link>
   );
@@ -22,7 +22,7 @@ export default async function PreciosPage({ params }: { params: Promise<{ slug: 
       <>
         {back}
         <PageHeader title="Cambiar precios" />
-        <p className="max-w-xl text-[15px] text-muted">El cambio masivo de precios usa datos reales y no está disponible en la demo.</p>
+        <p className="max-w-xl text-[0.9375rem] text-muted">El cambio masivo de precios usa datos reales y no está disponible en la demo.</p>
       </>
     );
   }

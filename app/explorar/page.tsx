@@ -50,7 +50,7 @@ export default async function ExplorarPage() {
       <main>
         <h1 className="sr-only">Explorar locales</h1>
         {failed ? (
-          <p role="alert" className="mx-auto max-w-xl p-6 text-center text-[15px]">
+          <p role="alert" className="mx-auto max-w-xl p-6 text-center text-[0.9375rem]">
             No pudimos cargar el explorador. Probá de nuevo en un rato.
           </p>
         ) : (

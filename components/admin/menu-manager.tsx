@@ -57,8 +57,8 @@ export function MenuManager() {
 
       {categories.length === 0 ? (
         <div className="rounded-2xl border border-line/70 px-6 py-10 text-center">
-          <p className="text-[17px] font-semibold">Tu carta está vacía</p>
-          <p className="mt-1 text-[15px] text-muted">Creá una categoría para empezar a cargar platos.</p>
+          <p className="text-[1.0625rem] font-semibold">Tu carta está vacía</p>
+          <p className="mt-1 text-[0.9375rem] text-muted">Creá una categoría para empezar a cargar platos.</p>
         </div>
       ) : (
         <ol className="space-y-6">
@@ -202,7 +202,7 @@ function CategoryCard({
             <Pencil className="size-4" />
           </IconButton>
           {confirmDelete ? (
-            <span className="flex items-center gap-2 rounded-lg border border-danger/40 py-1 pr-1 pl-3 text-[14px] text-danger">
+            <span className="flex items-center gap-2 rounded-lg border border-danger/40 py-1 pr-1 pl-3 text-[0.875rem] text-danger">
               {cat.dishes.length ? `Borra ${cat.dishes.length} platos.` : "¿Eliminar?"}
               <Button
                 size="sm"
@@ -241,11 +241,11 @@ function CategoryCard({
                 <DishThumb image={d.image} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="line-clamp-2 text-[15px] leading-snug font-medium [overflow-wrap:anywhere]">{d.name}</p>
+                <p className="line-clamp-2 text-[0.9375rem] leading-snug font-medium [overflow-wrap:anywhere]">{d.name}</p>
                 <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 type-help tabular-nums">
                   {formatPrice(d.price)}
                   {!d.active && (
-                    <span className="rounded-md border border-line-strong px-1.5 py-0.5 text-[13px] whitespace-nowrap text-foreground">No disponible</span>
+                    <span className="rounded-md border border-line-strong px-1.5 py-0.5 text-[0.8125rem] whitespace-nowrap text-foreground">No disponible</span>
                   )}
                 </p>
               </div>

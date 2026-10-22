@@ -63,7 +63,7 @@ export function BulkPriceEditor({ tenantId, items }: { tenantId: string; items: 
 
   const names = new Map(items.map((i) => [i.id, i.name]));
 
-  if (items.length === 0) return <p className="text-[15px] text-muted">Todavía no hay platos cargados.</p>;
+  if (items.length === 0) return <p className="text-[0.9375rem] text-muted">Todavía no hay platos cargados.</p>;
 
   return (
     <div className="max-w-3xl space-y-8 pb-24">
@@ -118,8 +118,8 @@ export function BulkPriceEditor({ tenantId, items }: { tenantId: string; items: 
                 <li key={i.id}>
                   <label className="flex min-h-11 cursor-pointer items-center gap-3 px-4 py-2">
                     <input type="checkbox" checked={selected.has(i.id)} onChange={() => toggle(i.id)} className="size-5 accent-foreground" />
-                    <span className="min-w-0 flex-1 text-[15px] [overflow-wrap:anywhere]">{i.name}</span>
-                    <span className="text-[15px] tabular-nums text-muted">{formatPrice(i.price)}</span>
+                    <span className="min-w-0 flex-1 text-[0.9375rem] [overflow-wrap:anywhere]">{i.name}</span>
+                    <span className="text-[0.9375rem] tabular-nums text-muted">{formatPrice(i.price)}</span>
                   </label>
                 </li>
               ))}
@@ -133,22 +133,22 @@ export function BulkPriceEditor({ tenantId, items }: { tenantId: string; items: 
           3. Vista previa
         </h2>
         {preview.rows.length === 0 ? (
-          <p className="text-[15px] text-muted">Elegí platos para ver cómo quedarían.</p>
+          <p className="text-[0.9375rem] text-muted">Elegí platos para ver cómo quedarían.</p>
         ) : (
           <ul className="divide-y divide-line/70 rounded-2xl border border-line/70">
             {preview.rows.map((r) => (
-              <li key={r.id} className="flex items-center gap-3 px-4 py-2 text-[15px]">
+              <li key={r.id} className="flex items-center gap-3 px-4 py-2 text-[0.9375rem]">
                 <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{r.name}</span>
                 <span className="tabular-nums text-muted">{formatPrice(r.oldPrice)}</span>
                 <span aria-hidden>→</span>
                 <span className="tabular-nums font-medium">{formatPrice(r.newPrice)}</span>
-                {r.problem && <span role="alert" className="text-[13px] text-danger">{r.problem}</span>}
-                {!r.problem && r.newPrice === r.oldPrice && <span className="text-[13px] text-muted">sin cambio</span>}
+                {r.problem && <span role="alert" className="text-[0.8125rem] text-danger">{r.problem}</span>}
+                {!r.problem && r.newPrice === r.oldPrice && <span className="text-[0.8125rem] text-muted">sin cambio</span>}
               </li>
             ))}
           </ul>
         )}
-        {preview.blocking && preview.rows.length > 0 && <p role="status" className="text-[15px] text-danger">{preview.blocking}</p>}
+        {preview.blocking && preview.rows.length > 0 && <p role="status" className="text-[0.9375rem] text-danger">{preview.blocking}</p>}
 
         {!confirming ? (
           <Button onClick={() => setConfirming(true)} disabled={!!preview.blocking || busy}>
@@ -156,7 +156,7 @@ export function BulkPriceEditor({ tenantId, items }: { tenantId: string; items: 
           </Button>
         ) : (
           <div role="group" aria-label="Confirmar cambio de precios" className="space-y-3 rounded-xl border border-line-strong p-4">
-            <p className="text-[15px]">
+            <p className="text-[0.9375rem]">
               Vas a cambiar el precio de <strong>{preview.changed.length}</strong> {preview.changed.length === 1 ? "plato" : "platos"}
               {preview.unchanged > 0 ? ` (${preview.unchanged} sin cambio)` : ""}. Se aplica todo junto o nada, y el menú público se actualiza al instante.
             </p>
@@ -168,7 +168,7 @@ export function BulkPriceEditor({ tenantId, items }: { tenantId: string; items: 
         )}
 
         {result && (
-          <div role={result.tone === "error" ? "alert" : "status"} className={result.tone === "ok" ? "text-[15px] text-success" : "space-y-1 text-[15px] text-danger"}>
+          <div role={result.tone === "error" ? "alert" : "status"} className={result.tone === "ok" ? "text-[0.9375rem] text-success" : "space-y-1 text-[0.9375rem] text-danger"}>
             <p>{result.text}</p>
             {result.conflicts && result.conflicts.length > 0 && (
               <ul className="list-disc pl-5">

@@ -35,7 +35,7 @@ export function FormMessage({ error, info }: { error?: string; info?: string }) 
     <p
       role={error ? "alert" : "status"}
       className={cn(
-        "flex items-start gap-2 rounded-xl border p-3 text-[14px] leading-snug",
+        "flex items-start gap-2 rounded-xl border p-3 text-[0.875rem] leading-snug",
         error ? "border-danger/40 bg-danger/5 text-danger" : "border-success/40 bg-success/5 text-success",
       )}
     >

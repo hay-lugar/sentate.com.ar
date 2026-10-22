@@ -32,7 +32,7 @@ export function ReviewPanel({ tenantId, moderation, suspended, featured }: { ten
     <section aria-labelledby={`${uid}-t`} className="space-y-4 rounded-2xl border border-line/70 p-4">
       <h2 id={`${uid}-t`} className="type-section">Acciones</h2>
       <div>
-        <label htmlFor={`${uid}-reason`} className="mb-1.5 block type-label">Motivo <span className="text-[13px] font-normal text-muted">Obligatorio salvo al aprobar. Lo ve el dueño en rechazos y correcciones.</span></label>
+        <label htmlFor={`${uid}-reason`} className="mb-1.5 block type-label">Motivo <span className="text-[0.8125rem] font-normal text-muted">Obligatorio salvo al aprobar. Lo ve el dueño en rechazos y correcciones.</span></label>
         <textarea id={`${uid}-reason`} value={reason} maxLength={500} onChange={(e) => setReason(e.target.value)} rows={3} className={`${inputClass} h-auto py-3`} />
       </div>
 
@@ -76,7 +76,7 @@ export function ReviewPanel({ tenantId, moderation, suspended, featured }: { ten
         <p className="type-help">Aparece aparte del orden orgánico, con la etiqueta «Destacado», y respeta filtros y visibilidad. Máximo 90 días.</p>
       </div>
 
-      {msg && <p role={msg.ok ? "status" : "alert"} className={msg.ok ? "text-[15px] text-success" : "text-[15px] text-danger"}>{msg.message}</p>}
+      {msg && <p role={msg.ok ? "status" : "alert"} className={msg.ok ? "text-[0.9375rem] text-success" : "text-[0.9375rem] text-danger"}>{msg.message}</p>}
     </section>
   );
 }

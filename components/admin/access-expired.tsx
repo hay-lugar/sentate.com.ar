@@ -10,7 +10,7 @@ export function AccessExpired({ access }: { access: TenantAccess }) {
       <h1 className="type-heading">
         {access.subscriptionStatus === "trialing" ? `Tu prueba gratuita terminó el ${ended}` : "Tu suscripción no está activa"}
       </h1>
-      <p className="mt-2 text-[15px] leading-relaxed text-muted">
+      <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted">
         Tu cuenta y tus datos siguen guardados, pero la carta, las reservas y los ajustes quedan bloqueados hasta activar la suscripción (
         {planPriceFullLabel}).
       </p>

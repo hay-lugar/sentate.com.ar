@@ -62,7 +62,7 @@ export function QrSection({ origin }: { origin: string | null }) {
 
   if (!origin || !url) {
     return (
-      <p role="alert" className="rounded-xl border border-warning/50 bg-subtle p-4 text-[15px] leading-snug">
+      <p role="alert" className="rounded-xl border border-warning/50 bg-subtle p-4 text-[0.9375rem] leading-snug">
         No se puede generar el QR: falta configurar <code className="font-semibold">APP_URL</code>, la dirección pública de la app (por ejemplo
         https://sentate.com.ar). Sin ella no hay forma segura de armar un enlace que funcione fuera de este equipo.
       </p>
@@ -102,7 +102,7 @@ export function QrSection({ origin }: { origin: string | null }) {
     }
   };
 
-  const notice_ = "rounded-xl border border-warning/50 bg-subtle p-4 text-[15px] leading-snug";
+  const notice_ = "rounded-xl border border-warning/50 bg-subtle p-4 text-[0.9375rem] leading-snug";
 
   return (
     <>
@@ -132,7 +132,7 @@ export function QrSection({ origin }: { origin: string | null }) {
           <h2 id="qr-enlace" className="type-section">
             Enlace de tu carta
           </h2>
-          <p className="mt-1 mb-4 text-[15px] text-muted">Es la dirección que abre el QR. Compartila también por WhatsApp o redes.</p>
+          <p className="mt-1 mb-4 text-[0.9375rem] text-muted">Es la dirección que abre el QR. Compartila también por WhatsApp o redes.</p>
           <label htmlFor="public-link" className="sr-only">
             Enlace público de tu carta
           </label>
@@ -142,7 +142,7 @@ export function QrSection({ origin }: { origin: string | null }) {
             readOnly
             value={url}
             onFocus={(e) => e.currentTarget.select()}
-            className="h-12 w-full rounded-xl bg-surface px-4 text-[16px] text-foreground ring-1 ring-field outline-none focus:ring-2 focus:ring-foreground"
+            className="h-12 w-full rounded-xl bg-surface px-4 text-[1rem] text-foreground ring-1 ring-field outline-none focus:ring-2 focus:ring-foreground"
           />
           <div className="mt-3 flex flex-wrap gap-2">
             <Button variant="secondary" onClick={copy}>
@@ -185,7 +185,7 @@ export function QrSection({ origin }: { origin: string | null }) {
           <h2 id="qr-imprimir" className="type-section">
             Calcomanía para imprimir
           </h2>
-          <p className="mt-1 mb-4 text-[15px] text-muted">
+          <p className="mt-1 mb-4 text-[0.9375rem] text-muted">
             Una hoja A4 con el nombre de tu local, el QR de 11 cm y el texto «{SCAN_TEXT}».
           </p>
           <Button onClick={() => window.print()} disabled={!pilot} aria-describedby={pilot ? undefined : "print-blocked"}>

@@ -140,9 +140,9 @@ export function MenuView({
 
       {tenant.promotion && (
         <aside aria-label="Promoción" className="mx-4 mt-4 rounded-xl border border-line-strong bg-subtle px-4 py-3">
-          <p className="text-[13px] font-medium text-muted">Promoción</p>
-          <p className="text-[17px] font-semibold [overflow-wrap:anywhere]">{tenant.promotion.title}</p>
-          {tenant.promotion.detail && <p className="mt-0.5 text-[15px] text-muted [overflow-wrap:anywhere]">{tenant.promotion.detail}</p>}
+          <p className="text-[0.8125rem] font-medium text-muted">Promoción</p>
+          <p className="text-[1.0625rem] font-semibold [overflow-wrap:anywhere]">{tenant.promotion.title}</p>
+          {tenant.promotion.detail && <p className="mt-0.5 text-[0.9375rem] text-muted [overflow-wrap:anywhere]">{tenant.promotion.detail}</p>}
         </aside>
       )}
 
@@ -163,7 +163,7 @@ export function MenuView({
                   maxLength={60}
                   placeholder="Buscar en la carta"
                   autoComplete="off"
-                  className="h-12 w-full rounded-xl bg-surface pr-4 pl-12 text-[16px] ring-1 ring-field outline-none placeholder:text-muted focus:ring-2 focus:ring-foreground"
+                  className="h-12 w-full rounded-xl bg-surface pr-4 pl-12 text-[1rem] ring-1 ring-field outline-none placeholder:text-muted focus:ring-2 focus:ring-foreground"
                 />
               </div>
             </div>
@@ -179,7 +179,7 @@ export function MenuView({
                       type="button"
                       aria-pressed={on}
                       onClick={() => setDiet((d) => (on ? d.filter((x) => x !== t) : [...d, t]))}
-                      className={`pressable min-h-11 rounded-full border px-4 text-[15px] ${on ? "border-foreground bg-foreground text-background" : "border-line-strong hover:bg-subtle"}`}
+                      className={`pressable min-h-11 rounded-full border px-4 text-[0.9375rem] ${on ? "border-foreground bg-foreground text-background" : "border-line-strong hover:bg-subtle"}`}
                     >
                       {TAG_LABELS[t]}
                     </button>
@@ -222,7 +222,7 @@ export function MenuView({
                 setDiet([]);
                 setQuery("");
               }}
-              className="pressable mt-3 min-h-11 rounded-full border border-line-strong px-4 text-[15px]"
+              className="pressable mt-3 min-h-11 rounded-full border border-line-strong px-4 text-[0.9375rem]"
             >
               Quitar filtros
             </button>
@@ -232,7 +232,7 @@ export function MenuView({
         <main className="px-4 pt-6">
           <div className="rounded-2xl border border-line/70 px-6 py-10 text-center">
             <h2 className="type-section">La carta todavía no está publicada</h2>
-            <p className="mx-auto mt-2 max-w-xs text-[15px] text-muted">{reservationsEnabled ? "Podés consultar por teléfono o pedir una mesa igual desde el botón de abajo." : "Podés consultar por teléfono desde el botón de abajo."}</p>
+            <p className="mx-auto mt-2 max-w-xs text-[0.9375rem] text-muted">{reservationsEnabled ? "Podés consultar por teléfono o pedir una mesa igual desde el botón de abajo." : "Podés consultar por teléfono desde el botón de abajo."}</p>
           </div>
         </main>
       )}

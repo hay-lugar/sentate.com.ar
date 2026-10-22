@@ -105,13 +105,13 @@ export function SettingsForm() {
           <div className="mb-6 space-y-6 border-b border-line pb-6">
             <div role="group" aria-labelledby={id("logo-label")}>
               <p id={id("logo-label")} className="mb-2 type-label">
-                Logo <span className="text-[13px] font-normal text-muted">Opcional · se guarda con «Guardar cambios»</span>
+                Logo <span className="text-[0.8125rem] font-normal text-muted">Opcional · se guarda con «Guardar cambios»</span>
               </p>
               <ImageUploader tenantId={liveInfo.tenantId} kind="logo" value={draft.logoUrl ?? null} onChange={(path) => set("logoUrl", path ?? undefined)} />
             </div>
             <div role="group" aria-labelledby={id("cover-label")}>
               <p id={id("cover-label")} className="mb-2 type-label">
-                Portada <span className="text-[13px] font-normal text-muted">Opcional · se guarda al subirla</span>
+                Portada <span className="text-[0.8125rem] font-normal text-muted">Opcional · se guarda al subirla</span>
               </p>
               <CoverField live={liveInfo} />
             </div>
@@ -203,7 +203,7 @@ export function SettingsForm() {
           <div className="space-y-4">
             <ColorField id={id("primary")} label="Color principal" value={draft.theme.primary} onChange={(v) => setColor("primary", v)} error={errors.primary} />
             <ColorField id={id("accent")} label="Color de acento (fondos suaves)" value={draft.theme.accent} onChange={(v) => setColor("accent", v)} error={errors.accent} />
-            <ul className="space-y-1.5 text-[14px]" aria-label="Contraste de colores">
+            <ul className="space-y-1.5 text-[0.875rem]" aria-label="Contraste de colores">
               {contrast.map((c) => (
                 <li key={c.label} className={cn("flex items-center gap-2", c.ok ? "text-success" : "text-danger")}>
                   {c.ok ? <CheckCircle2 className="size-4" aria-hidden /> : <AlertTriangle className="size-4" aria-hidden />}
@@ -217,17 +217,17 @@ export function SettingsForm() {
               <TenantLogo name={draft.name || "?"} logoUrl={draft.logoUrl} className="size-12 rounded-xl" />
               <div className="min-w-0 leading-tight">
                 <p className="truncate text-lg font-semibold text-accent-fg">{draft.name || "Tu local"}</p>
-                <p className="truncate text-[13px] text-accent-fg">{draft.cuisine}</p>
+                <p className="truncate text-[0.8125rem] text-accent-fg">{draft.cuisine}</p>
               </div>
             </div>
-            <div className="mt-4 flex h-12 items-center justify-center rounded-xl bg-brand text-[15px] font-medium text-brand-fg">Solicitar mesa</div>
+            <div className="mt-4 flex h-12 items-center justify-center rounded-xl bg-brand text-[0.9375rem] font-medium text-brand-fg">Solicitar mesa</div>
           </div>
         </div>
       </Card>
 
       {externalChange && (
         <div role="alert" className="flex flex-col gap-3 rounded-xl border border-warning/50 bg-subtle p-4 sm:flex-row sm:items-center">
-          <p className="min-w-0 flex-1 text-[15px]">
+          <p className="min-w-0 flex-1 text-[0.9375rem]">
             Los ajustes se modificaron en otra pestaña o dispositivo. Para no pisar esos cambios, descartá los tuyos y volvé a editar.
           </p>
           <Button
@@ -292,7 +292,7 @@ function TextField({
     <div>
       <label htmlFor={id} className="mb-1.5 flex justify-between type-label">
         {label}
-        {optional && <span className="text-[13px] font-normal text-muted">Opcional</span>}
+        {optional && <span className="text-[0.8125rem] font-normal text-muted">Opcional</span>}
       </label>
       <input
         id={id}
@@ -324,7 +324,7 @@ function ColorField({ id, label, value, onChange, error }: { id: string; label: 
           aria-describedby={error ? `${id}-error` : undefined}
           className="h-12 w-16 cursor-pointer rounded-lg border border-line-strong bg-transparent p-1"
         />
-        <code className="rounded-md bg-subtle px-2 py-1 text-[14px] uppercase">{value}</code>
+        <code className="rounded-md bg-subtle px-2 py-1 text-[0.875rem] uppercase">{value}</code>
       </div>
       <FieldError id={`${id}-error`}>{error}</FieldError>
     </div>

@@ -28,7 +28,10 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   // Con el teclado abierto el contenido se reacomoda: la barra inferior y los botones de los sheets quedan sobre el teclado.
   interactiveWidget: "resizes-content",
-  themeColor: BRAND.themeColor,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: BRAND.themeColor },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

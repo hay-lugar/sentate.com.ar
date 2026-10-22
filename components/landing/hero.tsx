@@ -31,10 +31,10 @@ export function Hero() {
             maxLength={80}
             placeholder="Local, plato o zona"
             autoComplete="off"
-            className="h-14 w-full rounded-xl bg-surface pr-4 pl-12 text-[16px] ring-1 ring-field outline-none placeholder:text-muted focus:ring-2 focus:ring-foreground"
+            className="h-14 w-full rounded-xl bg-surface pr-4 pl-12 text-[1rem] ring-1 ring-field outline-none placeholder:text-muted focus:ring-2 focus:ring-foreground"
           />
         </div>
-        <button type="submit" className="pressable h-14 shrink-0 rounded-xl bg-foreground px-6 text-[16px] font-medium text-background">
+        <button type="submit" className="pressable h-14 shrink-0 rounded-xl bg-foreground px-6 text-[1rem] font-medium text-background">
           Buscar
         </button>
       </form>
@@ -42,14 +42,14 @@ export function Hero() {
       <ul aria-label="Categorías" className="mx-auto mt-5 flex max-w-xl flex-wrap justify-center gap-2">
         {QUICK.map((q) => (
           <li key={q.href}>
-            <Link href={q.href} className="pressable inline-flex min-h-11 items-center rounded-full border border-line-strong px-4 text-[15px] hover:bg-subtle">
+            <Link href={q.href} className="pressable inline-flex min-h-11 items-center rounded-full border border-line-strong px-4 text-[0.9375rem] hover:bg-subtle">
               {q.label}
             </Link>
           </li>
         ))}
       </ul>
       <p className="mt-6">
-        <Link href="/explorar" className="inline-flex min-h-11 items-center text-[15px] underline underline-offset-4">
+        <Link href="/explorar" className="inline-flex min-h-11 items-center text-[0.9375rem] underline underline-offset-4">
           Ver el mapa de locales
         </Link>
       </p>

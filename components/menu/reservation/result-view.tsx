@@ -27,7 +27,7 @@ export function SubmittedView({
       </span>
 
       <h2 className="mt-4 type-heading">{live ? "Solicitud enviada" : "Solicitud simulada"}</h2>
-      <p className="mt-2 text-[15px] leading-relaxed text-muted">
+      <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted">
         {live ? (
           <>
             Gracias, {summary.firstName}. {tenantName} recibió tu pedido. <b className="font-semibold text-foreground">Todavía no es una reserva:</b> no
@@ -42,7 +42,7 @@ export function SubmittedView({
         )}
       </p>
 
-      <dl className="mt-5 divide-y divide-line/70 rounded-2xl border border-line/70 text-[15px]">
+      <dl className="mt-5 divide-y divide-line/70 rounded-2xl border border-line/70 text-[0.9375rem]">
         <div className="flex justify-between gap-4 px-4 py-3">
           <dt className="text-muted">Estado</dt>
           <dd className="font-medium">Solicitud pendiente</dd>
@@ -62,8 +62,8 @@ export function SubmittedView({
       </dl>
 
       {live ? (
-        <div className="mt-5 text-[14px] leading-relaxed text-muted">
-          <h3 className="text-[15px] font-semibold text-foreground">¿Cómo te enterás de la respuesta?</h3>
+        <div className="mt-5 text-[0.875rem] leading-relaxed text-muted">
+          <h3 className="text-[0.9375rem] font-semibold text-foreground">¿Cómo te enterás de la respuesta?</h3>
           <p className="mt-1.5">
             El local revisa las solicitudes por su cuenta y, si puede recibirte, se comunica con vos al teléfono que dejaste (llamada o WhatsApp).{" "}
             <b className="font-semibold text-foreground">{BRAND.name} todavía no envía mensajes ni emails automáticos</b>, y no hay una pantalla para seguir el
@@ -83,7 +83,7 @@ export function SubmittedView({
           </p>
         </div>
       ) : (
-        <p className="mt-5 text-[14px] leading-relaxed text-muted">
+        <p className="mt-5 text-[0.875rem] leading-relaxed text-muted">
           En el producto real, una solicitud queda <b className="font-semibold text-foreground">pendiente</b> hasta que el local la acepta. Recién ahí es
           una <b className="font-semibold text-foreground">reserva confirmada</b>.
         </p>
@@ -113,7 +113,7 @@ export function FailedView({
         <AlertTriangle className="size-6" aria-hidden />
       </span>
       <h2 className="mt-4 type-heading">No pudimos enviar la solicitud</h2>
-      <p className="mt-2 text-[15px] leading-relaxed text-muted">{message ?? "Algo salió mal."} Tus datos siguen cargados: podés reintentar.</p>
+      <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted">{message ?? "Algo salió mal."} Tus datos siguen cargados: podés reintentar.</p>
       <div className="mt-6 mb-2 flex gap-3">
         <Button variant="secondary" size="lg" onClick={onBack} className="flex-1">
           Revisar datos

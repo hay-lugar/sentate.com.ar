@@ -23,7 +23,7 @@ export function DishSheet({ dish, onClose, onReserve }: { dish: PublicDish | nul
             </div>
           )}
           <h2 className="mt-5 text-2xl leading-tight font-semibold [overflow-wrap:anywhere]">{shown.name}</h2>
-          {shown.description && <p className="mt-2 text-[15px] leading-relaxed [overflow-wrap:anywhere] text-muted">{shown.description}</p>}
+          {shown.description && <p className="mt-2 text-[0.9375rem] leading-relaxed [overflow-wrap:anywhere] text-muted">{shown.description}</p>}
           {shown.tags?.some((t) => DIETARY_TAGS.includes(t)) && <p className="mt-3 type-help">{DIETARY_DISCLAIMER}</p>}
 
           <div className="mt-6 flex items-center gap-4 border-t border-line pt-5">

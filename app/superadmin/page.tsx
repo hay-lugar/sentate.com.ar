@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { supabaseServer } from "@/lib/data/live/queries";
 import { TemporaryDataError } from "@/lib/data/live/result";
 import { cn } from "@/lib/format";
@@ -26,6 +27,8 @@ export default async function BandejaPage({ searchParams }: { searchParams: Prom
   const q = (sp.q ?? "").slice(0, 60);
   const supabase = await supabaseServer();
   const { data, error } = await supabase.rpc("admin_moderation_queue", { p_status: estado, p_q: q || null, p_limit: 50, p_offset: 0 });
+  // Sin permiso (el layout ya responde 404): no es un error de datos y no debe ensuciar los registros.
+  if (error?.code === "42501") notFound();
   if (error || !data) throw new TemporaryDataError("bandeja");
   const { total, items } = data as { total: number; items: Row[] };
 

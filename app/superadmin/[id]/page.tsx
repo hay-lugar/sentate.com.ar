@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { DangerZone, PromotionPanel } from "@/components/superadmin/forms";
 import { ReviewPanel } from "@/components/superadmin/review-panel";
-import { ACTION_LABEL, fmt } from "@/lib/superadmin/format";
+import { ACTION_LABEL, fmt, SUB_LABEL } from "@/lib/superadmin/format";
 import { supabaseServer } from "@/lib/data/live/queries";
 import { TemporaryDataError } from "@/lib/data/live/result";
 import { MISSING_LABELS, MODERATION_COPY, type ModerationStatus } from "@/lib/explorer/profile";
@@ -63,7 +63,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
         <h2 id="estado" className="mb-2 type-section">Estado</h2>
         <Row k="Moderación" v={`${MODERATION_COPY[d.moderation.status].title}${d.moderation.reason ? ` — ${d.moderation.reason}` : ""}`} />
         {d.moderation.suspension_reason && <Row k="Suspensión" v={d.moderation.suspension_reason} />}
-        <Row k="Suscripción" v={d.subscription ? `${d.subscription.status} · prueba hasta ${fmt(d.subscription.trial_ends_at)}${d.subscription.current_period_ends_at ? ` · período hasta ${fmt(d.subscription.current_period_ends_at)}` : ""}` : "—"} />
+        <Row k="Suscripción" v={d.subscription ? `${SUB_LABEL[d.subscription.status] ?? d.subscription.status} · prueba hasta ${fmt(d.subscription.trial_ends_at)}${d.subscription.current_period_ends_at ? ` · período hasta ${fmt(d.subscription.current_period_ends_at)}` : ""}` : "—"} />
         <Row k="Destacado" v={d.featured ? `Hasta ${fmt(d.featured.ends_at)} (${d.featured.reason})` : "No"} />
         <Row k="Promoción" v={extras.promotion ? `${extras.promotion.title} — hasta ${fmt(extras.promotion.ends_at)}` : "No"} />
         <Row k="Uso" v={`${extras.dishes} platos · ${extras.reservations} reservas`} />

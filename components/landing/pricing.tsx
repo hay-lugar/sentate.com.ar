@@ -15,7 +15,7 @@ export function Pricing() {
           {trialLongLabel[0].toUpperCase() + trialLongLabel.slice(1)}. Un solo plan con la carta, las reservas, el panel y el QR.
         </p>
         <div className="mt-8">
-          <Link href="/registro" className={buttonClass({ size: "lg", className: "w-full sm:w-auto" })}>
+          <Link href="/registro?intencion=local" className={buttonClass({ size: "lg", className: "w-full sm:w-auto" })}>
             Crear cuenta
           </Link>
         </div>

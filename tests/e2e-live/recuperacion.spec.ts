@@ -3,7 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 // Recuperación de contraseña contra Supabase LOCAL + Mailpit. Usuario dedicado de supabase/seed.sql
 // (recuperacion@example.test, SIN comercio), así que cambiar su clave no afecta a los demás tests.
-// Un usuario sin comercio que entra a /admin va a /registro/local: ese es el destino esperado tras guardar la clave.
+// Un usuario sin comercio termina en su cuenta (nunca en el alta de un local) tras guardar la clave.
 
 const MAILPIT = process.env.E2E_MAILPIT_URL ?? "http://127.0.0.1:54324";
 const KNOWN = "recuperacion@example.test";
@@ -12,7 +12,7 @@ const NEW_PASSWORD = "clave-nueva-2026";
 const SECOND_PASSWORD = "clave-otra-2026-b";
 const NEUTRAL = /Si hay una cuenta con ese email/;
 const LINK_ERROR = /no es válido, venció o ya se usó/;
-const AFTER_SAVE = /\/registro\/local$/;
+const AFTER_SAVE = /\/cuenta$/;
 
 type MailMessage = { ID: string };
 

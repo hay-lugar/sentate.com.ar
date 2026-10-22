@@ -14,7 +14,7 @@ export function ForBusiness() {
           Publicá una carta con código QR, aparecé en el mapa y, si lo necesitás, recibí solicitudes de mesa. Las reservas son opcionales: podés usar solo la carta.
         </p>
         <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
-          <Link href="/registro" className={buttonClass({ size: "lg" })}>
+          <Link href="/registro?intencion=local" className={buttonClass({ size: "lg" })}>
             Crear cuenta
           </Link>
           <Link href="/el-bodegon" className={buttonClass({ variant: "secondary", size: "lg" })}>

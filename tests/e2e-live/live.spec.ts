@@ -74,7 +74,7 @@ test.describe("recorrido completo del dueño", () => {
     const email = `nuevo.${id}@example.test`;
     const slug = `cafe-prueba-${id}`;
 
-    await page.goto("/registro");
+    await page.goto("/registro?intencion=local");
     await page.getByLabel("Email").fill(email);
     await page.getByLabel("Contraseña").fill("una-clave-segura");
     await page.getByRole("button", { name: "Crear cuenta" }).click();
@@ -142,7 +142,7 @@ test.describe("recorrido completo del dueño", () => {
   test("no se puede registrar un local con un slug de demo", async ({ page }) => {
     const id = Date.now();
     const email = `demo.${id}@example.test`;
-    await page.goto("/registro");
+    await page.goto("/registro?intencion=local");
     await page.getByLabel("Email").fill(email);
     await page.getByLabel("Contraseña").fill("una-clave-segura");
     await page.getByRole("button", { name: "Crear cuenta" }).click();

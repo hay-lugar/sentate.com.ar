@@ -1,0 +1,34 @@
+name: Avisos por email
+
+# Despacha la cola de avisos a comensales (confirmada / rechazada / cancelada / vencida). Es el «cron» de producción: GitHub llama a
+# POST /api/notificaciones/despachar con el secreto del despachador. Sin configurar NO hace nada (sale en verde en segundos).
+#
+# Para habilitarlo (lo hace el dueño del proyecto; ver docs/notificaciones.md):
+#   Settings → Secrets and variables → Actions →
+#     Variable  APP_URL                       = https://<dominio>   (sin barra final)
+#     Secret    NOTIFICATIONS_WORKER_SECRET   = el mismo valor que en Vercel
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  despachar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Llamar al despachador
+        env:
+          APP_URL: ${{ vars.APP_URL }}
+          WORKER_SECRET: ${{ secrets.NOTIFICATIONS_WORKER_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$WORKER_SECRET" ]; then
+            echo "Avisos sin configurar (falta APP_URL o NOTIFICATIONS_WORKER_SECRET): no se hace nada."
+            exit 0
+          fi
+          # Se muestra solo el resumen; el secreto va en cabecera y nunca se imprime.
+          curl --fail-with-body --silent --show-error --max-time 60 \
+            -X POST "$APP_URL/api/notificaciones/despachar" \
+            -H "Authorization: Bearer $WORKER_SECRET"

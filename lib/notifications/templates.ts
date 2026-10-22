@@ -1,7 +1,7 @@
 // Plantillas de avisos de reserva (es-AR). Puras y testeables. Solo usan los datos mínimos del payload del outbox:
 // nunca teléfono ni email del comensal. Un aviso de «solicitud recibida» NO dice que la mesa está confirmada.
 
-export type NotificationKind = "reservation_received" | "reservation_confirmed" | "reservation_rejected" | "reservation_cancelled";
+export type NotificationKind = "reservation_received" | "reservation_confirmed" | "reservation_rejected" | "reservation_cancelled" | "reservation_expired";
 
 export type NotificationPayload = {
   tenant_name: string;
@@ -47,6 +47,13 @@ export function renderNotification(kind: NotificationKind, p: NotificationPayloa
     reservation_cancelled: {
       subject: `${p.tenant_name} canceló tu reserva`,
       lines: [`${p.tenant_name} canceló tu reserva para ${slot}.`, `Podés pedir otro día u horario desde su carta.${call}`],
+    },
+    reservation_expired: {
+      subject: `${p.tenant_name} no llegó a responder tu solicitud`,
+      lines: [
+        `${p.tenant_name} no llegó a responder tu solicitud de mesa para ${slot} y la solicitud venció. No quedó ninguna mesa reservada.`,
+        `Podés pedir otro día u horario desde su carta.${call}`,
+      ],
     },
   };
   const { subject, lines } = bodies[kind];

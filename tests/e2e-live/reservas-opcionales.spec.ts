@@ -24,6 +24,14 @@ test("un local sin reservas muestra carta y llamada, no «Solicitar mesa», y el
   await op.waitForURL((u) => !u.pathname.startsWith("/login"));
   await setAccepts(op, false);
   try {
+    // El panel se adapta: sin solicitudes ni agenda, con un aviso para volver a activarlas.
+    await op.goto("/admin/prueba-bodegon");
+    await expect(op.getByRole("heading", { name: "Las reservas están desactivadas" })).toBeVisible();
+    await expect(op.getByRole("link", { name: "Activar reservas" })).toBeVisible();
+    await expect(op.getByText("Solicitudes pendientes")).toHaveCount(0);
+    await expect(op.getByRole("heading", { name: "Servicio de hoy" })).toHaveCount(0);
+    await op.goto("/admin/prueba-bodegon/reservas");
+    await expect(op.getByRole("heading", { name: "Las reservas están desactivadas" })).toBeVisible();
     const pub = await newContextWithIp(browser, baseURL!, "203.0.113.92");
     const pp = await pub.newPage();
     await pp.goto("/prueba-bodegon");
@@ -40,6 +48,10 @@ test("un local sin reservas muestra carta y llamada, no «Solicitar mesa», y el
     await pub.close();
   } finally {
     await setAccepts(op, true);
+    // Con las reservas activas vuelve el flujo completo, incluido el filtro «Hoy».
+    await op.goto("/admin/prueba-bodegon/reservas");
+    await expect(op.getByRole("heading", { name: "Las reservas están desactivadas" })).toHaveCount(0);
+    await expect(op.getByRole("button", { name: /^Hoy/ })).toBeVisible();
     await owner.close();
   }
 });

@@ -118,6 +118,15 @@ test.describe("estado de demo por tenant", () => {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("El Bodegón");
   });
 
+  test("el panel demo ofrece el filtro «Hoy» con solo las mesas de hoy", async ({ page }) => {
+    await page.goto("/admin/el-bodegon/reservas");
+    await page.getByRole("button", { name: /^Hoy/ }).click();
+    const rows = page.getByRole("list").filter({ hasText: "personas" }).first().getByRole("listitem");
+    await expect(rows.first()).toBeVisible();
+    await expect(page.getByText("Mañana ·")).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Las reservas están desactivadas" })).toHaveCount(0);
+  });
+
   test("crear un plato lo muestra en el menú público", async ({ page }) => {
     await page.goto("/admin/la-esquina/menu");
     await page.getByRole("button", { name: "Plato en Burgers" }).click();

@@ -1,20 +1,17 @@
 import { CapacityLink } from "@/components/admin/capacity-link";
 import { PageHeader } from "@/components/admin/page-header";
-import { ReservationsList } from "@/components/admin/reservations-list";
-import { TodayAgenda } from "@/components/admin/today-agenda";
+import { ReservasBody } from "./_body";
 
 export const metadata = { title: "Reservas" };
 
-export default function ReservasPage() {
+export default async function ReservasPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   return (
     <>
       <PageHeader title="Reservas">
         <CapacityLink />
       </PageHeader>
-      <ReservationsList title="Todas las solicitudes" />
-      <div className="mt-10">
-        <TodayAgenda />
-      </div>
+      <ReservasBody slug={slug} />
     </>
   );
 }

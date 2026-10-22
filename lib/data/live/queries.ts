@@ -134,7 +134,7 @@ export async function getLiveTenantRecord(slug: string): Promise<LiveResult<Live
   if (accessInfo.can_operate) await supabase.rpc("expire_stale_reservations", { p_tenant_id: tenant.id });
 
   const now = zonedNow(tenant.timezone);
-  const [sub, shifts, closures, categories, items, reservations] = await Promise.all([
+  const [sub, shifts, closures, categories, items, reservations, resSettings] = await Promise.all([
     supabase.from("tenant_subscriptions").select("status, trial_ends_at").eq("tenant_id", tenant.id).maybeSingle(),
     supabase.from("tenant_shifts").select(SHIFT_COLUMNS).eq("tenant_id", tenant.id),
     supabase.from("tenant_closures").select(CLOSURE_COLUMNS).eq("tenant_id", tenant.id).gte("service_date", now.date),
@@ -148,8 +148,9 @@ export async function getLiveTenantRecord(slug: string): Promise<LiveResult<Live
       .gte("service_date", addDays(now.date, -1))
       .order("starts_at")
       .limit(300),
+    supabase.from("tenant_reservation_settings").select("accepts_reservations").eq("tenant_id", tenant.id).maybeSingle(),
   ]);
-  const failed = [sub, shifts, closures, categories, items, reservations].find((r) => r.error);
+  const failed = [sub, shifts, closures, categories, items, reservations, resSettings].find((r) => r.error);
   if (failed) return fail("panel data", failed.error);
 
   const nowMs = Date.now();
@@ -161,6 +162,7 @@ export async function getLiveTenantRecord(slug: string): Promise<LiveResult<Live
       isPublished: tenant.is_published,
       settingsVersion: tenant.updated_at,
       coverUrl: tenant.cover_url,
+      reservationsEnabled: resSettings.data?.accepts_reservations ?? true,
       slug: tenant.slug,
       profile: rowToProfile(tenant, shifts.data as ShiftRow[], closures.data as ClosureRow[]),
       categories: rowsToCategories(categories.data as CategoryRow[], items.data as MenuItemRow[]),

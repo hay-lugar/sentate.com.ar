@@ -1,6 +1,7 @@
 "use client";
 
 import { useDemo } from "./demo-provider";
+import { useReservationsOff } from "./reservations-off";
 
 /** Resumen operativo: lo que hay que atender hoy. Solo datos del local, sin métricas de uso. */
 export function StatCards() {
@@ -11,10 +12,20 @@ export function StatCards() {
   const today = state.reservations.filter((r) => r.dayOffset === 0 && r.status !== "rejected" && r.status !== "cancelled");
   const covers = today.reduce((n, r) => n + r.guests, 0);
   const pending = state.reservations.filter((r) => r.status === "pending").length;
+  const off = useReservationsOff();
+
+  if (off) {
+    return (
+      <dl className="grid grid-cols-1 divide-y divide-line rounded-xl border border-line sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+        <Stat label="Platos activos" value={activeDishes} note={`de ${dishes.length} en la carta`} />
+        <Stat label="Categorías" value={state.categories.length} note="en la carta" />
+      </dl>
+    );
+  }
 
   return (
     <dl className="grid grid-cols-1 divide-y divide-line rounded-xl border border-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-      <Stat label="Solicitudes pendientes" value={pending} note={pending === 1 ? "esperando respuesta" : "esperando respuesta"} />
+      <Stat label="Solicitudes pendientes" value={pending} note="esperando respuesta" />
       <Stat label="Mesas de hoy" value={today.length} note={`${covers} ${covers === 1 ? "cubierto" : "cubiertos"}`} />
       <Stat label="Platos activos" value={activeDishes} note={`de ${dishes.length} en la carta`} />
     </dl>

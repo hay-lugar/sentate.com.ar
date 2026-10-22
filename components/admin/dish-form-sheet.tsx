@@ -206,7 +206,7 @@ export function DishFormSheet({ target, categories, onClose, onSave, onDelete }:
             {values.tags.some((t) => DIETARY_TAGS.includes(t)) && <p className="mt-2 type-help">{DIETARY_DISCLAIMER}</p>}
           </fieldset>
 
-          <div className="flex items-center justify-between gap-4 rounded-xl border border-line p-4">
+          <div className="flex items-center justify-between gap-4 rounded-2xl border border-line/70 p-4">
             <div>
               <p id="dish-active-label" className="text-[15px] font-medium">
                 Disponible

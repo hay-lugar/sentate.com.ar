@@ -15,7 +15,7 @@ export function DemoBanner() {
       : "Los cambios de carta y ajustes se guardan solo en este navegador.";
 
   return (
-    <div className="mb-6 flex flex-col gap-3 rounded-xl border border-line bg-subtle p-3 sm:flex-row sm:items-center">
+    <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-line/70 bg-subtle p-3 sm:flex-row sm:items-center">
       <p className="min-w-0 text-[14px] leading-snug">
         <b className="font-semibold">Modo demo.</b> Reservas y clientes son ficticios. {status}
       </p>

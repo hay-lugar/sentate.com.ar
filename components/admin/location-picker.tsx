@@ -84,10 +84,10 @@ export default function LocationPicker({ lat, lng, onChange, label }: Props) {
 
   if (failed) {
     return (
-      <p role="alert" className="rounded-xl border border-line bg-subtle p-4 text-[15px]">
+      <p role="alert" className="rounded-2xl border border-line/70 bg-subtle p-4 text-[15px]">
         No se pudo cargar el mapa. Podés escribir las coordenadas en «Ingresar coordenadas manualmente».
       </p>
     );
   }
-  return <div ref={box} role="application" aria-label={label} className="h-72 w-full overflow-hidden rounded-xl border border-line sm:h-96" />;
+  return <div ref={box} role="application" aria-label={label} className="h-72 w-full overflow-hidden rounded-2xl border border-line/70 sm:h-96" />;
 }

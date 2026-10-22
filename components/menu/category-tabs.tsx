@@ -26,7 +26,7 @@ export function CategoryTabs({
   }, [activeId]);
 
   return (
-    <nav aria-label="Categorías del menú" className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-30 border-b border-line bg-background">
+    <nav aria-label="Categorías del menú" className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] bar-blur z-30 border-b border-line/70">
       <div ref={scroller} className="no-scrollbar relative flex gap-6 overflow-x-auto px-5">
         {tabs.map((tab) => {
           const active = tab.id === activeId;

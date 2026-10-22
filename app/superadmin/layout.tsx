@@ -32,7 +32,7 @@ export default async function SuperadminLayout({ children }: { children: React.R
   if (data !== true) notFound();
   return (
     <>
-      <header className="border-b border-line bg-background">
+      <header className="bar-blur sticky top-0 z-40 border-b border-line/70">
         <div className="mx-auto flex h-16 max-w-5xl items-center gap-3 px-4 sm:px-6">
           <Link href="/" aria-label={`${BRAND.name}, inicio`} className="inline-flex min-h-11 items-center">
             <Logo size="sm" />

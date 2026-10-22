@@ -107,13 +107,13 @@ export function BulkPriceEditor({ tenantId, items }: { tenantId: string; items: 
           <Button variant="quiet" size="sm" onClick={() => setSelected(new Set())}>Ninguno</Button>
         </div>
         {byCategory.map(([cat, list]) => (
-          <fieldset key={cat} className="rounded-xl border border-line">
+          <fieldset key={cat} className="rounded-2xl border border-line/70">
             <legend className="sr-only">{cat}</legend>
             <label className="flex min-h-11 cursor-pointer items-center gap-3 border-b border-line px-4 font-semibold">
               <input type="checkbox" checked={list.every((i) => selected.has(i.id))} onChange={() => toggleCategory(list)} className="size-5 accent-foreground" />
               {cat}
             </label>
-            <ul className="divide-y divide-line">
+            <ul className="divide-y divide-line/70">
               {list.map((i) => (
                 <li key={i.id}>
                   <label className="flex min-h-11 cursor-pointer items-center gap-3 px-4 py-2">
@@ -135,7 +135,7 @@ export function BulkPriceEditor({ tenantId, items }: { tenantId: string; items: 
         {preview.rows.length === 0 ? (
           <p className="text-[15px] text-muted">Elegí platos para ver cómo quedarían.</p>
         ) : (
-          <ul className="divide-y divide-line rounded-xl border border-line">
+          <ul className="divide-y divide-line/70 rounded-2xl border border-line/70">
             {preview.rows.map((r) => (
               <li key={r.id} className="flex items-center gap-3 px-4 py-2 text-[15px]">
                 <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{r.name}</span>

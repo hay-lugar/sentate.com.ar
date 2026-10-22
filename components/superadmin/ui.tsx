@@ -39,12 +39,12 @@ export function SearchForm({ q, placeholder, hidden }: { q: string; placeholder:
 }
 
 export function Empty({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-xl border border-line px-6 py-10 text-center"><p className="text-[17px] font-semibold">{children}</p></div>;
+  return <div className="rounded-2xl border border-line/70 px-6 py-10 text-center"><p className="text-[17px] font-semibold">{children}</p></div>;
 }
 
 export function Stat({ label, value, note }: { label: string; value: number | string; note?: string }) {
   return (
-    <div className="rounded-xl border border-line px-4 py-3">
+    <div className="rounded-2xl border border-line/70 px-4 py-3">
       <dt className="type-help">{label}</dt>
       <dd className="mt-1 text-3xl font-semibold tabular-nums">{value}</dd>
       {note && <dd className="mt-0.5 type-help">{note}</dd>}

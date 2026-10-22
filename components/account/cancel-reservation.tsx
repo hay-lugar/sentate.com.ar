@@ -39,7 +39,7 @@ export function CancelReservation({ id, pending: isPending, cutoffHours }: { id:
     );
   }
   return (
-    <div role="group" aria-label="Confirmar cancelación" className="space-y-3 rounded-xl border border-line p-4">
+    <div role="group" aria-label="Confirmar cancelación" className="space-y-3 rounded-2xl border border-line/70 p-4">
       <p className="text-[15px]">{isPending ? "¿Retirar esta solicitud?" : "¿Cancelar esta reserva? El local va a ver la cancelación."}</p>
       <div className="flex gap-2">
         <Button variant="danger" onClick={run} pending={busy}>

@@ -55,7 +55,7 @@ export function ScheduleEditor({
           al día en que abrió.
         </p>
         <FieldError id={id("schedule-error")}>{errors.schedule}</FieldError>
-        <ul className="divide-y divide-line border-y border-line">
+        <ul className="divide-y divide-line/70 border-y border-line">
           {ORDER.map((day) => {
             const shifts = schedule.week[day] ?? [];
             const open = shifts.length > 0;

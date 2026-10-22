@@ -13,7 +13,7 @@ export function useReservationsOff() {
 /** Aviso en vez de solicitudes y agenda cuando el comercio solo usa la carta. */
 export function ReservationsOffNotice({ slug, compact }: { slug: string; compact?: boolean }) {
   return (
-    <section className="rounded-xl border border-line bg-subtle p-4 sm:flex sm:items-center sm:gap-4" aria-labelledby="reservas-off">
+    <section className="rounded-2xl border border-line/70 bg-subtle p-4 sm:flex sm:items-center sm:gap-4" aria-labelledby="reservas-off">
       <div className="min-w-0 flex-1">
         <h2 id="reservas-off" className="text-[17px] font-semibold">
           Las reservas están desactivadas

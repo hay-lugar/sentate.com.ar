@@ -224,7 +224,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
       </form>
 
       {ambiguous.map((a) => (
-        <div key={a.term} role="group" aria-label={`Aclarar «${a.term}»`} className="mt-3 rounded-xl border border-line bg-subtle p-3">
+        <div key={a.term} role="group" aria-label={`Aclarar «${a.term}»`} className="mt-3 rounded-2xl border border-line/70 bg-subtle p-3">
           <p className="mb-2 text-[15px]">¿Qué querés decir con «{a.term}»?</p>
           <div className="flex flex-wrap gap-2">
             {a.choices.map((c, i) => (
@@ -237,7 +237,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
       ))}
 
       {filters.nearby && !point && (
-        <div role="status" className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-line bg-subtle p-3">
+        <div role="status" className="mt-3 flex flex-wrap items-center gap-3 rounded-2xl border border-line/70 bg-subtle p-3">
           <p className="min-w-0 flex-1 text-[15px]">Para ordenar por cercanía necesitamos tu ubicación. Solo se usa para calcular distancias y no se guarda.</p>
           <Button variant="secondary" onClick={locate} pending={geo === "asking"}>
             Usar mi ubicación
@@ -284,7 +284,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
           </div>
 
           {list.status === "error" && (
-            <div role="alert" className="rounded-xl border border-line p-4">
+            <div role="alert" className="rounded-2xl border border-line/70 p-4">
               <p className="mb-3 text-[15px]">{list.message}</p>
               <Button variant="secondary" onClick={retry}>
                 Reintentar
@@ -293,7 +293,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
           )}
           {list.status === "loading" && <ListSkeleton />}
           {list.status === "ok" && total === 0 && (
-            <div className="rounded-xl border border-line p-6 text-center">
+            <div className="rounded-2xl border border-line/70 p-6 text-center">
               <p className="text-[16px] font-medium">{facets.total === 0 ? "Todavía no hay comercios en el explorador." : "No encontramos comercios con esos criterios."}</p>
               {facets.total > 0 && (
                 <>
@@ -350,7 +350,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
                 <ViewToggle view={filters.view} onChange={(view) => go({ ...filters, view }, "replace")} mapDisabled={false} />
               </div>
             )}
-            <div className="relative h-[62dvh] overflow-hidden rounded-xl border border-line lg:sticky lg:top-20 lg:h-[calc(100dvh-10rem)]">
+            <div className="relative h-[62dvh] overflow-hidden rounded-2xl border border-line/70 lg:sticky lg:top-20 lg:h-[calc(100dvh-10rem)]">
               <ExplorerMap
                 markers={markers}
                 selectedId={selectedId}
@@ -399,7 +399,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
       </div>
 
       {mapFailed && (
-        <p role="status" className="mt-4 rounded-xl border border-line bg-subtle p-3 text-[15px]">
+        <p role="status" className="mt-4 rounded-2xl border border-line/70 bg-subtle p-3 text-[15px]">
           No pudimos cargar el mapa. La lista sigue funcionando con los mismos filtros.
         </p>
       )}

@@ -42,7 +42,7 @@ export function SubmittedView({
         )}
       </p>
 
-      <dl className="mt-5 divide-y divide-line rounded-xl border border-line text-[15px]">
+      <dl className="mt-5 divide-y divide-line/70 rounded-2xl border border-line/70 text-[15px]">
         <div className="flex justify-between gap-4 px-4 py-3">
           <dt className="text-muted">Estado</dt>
           <dd className="font-medium">Solicitud pendiente</dd>

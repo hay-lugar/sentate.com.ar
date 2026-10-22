@@ -54,7 +54,7 @@ export function CreateTenantForm() {
         e.preventDefault();
         void run(() => createTenantAction(v.slug, v.name, v.email, v.why));
       }}
-      className="space-y-4 rounded-xl border border-line p-4"
+      className="space-y-4 rounded-2xl border border-line/70 p-4"
       aria-labelledby={`${uid}-t`}
     >
       <h2 id={`${uid}-t`} className="type-section">Crear restaurante</h2>
@@ -78,7 +78,7 @@ export function PromotionPanel({ tenantId, current }: { tenantId: string; curren
   const [days, setDays] = useState("14");
   const [why, setWhy] = useState("");
   return (
-    <section aria-labelledby={`${uid}-t`} className="space-y-4 rounded-xl border border-line p-4">
+    <section aria-labelledby={`${uid}-t`} className="space-y-4 rounded-2xl border border-line/70 p-4">
       <h2 id={`${uid}-t`} className="type-section">Promoción</h2>
       <p className="type-help">Se muestra en la carta pública mientras está vigente y el comercio es visible. Una por comercio, hasta 90 días.</p>
       <Field id={`${uid}-title`} label="Título" hint="Ej.: 2x1 en pizzas"><input id={`${uid}-title`} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={60} className={inputClass} /></Field>
@@ -124,7 +124,7 @@ export function AddAdminForm() {
         e.preventDefault();
         void run(() => addAdminAction(email, why), () => { setEmail(""); setWhy(""); });
       }}
-      className="space-y-4 rounded-xl border border-line p-4"
+      className="space-y-4 rounded-2xl border border-line/70 p-4"
       aria-labelledby={`${uid}-t`}
     >
       <h2 id={`${uid}-t`} className="type-section">Agregar administrador</h2>
@@ -161,7 +161,7 @@ export function SettingPanel({ value }: { value: "visible" | "hidden" }) {
   const [why, setWhy] = useState("");
   const next = value === "visible" ? "hidden" : "visible";
   return (
-    <section aria-labelledby={`${uid}-t`} className="space-y-3 rounded-xl border border-line p-4">
+    <section aria-labelledby={`${uid}-t`} className="space-y-3 rounded-2xl border border-line/70 p-4">
       <h2 id={`${uid}-t`} className="type-section">Carta con acceso vencido</h2>
       <p className="text-[15px]">Hoy: <strong>{value === "visible" ? "la carta sigue visible" : "la carta se oculta"}</strong> cuando vence la prueba o la suscripción. Las reservas se bloquean en ambos casos.</p>
       <Field id={`${uid}-why`} label="Razón del cambio"><input id={`${uid}-why`} value={why} onChange={(e) => setWhy(e.target.value)} maxLength={500} className={inputClass} /></Field>

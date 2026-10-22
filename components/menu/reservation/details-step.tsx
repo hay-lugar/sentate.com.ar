@@ -88,7 +88,7 @@ export function DetailsStep({ draft, errors, update, onEdit, live = false, notif
           />
         </Field>
         {live && notifications && (
-          <div className="rounded-xl border border-line p-3">
+          <div className="rounded-2xl border border-line/70 p-3">
             <label className="flex min-h-11 cursor-pointer items-start gap-3">
               <input type="checkbox" checked={!!draft.notify} onChange={(e) => update("notify", e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-foreground" />
               <span className="text-[15px]">
@@ -159,7 +159,7 @@ function Field({
 function Summary({ guests, serviceDate, time, onEdit }: { guests: number; serviceDate: PlainDate | null; time: WallTime | null; onEdit: (step: number) => void }) {
   const day = serviceDate ? capitalize(formatPlainDate(serviceDate, { weekday: "short", day: "numeric" })) : "—";
   return (
-    <div className="flex divide-x divide-line rounded-xl border border-line">
+    <div className="flex divide-x divide-line rounded-2xl border border-line/70">
       <SummaryItem label="Personas" value={String(guests)} onClick={() => onEdit(0)} />
       <SummaryItem label="Día" value={day} onClick={() => onEdit(1)} />
       <SummaryItem label="Hora" value={time ?? "—"} onClick={() => onEdit(1)} />

@@ -10,7 +10,7 @@ export default async function ReservasPage() {
   const { total, items } = await getMyReservations();
   if (!items.length) {
     return (
-      <div className="rounded-xl border border-line p-6 text-center">
+      <div className="rounded-2xl border border-line/70 p-6 text-center">
         <p className="text-[16px] font-medium">Todavía no tenés reservas.</p>
         <p className="mt-1 type-help">Las que pidas con tu cuenta iniciada van a aparecer acá. Las solicitudes hechas sin cuenta no se asocian.</p>
         <Link href="/explorar" className={buttonClass({ className: "mt-4" })}>
@@ -25,7 +25,7 @@ export default async function ReservasPage() {
       <ul className="space-y-3">
         {items.map((r) => (
           <li key={r.id}>
-            <Link href={`/cuenta/reservas/${r.id}`} className="block rounded-xl border border-line p-4 hover:bg-subtle">
+            <Link href={`/cuenta/reservas/${r.id}`} className="block rounded-2xl border border-line/70 p-4 hover:bg-subtle">
               <div className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[16px] font-semibold">{r.tenant.name}</p>

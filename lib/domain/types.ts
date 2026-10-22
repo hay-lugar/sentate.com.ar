@@ -156,6 +156,8 @@ export type PublicCategory = { id: string; name: string; dishes: PublicDish[] };
 export type PublicTenant = {
   /** false = el local no recibe reservas por la web (solo carta y contacto). Ausente (demos) = habilitadas. */
   reservationsEnabled?: boolean;
+  /** Enlaces públicos que el local cargó en su perfil (solo https, validados por la base). Sin datos privados. */
+  links?: { website?: string; instagram?: string; facebook?: string };
   /** Promoción vigente cargada por la plataforma (la base solo la entrega dentro de su ventana y con el comercio visible). */
   promotion?: { title: string; detail: string };
   /** Solo comercios LISTADOS (aprobados, con ubicación confirmada y acceso vigente): habilita indexación y datos estructurados. */

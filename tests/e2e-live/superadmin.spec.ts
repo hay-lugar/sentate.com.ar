@@ -180,6 +180,10 @@ test("una promoción puesta por la plataforma se ve en el explorador y en la car
     await pp.goto("/explorar");
     await expect(pp.getByRole("article", { name: "El Bodegón" }).getByText("Happy hour 2x1")).toBeVisible();
     await expect(pp.getByRole("article", { name: "La Esquina" }).getByText("Happy hour 2x1")).toHaveCount(0);
+    // Filtro «Con promoción»: solo queda el comercio con promoción vigente.
+    await pp.goto("/explorar?promo=1");
+    await expect(pp.getByRole("heading", { name: "El Bodegón" })).toBeVisible();
+    await expect(pp.getByRole("heading", { name: "La Esquina" })).toHaveCount(0);
     await pp.goto("/prueba-bodegon");
     await expect(pp.getByLabel("Promoción").getByText("Happy hour 2x1")).toBeVisible();
     await pub.close();

@@ -51,7 +51,7 @@ for (const vp of WIDTHS) {
 test("capturas del panel y del superadmin", async ({ browser, baseURL }) => {
   for (const [email, paths] of [
     ["owner.bodegon@example.test", [["/admin/prueba-bodegon/reservas/capacidad", "panel-capacidad"], ["/admin/prueba-bodegon/menu/precios", "panel-precios"], ["/admin/prueba-bodegon/explorador", "panel-mapa"]]],
-    ["superadmin@example.test", [["/superadmin", "superadmin-bandeja"]]],
+    ["superadmin@example.test", [["/superadmin", "superadmin-bandeja"], ["/superadmin/resumen", "superadmin-resumen"], ["/superadmin/comercios", "superadmin-comercios"], ["/superadmin/suscripciones?f=all", "superadmin-suscripciones"], ["/superadmin/usuarios", "superadmin-usuarios"], ["/superadmin/administradores", "superadmin-admins"], ["/superadmin/auditoria", "superadmin-auditoria"], ["/superadmin/sistema", "superadmin-sistema"]]],
     ["sin.local@example.test", [["/cuenta", "cuenta-perfil"], ["/cuenta/favoritos", "cuenta-favoritos"]]],
   ] as const) {
     for (const vp of [WIDTHS[1], WIDTHS[3]]) {
@@ -65,6 +65,20 @@ test("capturas del panel y del superadmin", async ({ browser, baseURL }) => {
       }
       await ctx.close();
     }
+  }
+});
+
+test("captura de la ficha del superadmin", async ({ browser, baseURL }) => {
+  for (const vp of [WIDTHS[1], WIDTHS[3]]) {
+    const ctx = await browser.newContext({ baseURL, viewport: { width: vp.width, height: vp.height } });
+    const page = await ctx.newPage();
+    await login(page, "superadmin@example.test");
+    await page.goto("/superadmin/comercios");
+    await page.getByRole("link", { name: /prueba-bodegon/ }).click();
+    await expect(page.getByRole("heading", { name: "Eliminar comercio" })).toBeVisible();
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `capturas/superadmin-ficha-${vp.name}.png`, fullPage: true });
+    await ctx.close();
   }
 });
 

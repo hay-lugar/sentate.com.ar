@@ -2,7 +2,7 @@
 
 > La marca visible es temporal: **«{Sin Nombre}»**, definida en `lib/config/brand.ts`. «Sentate» es el nombre del proyecto y del dominio, y no aparece en la interfaz.
 
-Menú digital y solicitudes de mesa para locales gastronómicos. Next.js 16 (App Router) + Supabase (Postgres con RLS, Auth, Realtime y Storage).
+Explorador de locales con mapa, carta digital con QR y solicitudes de mesa **opcionales** para locales gastronómicos. Next.js 16 (App Router) + Supabase (Postgres con RLS, Auth, Realtime y Storage).
 
 Hay **tres modos** que no se mezclan:
 
@@ -12,7 +12,7 @@ Hay **tres modos** que no se mezclan:
 | **Desarrollo / pruebas** | Supabase **local** (Docker) con `supabase/seed.sql` | Ficticios (`@example.test`, teléfonos `11 0000-NNNN`) | Local |
 | **Piloto** | Comercios reales en `sentate.com.ar` | Reales | Proyecto Supabase remoto |
 
-Prueba: **30 días sin tarjeta**, **$14.999 ARS por mes** (`lib/config/plan.ts`). Sin pagos online, sin WhatsApp ni email automáticos al comensal: una solicitud de mesa queda **pendiente** hasta que el local la acepta o rechaza a mano.
+Prueba: **30 días sin tarjeta**, **$14.999 ARS por mes** (`lib/config/plan.ts`). Sin cobros online todavía (hay una base para registrar notificaciones de Mercado Pago, sin activar nada) y sin envíos automáticos al comensal (hay una base de avisos por email, apagada por defecto): una solicitud de mesa queda **pendiente** hasta que el local la acepta o rechaza a mano.
 
 ## Requisitos
 
@@ -85,7 +85,12 @@ El CI (`.github/workflows/ci.yml`) corre en cada PR: typecheck, lint, Vitest, bu
 | Imágenes (Storage) | [`docs/imagenes-storage.md`](docs/imagenes-storage.md) |
 | QR de la carta | [`docs/qr.md`](docs/qr.md) |
 | Reservas y antiabuso | [`docs/reservas-piloto.md`](docs/reservas-piloto.md) |
+| Explorador, mapa y SEO | [`docs/explorador-diseno.md`](docs/explorador-diseno.md), [`docs/validacion-explorador.md`](docs/validacion-explorador.md) |
+| Superadministración | [`docs/superadmin.md`](docs/superadmin.md) |
+| Notificaciones por email (base, apagadas) | [`docs/notificaciones.md`](docs/notificaciones.md) |
+| Pagos / Mercado Pago (base, sin cobrar) | [`docs/pagos.md`](docs/pagos.md) |
+| **Estado real, riesgos y prioridades** | [`docs/AUDITORIA_ACTUAL.md`](docs/AUDITORIA_ACTUAL.md), [`docs/roadmap.md`](docs/roadmap.md), [`docs/auditoria-visual.md`](docs/auditoria-visual.md) |
 
 ## Seguridad en una línea
 
-RLS en todas las tablas; bucket de imágenes privado con URLs firmadas; el navegador solo ve la clave publicable; la IP del comensal nunca se guarda (solo un HMAC); los logs pasan por `lib/log/redact.ts`; `/admin`, `/login`, `/registro`, `/recuperar` y `/auth/` no se indexan. Cabeceras de seguridad en `next.config.ts`.
+RLS en todas las tablas; bucket de imágenes privado con URLs firmadas; el navegador solo ve la clave publicable; la IP del comensal nunca se guarda (solo un HMAC); los logs pasan por `lib/log/redact.ts`; `/admin`, `/login`, `/registro`, `/recuperar` y `/auth/` no se indexan. Cabeceras de seguridad y una CSP en modo solo reporte en `next.config.ts`.

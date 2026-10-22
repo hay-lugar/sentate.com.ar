@@ -12,6 +12,10 @@ test.describe("cabeceras de seguridad", () => {
       expect(headers["permissions-policy"]).toContain("camera=()");
       expect(headers["permissions-policy"]).toContain("geolocation=(self)");
       expect(headers["x-powered-by"]).toBeUndefined();
+      // CSP solo en modo reporte (no bloquea nada todavía) y con las directivas que no dependen de inventario.
+      expect(headers["content-security-policy"]).toBeUndefined();
+      const csp = headers["content-security-policy-report-only"];
+      for (const d of ["default-src 'self'", "object-src 'none'", "base-uri 'self'", "frame-ancestors 'none'", "worker-src 'self' blob:"]) expect(csp).toContain(d);
     });
   }
 });

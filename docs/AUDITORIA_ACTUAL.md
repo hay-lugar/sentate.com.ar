@@ -19,7 +19,7 @@ Carta pública y QR, panel del comercio (menú, reservas, ajustes), explorador c
 ## Parcial / solo base
 
 - **Notificaciones**: outbox, consentimiento, worker y plantillas listos y probados; **ningún proveedor activo**, por lo tanto no se envía nada real.
-- **Planes y cobros**: el precio ($14.999 ARS/mes, 30 días gratis) y el estado de suscripción existen; no hay cobro, ni webhooks, ni catálogo configurable. Ver `docs/roadmap.md`.
+- **Planes y cobros**: el precio ($14.999 ARS/mes, 30 días gratis) y el estado de suscripción existen; hay un webhook de Mercado Pago que verifica la firma y registra eventos de forma idempotente, **sin activar suscripciones ni cobrar**. Ver `docs/pagos.md`.
 - **Analítica**: sin eventos propios; no se muestran métricas inventadas.
 - **Multisucursal**: sin modelo; hay diseño en `docs/roadmap.md`.
 
@@ -42,7 +42,7 @@ Carta pública y QR, panel del comercio (menú, reservas, ajustes), explorador c
 - Aplicar las dos migraciones nuevas al remoto (aditivas).
 
 **P2 (backlog)**
-- CSP y cabeceras de seguridad; limitación de tasa en endpoints públicos; backups/PITR; medición Lighthouse; auditoría visual con capturas nuevas; analítica real; catálogo de planes + Mercado Pago; multisucursal.
+- CSP obligatoria (hoy solo reporte); limitación de tasa en endpoints públicos fuera de reservas; backups/PITR; medición Lighthouse; auditoría visual con capturas nuevas; analítica real; catálogo de planes + Mercado Pago; multisucursal.
 
 ## Pruebas ejecutadas en el CI de este PR
 

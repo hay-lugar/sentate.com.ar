@@ -51,7 +51,7 @@ Reglas: la clave de desarrollo `sentate-dev-only` y los usuarios del seed no exi
 5. **Preview privada**: dejar activa la *Deployment Protection* de Vercel en Preview (por defecto) y usar un proyecto Supabase distinto del de producción. Las previews no deben compartir datos reales.
 6. Opcional recomendado: regla de rate limiting en Vercel Firewall para `POST` a `/<slug>` (ver `docs/reservas-piloto.md`).
 
-Cabeceras de seguridad (`nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`) y `robots.txt` salen de `next.config.ts` y `app/robots.ts`, sin configuración en Vercel. **No hay CSP**: es una decisión pendiente (requiere probarla contra Next, framer-motion y las imágenes firmadas de Storage).
+Cabeceras de seguridad (`nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`) y `robots.txt` salen de `next.config.ts` y `app/robots.ts`, sin configuración en Vercel. La **CSP está en modo solo reporte** (`Content-Security-Policy-Report-Only`): no bloquea nada. Pasarla a obligatoria queda pendiente; el único aviso conocido hoy es el uso de `eval` de MapLibre en el explorador (ver `docs/roadmap.md`).
 
 ## 3. Supabase remoto
 
@@ -101,7 +101,7 @@ En orden; cada una con una cuenta de prueba creada a propósito (no con datos de
 ## 6. Operación
 
 - **Logs:** Vercel → Logs. Los mensajes de error pasan por `lib/log/redact.ts`; no deberían contener contraseñas, tokens, teléfonos, emails ni comentarios. Si ves alguno, es un bug: reportalo.
-- **Soporte a un comercio:** el dueño ve y gestiona sus solicitudes; Sentate no confirma mesas ni notifica al comensal. El contacto es manual (llamada/WhatsApp desde el panel).
+- **Soporte a un comercio:** el dueño ve y gestiona sus solicitudes; Sentate no confirma mesas ni notifica al comensal (la base de avisos por email existe pero está apagada, ver `docs/notificaciones.md`). El contacto es manual (llamada/WhatsApp desde el panel).
 - **Imágenes huérfanas:** `sweepOrphanImagesAction` desde el panel (`docs/imagenes-storage.md`).
 - **Ajustar límites:** los números del cupo viven en la migración `20261022000200`; se cambian con una migración nueva.
 
@@ -109,6 +109,6 @@ En orden; cada una con una cuenta de prueba creada a propósito (no con datos de
 
 Acciones tuyas: crear el proyecto de Vercel y el dominio; cargar variables; configurar Auth (URLs, plantilla, SMTP); rotar `service_role`; borrar las ramas remotas `fase-4-imagenes`, `fase-4-qr` y `fase-4-reservas` si siguen existiendo; probar el QR con un teléfono.
 
-Decisiones abiertas: notificar al comensal (email/WhatsApp), desafío anti-bots, cerrar la RPC pública de solicitudes, CSP, números del cupo con tráfico real, proveedor SMTP.
+Decisiones abiertas: habilitar los avisos por email (proveedor y dominio), WhatsApp, desafío anti-bots, cerrar la RPC pública de solicitudes, CSP obligatoria, números del cupo con tráfico real, proveedor SMTP.
 
 Fuera de alcance del piloto: pagos (Mercado Pago), WhatsApp automático, métricas comerciales, asignación de mesas.

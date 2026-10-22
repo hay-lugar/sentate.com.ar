@@ -30,6 +30,12 @@ Preview automático por PR en Vercel; producción solo con autorización. Migrac
 
 ## Registro de cambios
 
+### Fases 5 a 7 (operación, comercialización, lanzamiento)
+- **Seguridad:** CSP en modo solo reporte (`next.config.ts`). Medido contra landing, ingreso, carta, explorador y panel: el único aviso es el `eval` de MapLibre; resolverlo (o aceptarlo con `'unsafe-eval'`) y migrar los scripts en línea a nonce son los pasos para volverla obligatoria. Limitación de tasa ya existía en reservas (`lib/abuse/rate-limit.ts`); no se agregó a otros endpoints.
+- **Cobros:** base de registro idempotente de eventos de Mercado Pago, sin activar suscripciones (ver `docs/pagos.md`).
+- **Sin hacer, a propósito:** catálogo de planes en base (un único plan; duplicaría `lib/config/plan.ts` sin necesidad), analítica de uso (requiere decidir consentimiento y qué medir), multisucursal (diseño arriba, sin caso real), pruebas de carga y Lighthouse (no hay entorno de producción accesible para medir con datos reales).
+- **Lanzamiento:** lista en `docs/AUDITORIA_ACTUAL.md` (acciones del dueño: credenciales, SMTP, OAuth, dominio, primer superadmin).
+
 ### Fase 4 (experiencia del comensal)
 Carta: buscador por nombre/descripción (sin tildes) en cartas de 10 o más platos, combinable con el filtro dietario; enlace «Cómo llegar» con las coordenadas confirmadas del local (o la dirección si no las hay); texto de carta vacía coherente con reservas apagadas. Cubierto por pruebas unitarias y E2E demo. No se agregó nada que dependa de datos de uso, que todavía no existen.
 

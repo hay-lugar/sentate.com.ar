@@ -30,7 +30,7 @@ export function MenuManager() {
 
   return (
     <>
-      <form onSubmit={addCategory} noValidate className="mb-6 rounded-xl border border-line p-4">
+      <form onSubmit={addCategory} noValidate className="mb-6 rounded-2xl border border-line/70 p-4">
         <label htmlFor="new-category" className="mb-2 block type-label">
           Nueva categoría
         </label>
@@ -56,7 +56,7 @@ export function MenuManager() {
       </form>
 
       {categories.length === 0 ? (
-        <div className="rounded-xl border border-line px-6 py-10 text-center">
+        <div className="rounded-2xl border border-line/70 px-6 py-10 text-center">
           <p className="text-[17px] font-semibold">Tu carta está vacía</p>
           <p className="mt-1 text-[15px] text-muted">Creá una categoría para empezar a cargar platos.</p>
         </div>
@@ -130,7 +130,7 @@ function CategoryCard({
   };
 
   return (
-    <li className="rounded-xl border border-line" aria-labelledby={headingId}>
+    <li className="rounded-2xl border border-line/70" aria-labelledby={headingId}>
       <div className="flex flex-wrap items-center gap-2 px-4 pt-4 pb-2">
         {renaming ? (
           <form onSubmit={saveName} noValidate className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
@@ -233,7 +233,7 @@ function CategoryCard({
           Sin platos todavía. Esta categoría no se muestra en el menú público.
         </p>
       ) : (
-        <ul className="divide-y divide-line border-t border-line">
+        <ul className="divide-y divide-line/70 border-t border-line">
           {cat.dishes.map((d) => (
             <li key={d.id} className="flex items-center gap-3 px-4 py-3">
               {/* Sin opacidad sobre el texto: un plato no disponible se marca con etiqueta (contraste AA). */}

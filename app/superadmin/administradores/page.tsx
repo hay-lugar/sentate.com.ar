@@ -16,7 +16,7 @@ export default async function AdministradoresPage() {
     <div className="space-y-6">
       <h1 className="type-title">Administradores</h1>
       <p className="type-help">Quienes pueden entrar a esta consola. Conviene tener pocos. Siempre queda al menos uno y nadie puede quitarse a sí mismo.</p>
-      <ul className="divide-y divide-line rounded-xl border border-line">
+      <ul className="divide-y divide-line/70 rounded-2xl border border-line/70">
         {admins.map((a) => (
           <li key={a.user_id} className="flex items-center gap-3 px-4 py-3">
             <span className="min-w-0 flex-1 [overflow-wrap:anywhere]"><span className="font-medium">{a.email}</span>{a.email === me?.email && <span className="ml-2 text-muted">(vos)</span>}<span className="block type-help">desde {fmt(a.since)}</span></span>

@@ -53,13 +53,13 @@
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-display: var(--font-sans);
 
-  /* Radios moderados: el pill queda para controles que lo justifican (filtros, estados). */
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.625rem;
-  --radius-2xl: 0.75rem;
-  --radius-3xl: 1rem;
-  --radius-4xl: 1.25rem;
-  --radius-5xl: 1.5rem;
+  /* Radios generosos, al estilo de iOS: controles 14 px, tarjetas 18 px, hojas 24 px. El pill queda para filtros y estados. */
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+  --radius-2xl: 1.125rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 1.75rem;
+  --radius-5xl: 2rem;
 
   /* Sombras: solo para explicar una capa (sheets, menús). Las superficies se separan con bordes. */
   --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.04);
@@ -67,7 +67,7 @@
   --shadow-float: 0 -1px 0 rgb(0 0 0 / 0.06);
   --shadow-brand: 0 0 #0000;
 
-  --ease-spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 @layer base {
@@ -94,8 +94,12 @@
     background: color-mix(in oklch, var(--brand) 22%, white);
   }
   :focus-visible {
-    outline: 2px solid var(--brand);
+    outline: 3px solid color-mix(in oklch, var(--brand) 55%, transparent);
     outline-offset: 2px;
+    border-radius: inherit;
+  }
+  html {
+    scroll-padding-top: 8rem;
   }
 }
 
@@ -104,29 +108,43 @@
   &::-webkit-scrollbar { display: none; }
 }
 
-/* Feedback al tocar: un cambio de opacidad, sin escalas ni rebotes. */
+/* Feedback al tocar, como en iOS: el control se hunde apenas y recupera su tamaño con una curva suave. */
 @utility pressable {
-  transition-property: background-color, color, border-color, opacity, box-shadow;
-  transition-duration: 150ms;
-  transition-timing-function: ease-out;
-  &:active { opacity: 0.7; }
+  transition-property: background-color, color, border-color, opacity, box-shadow, transform;
+  transition-duration: 180ms;
+  transition-timing-function: var(--ease-spring);
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.97);
+  }
+}
+
+/* Barras fijas translúcidas (navegación, pestañas, acciones): el contenido se desenfoca detrás, como en iOS.
+   Sin soporte de backdrop-filter queda el fondo sólido. */
+@utility bar-blur {
+  background: var(--background);
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    background: color-mix(in srgb, var(--background) 80%, transparent);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+  }
 }
 
 /* Escala tipográfica: seis niveles. Las negritas quedan para los títulos; el resto es regular o medium. */
 @utility type-display {
-  font-size: 2.5rem;
-  line-height: 1.05;
-  font-weight: 600;
-  letter-spacing: -0.03em;
+  font-size: 2.75rem;
+  line-height: 1.04;
+  font-weight: 700;
+  letter-spacing: -0.04em;
   @media (min-width: 40rem) {
-    font-size: 3.75rem;
+    font-size: 4.25rem;
   }
 }
 @utility type-title {
-  font-size: 1.875rem;
-  line-height: 2.25rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: 2rem;
+  line-height: 2.375rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 @utility type-heading {
   font-size: 1.5rem;

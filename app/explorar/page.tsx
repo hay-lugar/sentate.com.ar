@@ -37,7 +37,7 @@ export default async function ExplorarPage() {
   const favorites = user ? await getMyFavoriteIds() : null;
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-line bg-background">
+      <header className="bar-blur sticky top-0 z-40 border-b border-line/70">
         <nav aria-label="Principal" className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-4 sm:px-6">
           <Link href="/" aria-label={`${BRAND.name}, inicio`} className="mr-auto inline-flex min-h-11 items-center">
             <Logo size="md" />

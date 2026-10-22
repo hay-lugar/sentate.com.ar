@@ -106,7 +106,7 @@ export function ReservationsList({
       </div>
 
       {list.length > 0 ? (
-        <ul className="mt-4 divide-y divide-line rounded-xl border border-line">
+        <ul className="mt-4 divide-y divide-line/70 rounded-2xl border border-line/70">
           {list.map(({ r, t }) => (
             <li key={r.id}>
               <ReservationRow r={r} tz={tz} when={t} onAction={setStatus} contact={mode === "live" ? { tenantName: state.profile.name } : undefined} />
@@ -114,7 +114,7 @@ export function ReservationsList({
           ))}
         </ul>
       ) : (
-        <div className="mt-4 rounded-xl border border-line px-6 py-10 text-center">
+        <div className="mt-4 rounded-2xl border border-line/70 px-6 py-10 text-center">
           <p className="text-[17px] font-semibold">Nada por acá</p>
           <p className="mt-1 text-[15px] text-muted">No hay solicitudes ni reservas en esta vista.</p>
         </div>

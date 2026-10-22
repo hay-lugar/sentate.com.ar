@@ -110,15 +110,15 @@ export function DateTimeStep({ tenant, now, guests, fakeAvailability, liveTenant
         Elegí el horario
       </SectionLabel>
       {liveTenantId && remoteState.status === "loading" ? (
-        <div role="status" aria-busy="true" className="grid h-28 place-items-center rounded-xl border border-line px-4 text-center type-help">
+        <div role="status" aria-busy="true" className="grid h-28 place-items-center rounded-2xl border border-line/70 px-4 text-center type-help">
           Consultando disponibilidad…
         </div>
       ) : !serviceDate ? (
-        <div className="grid h-28 place-items-center rounded-xl border border-line px-4 text-center type-help">
+        <div className="grid h-28 place-items-center rounded-2xl border border-line/70 px-4 text-center type-help">
           Primero elegí un día
         </div>
       ) : !anyFree ? (
-        <div className="grid h-28 place-items-center rounded-xl border border-line px-4 text-center type-help">
+        <div className="grid h-28 place-items-center rounded-2xl border border-line/70 px-4 text-center type-help">
           No quedan horarios para este día. Probá con otra fecha.
         </div>
       ) : (

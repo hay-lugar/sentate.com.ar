@@ -244,7 +244,7 @@ export function SettingsForm() {
 
       {/* Barra de guardado: solo con cambios pendientes, sobre la navegación mobile y sin tapar campos */}
       {(dirty || submitting) && (
-        <div className="fixed inset-x-0 bottom-16 z-30 border-t border-line bg-background p-3 lg:bottom-0 lg:left-[248px]">
+        <div className="bar-blur fixed inset-x-0 bottom-16 z-30 border-t border-line/70 p-3 lg:bottom-0 lg:left-[248px]">
           <div className="mx-auto flex max-w-3xl items-center gap-3">
             <span className="mr-auto type-help" role="status">
               {submitting ? "Guardando…" : "Cambios sin guardar"}

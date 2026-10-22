@@ -11,12 +11,12 @@ export function SetupChecklist({ input }: { input: ChecklistInput }) {
   const done = items.filter((i) => !i.optional && i.done).length;
   const total = items.filter((i) => !i.optional).length;
   return (
-    <section aria-labelledby="setup-title" className="mb-8 rounded-xl border border-line p-4">
+    <section aria-labelledby="setup-title" className="mb-8 rounded-2xl border border-line/70 p-4">
       <div className="flex items-baseline gap-3">
         <h2 id="setup-title" className="type-section">Puesta en marcha</h2>
         <p className="type-help" role="status">{done} de {total} pasos esenciales</p>
       </div>
-      <ol className="mt-3 divide-y divide-line">
+      <ol className="mt-3 divide-y divide-line/70">
         {items.map((i) => (
           <li key={i.id} className="flex items-start gap-3 py-3">
             {i.done ? <Check className="mt-0.5 size-5 shrink-0 text-success" aria-label="Hecho" /> : <Circle className="mt-0.5 size-5 shrink-0 text-muted" aria-label="Pendiente" />}

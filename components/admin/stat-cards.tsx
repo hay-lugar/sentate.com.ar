@@ -16,7 +16,7 @@ export function StatCards() {
 
   if (off) {
     return (
-      <dl className="grid grid-cols-1 divide-y divide-line rounded-xl border border-line sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+      <dl className="grid grid-cols-1 divide-y divide-line/70 rounded-2xl border border-line/70 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
         <Stat label="Platos activos" value={activeDishes} note={`de ${dishes.length} en la carta`} />
         <Stat label="Categorías" value={state.categories.length} note="en la carta" />
       </dl>
@@ -24,7 +24,7 @@ export function StatCards() {
   }
 
   return (
-    <dl className="grid grid-cols-1 divide-y divide-line rounded-xl border border-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+    <dl className="grid grid-cols-1 divide-y divide-line/70 rounded-2xl border border-line/70 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
       <Stat label="Solicitudes pendientes" value={pending} note="esperando respuesta" />
       <Stat label="Mesas de hoy" value={today.length} note={`${covers} ${covers === 1 ? "cubierto" : "cubiertos"}`} />
       <Stat label="Platos activos" value={activeDishes} note={`de ${dishes.length} en la carta`} />

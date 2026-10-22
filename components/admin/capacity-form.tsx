@@ -93,7 +93,7 @@ export function CapacityForm({ tenantId, timezone, initial, blocks }: { tenantId
         {blocks.length === 0 ? (
           <p className="text-[15px] text-muted">No hay bloqueos vigentes.</p>
         ) : (
-          <ul className="divide-y divide-line rounded-xl border border-line">
+          <ul className="divide-y divide-line/70 rounded-2xl border border-line/70">
             {blocks.map((b) => (
               <li key={b.id} className="flex items-center gap-3 p-3">
                 <span className="min-w-0 flex-1 text-[15px]">

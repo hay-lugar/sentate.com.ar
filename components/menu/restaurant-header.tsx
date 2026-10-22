@@ -79,7 +79,7 @@ export function RestaurantHeader({
           </p>
         </div>
 
-        <ul className="mt-3 divide-y divide-line border-y border-line text-[15px]">
+        <ul className="mt-3 divide-y divide-line/70 border-y border-line text-[15px]">
           <li>
             <a
               href={directionsUrl(tenant)}
@@ -123,7 +123,7 @@ export function CompactBar({ tenant, status, visible }: { tenant: PublicTenant; 
     <div
       aria-hidden={!visible}
       inert={!visible}
-      className={`fixed inset-x-0 top-0 z-40 mx-auto max-w-xl border-b border-line bg-background pt-[env(safe-area-inset-top)] transition-opacity duration-150 motion-reduce:transition-none ${visible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      className={`fixed inset-x-0 top-0 z-40 bar-blur mx-auto max-w-xl border-b border-line/70 pt-[env(safe-area-inset-top)] transition-opacity duration-150 motion-reduce:transition-none ${visible ? "opacity-100" : "pointer-events-none opacity-0"}`}
     >
       <div className="flex h-14 items-center gap-3 px-5">
         <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className="size-8 rounded-lg text-[13px]" />

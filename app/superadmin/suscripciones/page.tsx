@@ -27,7 +27,7 @@ export default async function SuscripcionesPage({ searchParams }: { searchParams
       <Tabs current="Estado" items={TABS.map((t) => ({ href: `/superadmin/suscripciones?f=${t.id}`, label: t.label, active: f === t.id }))} />
       <p role="status" className="mb-3 type-help">{total} {total === 1 ? "suscripción" : "suscripciones"}</p>
       {items.length === 0 ? <Empty>Nada en esta vista</Empty> : (
-        <ul className="divide-y divide-line rounded-xl border border-line">
+        <ul className="divide-y divide-line/70 rounded-2xl border border-line/70">
           {items.map((r) => (
             <li key={r.id}>
               <Link href={`/superadmin/${r.id}`} className="flex flex-col gap-1 px-4 py-4 hover:bg-subtle sm:flex-row sm:items-center sm:gap-4">

@@ -30,7 +30,7 @@ Seis utilidades en `app/globals.css`: `type-display` (landing), `type-title` (t�
 
 Todo control mide al menos 44 × 44 px (los interruptores y los íconos tienen el área táctil completa aunque el dibujo sea menor). Estados: normal, hover, foco visible, presionado (`pressable`), deshabilitado, cargando (`Button pending`) y error. El viewport usa `interactive-widget=resizes-content`: con el teclado abierto, las barras y botones fijos quedan sobre el teclado.
 
-Radios (`rounded-lg` 8 px … `rounded-3xl` 16 px), sombras (solo `shadow-lift` para sheets) y fuentes (`font-sans`/`font-display`, ambas del sistema) también son tokens. No hay fuentes externas.
+Radios al estilo de iOS (`rounded-lg` 10 px, `rounded-xl` 14 px para controles, `rounded-2xl` 18 px para tarjetas y listas, `rounded-3xl` 24 px para hojas), sombras (solo `shadow-lift` para sheets) y fuentes (`font-sans`/`font-display`, ambas del sistema) también son tokens. No hay fuentes externas.
 
 ## Componentes
 
@@ -42,10 +42,15 @@ Radios (`rounded-lg` 8 px … `rounded-3xl` 16 px), sombras (solo `shadow-lift` 
 ## Reglas
 
 1. **El comercio manda en su carta; Sentate manda en lo demás.** La carta pública usa los colores guardados del comercio. Landing, ingreso y panel usan la base neutra; el color del comercio aparece en el panel solo en su propio logo (cuando no subió uno) y en la vista previa de Ajustes.
-2. Sin degradados, halos, brillos ni animaciones continuas. El movimiento explica una interacción (abrir un sheet, cambiar de paso) y respeta `prefers-reduced-motion`. Ningún contenido depende de una animación para verse.
+2. Sin degradados, halos, brillos ni animaciones continuas (el desenfoque de las barras es estático). El movimiento explica una interacción (abrir un sheet, cambiar de paso) y respeta `prefers-reduced-motion`. Ningún contenido depende de una animación para verse.
 3. Los estados se dicen con texto (Pendiente, Reserva confirmada, Abierto…), nunca solo con color.
 4. Sin eslóganes ni métricas inventadas. El precio y la prueba gratuita se muestran una vez en la landing, desde `lib/config/plan.ts`.
-5. Superficies separadas por divisores y bordes finos, no por tarjetas con sombra.
+5. Superficies separadas por divisores y bordes finos (`border-line/70`), no por tarjetas con sombra.
+6. **Barras fijas translúcidas** (`bar-blur`): navegación, pestañas de la carta, barra inferior del panel y barras de acción desenfocan lo que pasa por detrás, como en iOS; sin soporte de `backdrop-filter` queda el fondo sólido.
+7. **Feedback al tocar** (`pressable`): el control se hunde un 3 % (`scale(.97)`) y recupera su tamaño con la curva `--ease-spring`; con movimiento reducido no hay transición.
+8. Títulos grandes y compactos: `type-display` 44→68 px en peso 700 con tracking −0,04 em; `type-title` 32 px en peso 700.
+
+Pendiente a propósito: modo oscuro (la carta usa los colores del comercio, y un tema oscuro exige definir cómo conviven), transiciones entre páginas y tipografía dinámica.
 
 `tests/e2e/rediseno.spec.ts` comprueba estas reglas en el producto renderizado.
 

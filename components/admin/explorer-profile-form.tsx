@@ -128,7 +128,7 @@ export function ExplorerProfileForm({ tenantId, initial, businessTypes, cuisines
 
   return (
     <div className="max-w-3xl space-y-10 pb-24">
-      <section aria-labelledby={id("status")} className="rounded-xl border border-line p-4">
+      <section aria-labelledby={id("status")} className="rounded-2xl border border-line/70 p-4">
         <h2 id={id("status")} className="type-label">
           Estado en el explorador: <span className="font-semibold">{copy.title}</span>
         </h2>
@@ -218,7 +218,7 @@ export function ExplorerProfileForm({ tenantId, initial, businessTypes, cuisines
               </Button>
             </div>
             {results && (
-              <ul className="mt-2 divide-y divide-line rounded-xl border border-line" aria-label="Resultados">
+              <ul className="mt-2 divide-y divide-line/70 rounded-2xl border border-line/70" aria-label="Resultados">
                 {results.length === 0 && <li className="p-3 text-[15px] text-muted">No encontramos esa dirección. Marcá el punto en el mapa.</li>}
                 {results.map((r) => (
                   <li key={`${r.lat},${r.lng}`}>

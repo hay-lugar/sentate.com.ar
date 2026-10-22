@@ -27,7 +27,7 @@ export default async function ComerciosPage({ searchParams }: { searchParams: Pr
         <SearchForm q={q} placeholder="Nombre o dirección web (slug)" />
         <p role="status" className="mb-3 type-help">{total} {total === 1 ? "comercio" : "comercios"}</p>
         {items.length === 0 ? <Empty>No hay comercios</Empty> : (
-          <ul className="divide-y divide-line rounded-xl border border-line">
+          <ul className="divide-y divide-line/70 rounded-2xl border border-line/70">
             {items.map((r) => (
               <li key={r.id}>
                 <Link href={`/superadmin/${r.id}`} className="flex flex-col gap-1 px-4 py-4 hover:bg-subtle sm:flex-row sm:items-center sm:gap-4">

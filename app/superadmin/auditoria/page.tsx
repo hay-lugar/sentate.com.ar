@@ -30,7 +30,7 @@ export default async function AuditoriaPage({ searchParams }: { searchParams: Pr
       </form>
       <p role="status" className="mb-3 type-help">{total} {total === 1 ? "registro" : "registros"}</p>
       {items.length === 0 ? <Empty>Sin movimientos</Empty> : (
-        <ul className="divide-y divide-line rounded-xl border border-line">
+        <ul className="divide-y divide-line/70 rounded-2xl border border-line/70">
           {items.map((i) => (
             <li key={i.id} className="px-4 py-3 text-[15px]">
               <span className="font-medium">{ACTION_LABEL[i.action] ?? i.action}</span>

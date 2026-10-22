@@ -51,9 +51,9 @@ export default async function BandejaPage({ searchParams }: { searchParams: Prom
       </nav>
       <p role="status" className="mb-3 type-help">{total} {total === 1 ? "comercio" : "comercios"}</p>
       {items.length === 0 ? (
-        <div className="rounded-xl border border-line px-6 py-10 text-center"><p className="text-[17px] font-semibold">Nada por revisar</p></div>
+        <div className="rounded-2xl border border-line/70 px-6 py-10 text-center"><p className="text-[17px] font-semibold">Nada por revisar</p></div>
       ) : (
-        <ul className="divide-y divide-line rounded-xl border border-line">
+        <ul className="divide-y divide-line/70 rounded-2xl border border-line/70">
           {items.map((r) => (
             <li key={r.id}>
               <Link href={`/superadmin/${r.id}`} className="flex flex-col gap-1 px-4 py-4 hover:bg-subtle sm:flex-row sm:items-center sm:gap-4">

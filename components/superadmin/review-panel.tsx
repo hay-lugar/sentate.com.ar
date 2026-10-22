@@ -29,7 +29,7 @@ export function ReviewPanel({ tenantId, moderation, suspended, featured }: { ten
   };
 
   return (
-    <section aria-labelledby={`${uid}-t`} className="space-y-4 rounded-xl border border-line p-4">
+    <section aria-labelledby={`${uid}-t`} className="space-y-4 rounded-2xl border border-line/70 p-4">
       <h2 id={`${uid}-t`} className="type-section">Acciones</h2>
       <div>
         <label htmlFor={`${uid}-reason`} className="mb-1.5 block type-label">Motivo <span className="text-[13px] font-normal text-muted">Obligatorio salvo al aprobar. Lo ve el dueño en rechazos y correcciones.</span></label>

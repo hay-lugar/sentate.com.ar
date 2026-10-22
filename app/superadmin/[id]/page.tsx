@@ -78,7 +78,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
       <section aria-labelledby="hist">
         <h2 id="hist" className="mb-2 type-section">Historial</h2>
         {d.history.length === 0 ? <p className="text-[15px] text-muted">Sin movimientos.</p> : (
-          <ul className="divide-y divide-line rounded-xl border border-line">
+          <ul className="divide-y divide-line/70 rounded-2xl border border-line/70">
             {d.history.map((h, i) => (
               <li key={i} className="px-4 py-3 text-[15px]">
                 <span className="font-medium">{ACTION_LABEL[h.action] ?? h.action}</span> <span className="text-muted">· {h.by ?? "sistema"} · {fmt(h.at)}</span>

@@ -201,7 +201,7 @@ export function MenuView({
                 <h2 id={`h-${category.id}`} tabIndex={-1} className="type-section [overflow-wrap:anywhere] outline-none">
                   {category.name}
                 </h2>
-                <ul className="mt-1 divide-y divide-line">
+                <ul className="mt-1 divide-y divide-line/70">
                   {category.dishes.map((d) => (
                     <li key={d.id}>
                       <DishCard dish={d} onSelect={openDish} />
@@ -214,7 +214,7 @@ export function MenuView({
         </>
       ) : diet.length > 0 || query.trim() ? (
         <main className="px-4 pt-6">
-          <div role="status" className="rounded-xl border border-line px-6 py-10 text-center">
+          <div role="status" className="rounded-2xl border border-line/70 px-6 py-10 text-center">
             <h2 className="type-section">Ningún plato coincide</h2>
             <button
               type="button"
@@ -230,7 +230,7 @@ export function MenuView({
         </main>
       ) : (
         <main className="px-4 pt-6">
-          <div className="rounded-xl border border-line px-6 py-10 text-center">
+          <div className="rounded-2xl border border-line/70 px-6 py-10 text-center">
             <h2 className="type-section">La carta todavía no está publicada</h2>
             <p className="mx-auto mt-2 max-w-xs text-[15px] text-muted">{reservationsEnabled ? "Podés consultar por teléfono o pedir una mesa igual desde el botón de abajo." : "Podés consultar por teléfono desde el botón de abajo."}</p>
           </div>

@@ -130,7 +130,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       </motion.aside>
 
       {/* ── Barra superior mobile ── */}
-      <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-background px-4 lg:hidden print:hidden!">
+      <header className="bar-blur sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line/70 px-4 lg:hidden print:hidden!">
         {logo("size-9 rounded-lg text-[13px]")}
         <div className="min-w-0 leading-tight">
           <p className="truncate font-semibold">{tenant.name}</p>
@@ -155,7 +155,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       </main>
 
       {/* ── Navegación inferior mobile ── */}
-      <nav aria-label="Panel" className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-background pb-[env(safe-area-inset-bottom)] lg:hidden print:hidden!">
+      <nav aria-label="Panel" className="bar-blur fixed inset-x-0 bottom-0 z-40 border-t border-line/70 pb-[env(safe-area-inset-bottom)] lg:hidden print:hidden!">
         <div className="mx-auto flex max-w-md">
           {items.map((item) => {
             const active = isActive(item.href);

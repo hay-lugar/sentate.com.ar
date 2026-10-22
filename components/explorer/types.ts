@@ -15,6 +15,7 @@ export type ResultItem = {
   open_now: boolean;
   distance_m: number | null;
   featured?: boolean;
+  accepts_reservations?: boolean;
 };
 
 export type SearchResponse = { total: number; items: ResultItem[]; featured_items?: ResultItem[] };

@@ -19,7 +19,9 @@ async function infiniteAnimations(page: Page) {
 test.describe("landing", () => {
   test("presenta producto, cómo se ve y precio sin eslóganes, y el precio una sola vez", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Carta digital y reservas/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Descubrí dónde comer/);
+    await expect(page.getByRole("search")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Tu carta, tu presencia online/ })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Así se ve" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Precio" })).toBeVisible();
     const main = await page.locator("main").innerText();

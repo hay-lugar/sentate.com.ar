@@ -152,6 +152,10 @@ export type PublicDish = Pick<Dish, "id" | "name" | "description" | "price" | "i
 export type PublicCategory = { id: string; name: string; dishes: PublicDish[] };
 
 export type PublicTenant = {
+  /** false = el local no recibe reservas por la web (solo carta y contacto). Ausente (demos) = habilitadas. */
+  reservationsEnabled?: boolean;
+  /** Solo comercios LISTADOS (aprobados, con ubicación confirmada y acceso vigente): habilita indexación y datos estructurados. */
+  discovery?: { lat: number; lng: number; locality: string; province: string };
   /** UUID del comercio real (solo en datos de Supabase; las demos no tienen). */
   id?: string;
   slug: string;

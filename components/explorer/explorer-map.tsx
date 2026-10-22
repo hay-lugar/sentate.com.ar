@@ -52,7 +52,7 @@ export default function ExplorerMap({ markers, selectedId, onSelect, onViewChang
     let cleanup = () => {};
     (async () => {
       try {
-        const [{ default: maplibregl }] = await Promise.all([import("maplibre-gl"), import("maplibre-gl/dist/maplibre-gl.css")]);
+        const [maplibregl] = await Promise.all([import("maplibre-gl"), import("maplibre-gl/dist/maplibre-gl.css")]);
         if (disposed || !box.current) return;
         const map = new maplibregl.Map({
           container: box.current,

@@ -12,7 +12,7 @@ import { CategoryTabs } from "./category-tabs";
 import { DishCard } from "./dish-card";
 import { DishSheet } from "./dish-sheet";
 import { ReservationFlow } from "./reservation/reservation-flow";
-import { ReserveBar } from "./reserve-bar";
+import { ContactBar, ReserveBar } from "./reserve-bar";
 import { CompactBar, RestaurantHeader } from "./restaurant-header";
 
 /** Alto de la barra compacta (56) + tabs (~62): offset para anclar secciones. */
@@ -47,12 +47,13 @@ export function MenuView({
   const [activeId, setActiveId] = useState(categories[0]?.id ?? "");
   const [compact, setCompact] = useState(false);
   const [dish, setDish] = useState<PublicDish | null>(null);
+  const reservationsEnabled = tenant.reservationsEnabled !== false;
   const [reserving, setReserving] = useState(false);
   // Desde el explorador: /slug?mesa=1 abre directamente el pedido de mesa.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- parámetro de URL leído tras hidratar (la carta se sirve estática)
-    if (new URLSearchParams(window.location.search).get("mesa") === "1") setReserving(true);
-  }, []);
+    if (reservationsEnabled && new URLSearchParams(window.location.search).get("mesa") === "1") setReserving(true);
+  }, [reservationsEnabled]);
 
   const tabsAnchor = useRef<HTMLDivElement>(null);
   const lockSpy = useRef<number | null>(null);
@@ -186,18 +187,18 @@ export function MenuView({
         {source === "demo" ? "Demo: precios y datos de ejemplo, en pesos argentinos." : "Precios en pesos argentinos."} Carta digital por {BRAND.name}.
       </p>
 
-      <ReserveBar onReserve={() => setReserving(true)} />
+      {reservationsEnabled ? <ReserveBar onReserve={() => setReserving(true)} /> : <ContactBar phone={tenant.phone} />}
 
       <DishSheet
         dish={dish}
         onClose={closeDish}
-        onReserve={() => {
+        onReserve={!reservationsEnabled ? undefined : () => {
           setDish(null);
           if (reopenTimer.current) clearTimeout(reopenTimer.current);
           reopenTimer.current = window.setTimeout(() => setReserving(true), 220);
         }}
       />
-      <ReservationFlow tenant={tenant} source={source} open={reserving} onClose={closeReservation} />
+      {reservationsEnabled && <ReservationFlow tenant={tenant} source={source} open={reserving} onClose={closeReservation} />}
     </div>
   );
 }

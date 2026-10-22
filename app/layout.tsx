@@ -17,11 +17,10 @@ export const metadata: Metadata = {
   metadataBase: metadataBase(),
   applicationName: BRAND.name,
   title: {
-    default: `${BRAND.name} — Carta digital y reservas para locales gastronómicos`,
+    default: `${BRAND.name} — ${BRAND.defaultTitle}`,
     template: withBrand("%s"),
   },
-  description:
-    "Carta digital con QR y solicitudes de reserva para locales gastronómicos, con un panel para gestionarlas.",
+  description: BRAND.description,
 };
 
 export const viewport: Viewport = {
@@ -30,7 +29,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   // Con el teclado abierto el contenido se reacomoda: la barra inferior y los botones de los sheets quedan sobre el teclado.
   interactiveWidget: "resizes-content",
-  themeColor: "#ffffff",
+  themeColor: BRAND.themeColor,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

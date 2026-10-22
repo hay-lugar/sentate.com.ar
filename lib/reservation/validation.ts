@@ -26,9 +26,12 @@ export type ReservationDraft = {
   name: string;
   phone: string;
   notes: string;
+  /** Solo si el comercio puede enviar avisos y la persona los pide: se guarda con consentimiento explícito. */
+  email?: string;
+  notify?: boolean;
 };
 
-export const EMPTY_DRAFT: ReservationDraft = { guests: 2, serviceDate: null, time: null, name: "", phone: "", notes: "" };
+export const EMPTY_DRAFT: ReservationDraft = { guests: 2, serviceDate: null, time: null, name: "", phone: "", notes: "", email: "", notify: false };
 
 export type ReservationField = keyof ReservationDraft;
 export type FieldErrors = Partial<Record<ReservationField, string>>;
@@ -69,7 +72,7 @@ export function validateSlot(draft: Pick<ReservationDraft, "guests" | "serviceDa
 
 export const phoneDigits = (phone: string) => phone.replace(/\D/g, "");
 
-export function validateContact(draft: Pick<ReservationDraft, "name" | "phone" | "notes">): FieldErrors {
+export function validateContact(draft: Pick<ReservationDraft, "name" | "phone" | "notes" | "email" | "notify">): FieldErrors {
   const errors: FieldErrors = {};
   const name = draft.name.trim();
   if (name.length < L.nameMin) errors.name = "Ingresá tu nombre.";
@@ -81,6 +84,7 @@ export function validateContact(draft: Pick<ReservationDraft, "name" | "phone" |
     errors.phone = `Ingresá un teléfono de ${L.phoneMinDigits} a ${L.phoneMaxDigits} dígitos.`;
 
   if (draft.notes.length > L.notesMax) errors.notes = `Máximo ${L.notesMax} caracteres.`;
+  if (draft.notify && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((draft.email ?? "").trim())) errors.email = "Ingresá un email válido o desactivá los avisos.";
   return errors;
 }
 

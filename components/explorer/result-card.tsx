@@ -51,9 +51,11 @@ export function ResultCard({ item, facets, selected, onSelect, compact, favorite
           <Link href={`/${item.slug}`} className={buttonClass({ variant: "secondary", size: "sm" })}>
             Ver carta
           </Link>
-          <Link href={`/${item.slug}?mesa=1`} className={buttonClass({ size: "sm" })}>
-            Pedir mesa
-          </Link>
+          {item.accepts_reservations !== false && (
+            <Link href={`/${item.slug}?mesa=1`} className={buttonClass({ size: "sm" })}>
+              Pedir mesa
+            </Link>
+          )}
           {!compact && onSelect && (
             <button type="button" onClick={() => onSelect(item.id)} aria-pressed={selected} className={buttonClass({ variant: "quiet", size: "sm", className: "lg:hidden" })}>
               Ver en el mapa

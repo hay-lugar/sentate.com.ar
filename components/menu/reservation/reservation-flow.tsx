@@ -126,7 +126,7 @@ export function ReservationFlow({
                   errors={r.errors}
                 />
               )}
-              {r.step === 2 && <DetailsStep draft={r.draft} errors={r.errors} update={r.update} onEdit={r.goTo} live={live} />}
+              {r.step === 2 && <DetailsStep draft={r.draft} errors={r.errors} update={r.update} onEdit={r.goTo} live={live} notifications={live && !!config?.notifications} />}
             </motion.fieldset>
           </AnimatePresence>
         </div>

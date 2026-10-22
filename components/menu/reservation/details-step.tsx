@@ -14,9 +14,11 @@ type Props = {
   onEdit: (step: number) => void;
   /** Comercio real: los datos se envían al local. */
   live?: boolean;
+  /** El comercio puede enviar avisos por email (proveedor configurado). Si no, no se ofrece: no se promete lo que no se hace. */
+  notifications?: boolean;
 };
 
-export function DetailsStep({ draft, errors, update, onEdit, live = false }: Props) {
+export function DetailsStep({ draft, errors, update, onEdit, live = false, notifications = false }: Props) {
   return (
     <div>
       <Summary guests={draft.guests} serviceDate={draft.serviceDate} time={draft.time} onEdit={onEdit} />
@@ -24,8 +26,8 @@ export function DetailsStep({ draft, errors, update, onEdit, live = false }: Pro
       {live ? (
         <div className="mt-4 rounded-xl bg-subtle p-3 text-[13px] leading-snug text-muted">
           <span>
-            Tu nombre y teléfono se comparten solo con este local para gestionar la solicitud. El local te responde por su cuenta (teléfono o WhatsApp):
-            {BRAND.name} no envía mensajes automáticos.
+            Tu nombre y teléfono se comparten solo con este local para gestionar la solicitud. El local te responde por su cuenta (teléfono o WhatsApp).
+            {notifications ? " Si querés, también te avisamos por email." : ` ${BRAND.name} no envía mensajes automáticos.`}
           </span>
         </div>
       ) : (
@@ -85,6 +87,36 @@ export function DetailsStep({ draft, errors, update, onEdit, live = false }: Pro
             className={cn(inputClass, "h-auto resize-none py-3")}
           />
         </Field>
+        {live && notifications && (
+          <div className="rounded-xl border border-line p-3">
+            <label className="flex min-h-11 cursor-pointer items-start gap-3">
+              <input type="checkbox" checked={!!draft.notify} onChange={(e) => update("notify", e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-foreground" />
+              <span className="text-[15px]">
+                Avisarme por email cuando el local responda
+                <span className="block type-help">Solo usamos tu email para avisarte del estado de esta solicitud. No es una confirmación.</span>
+              </span>
+            </label>
+            {draft.notify && (
+              <div className="mt-3">
+                <Field label="Email" htmlFor="res-email" error={errors.email} errorId="err-email">
+                  <input
+                    id="res-email"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    enterKeyHint="done"
+                    maxLength={120}
+                    value={draft.email ?? ""}
+                    onChange={(e) => update("email", e.target.value)}
+                    aria-invalid={!!errors.email}
+                    aria-describedby={errors.email ? "err-email" : undefined}
+                    className={inputClass}
+                  />
+                </Field>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

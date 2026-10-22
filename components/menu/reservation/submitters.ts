@@ -31,6 +31,8 @@ export const liveSubmitter =
       phone: draft.phone,
       notes: draft.notes,
       idempotencyKey,
+      email: draft.notify ? draft.email : undefined,
+      notifyConsent: draft.notify === true,
     }).catch(() => ({ ok: false as const, code: "network" }));
     return res.ok ? { ok: true } : { ok: false, ...reservationErrorInfo(res.code) };
   };

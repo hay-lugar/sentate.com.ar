@@ -22,7 +22,7 @@ export type Phase = "form" | "submitting" | "submitted" | "failed";
 export const STEP_COUNT = 3;
 
 /** Resumen de lo enviado, sin datos personales (para la pantalla de resultado). */
-export type SubmittedSummary = { guests: number; slot: Slot; firstName: string };
+export type SubmittedSummary = { guests: number; slot: Slot; firstName: string; notify: boolean };
 
 /**
  * Lógica del flujo de reserva, separada de la UI:
@@ -135,7 +135,7 @@ export function useReservationRequest(tenant: PublicTenant, open: boolean, { sub
       const res = await submitter(draft, idempotency.current.key, controller.signal);
       if (controller.signal.aborted) return;
       if (res.ok) {
-        setSummary({ guests: draft.guests, slot, firstName: draft.name.trim().split(/\s+/)[0] });
+        setSummary({ guests: draft.guests, slot, firstName: draft.name.trim().split(/\s+/)[0], notify: draft.notify === true });
         // Los datos de contacto no se conservan: solo el resumen sin teléfono ni comentarios.
         setDraft(EMPTY_DRAFT);
         idempotency.current = null;

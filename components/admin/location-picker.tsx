@@ -31,7 +31,7 @@ export default function LocationPicker({ lat, lng, onChange, label }: Props) {
     let cleanup = () => {};
     (async () => {
       try {
-        const [{ default: maplibregl }] = await Promise.all([import("maplibre-gl"), import("maplibre-gl/dist/maplibre-gl.css")]);
+        const [maplibregl] = await Promise.all([import("maplibre-gl"), import("maplibre-gl/dist/maplibre-gl.css")]);
         if (disposed || !box.current) return;
         const hasPoint = lat !== null && lng !== null;
         const map = new maplibregl.Map({

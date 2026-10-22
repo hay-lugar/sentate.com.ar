@@ -1,4 +1,5 @@
 import { Footer } from "@/components/landing/footer";
+import { ForBusiness } from "@/components/landing/for-business";
 import { Hero } from "@/components/landing/hero";
 import { Navbar } from "@/components/landing/navbar";
 import { Pricing } from "@/components/landing/pricing";
@@ -10,6 +11,7 @@ export default function LandingPage() {
       <Navbar />
       <main>
         <Hero />
+        <ForBusiness />
         <Product />
         <Pricing />
       </main>

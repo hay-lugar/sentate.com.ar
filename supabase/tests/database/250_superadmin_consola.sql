@@ -1,6 +1,6 @@
 -- Consola de superadmin: autorización en la base, administradores, auditoría y ajustes.
 begin;
-select plan(34);
+select plan(35);
 
 select tests.as_postgres();
 select tests.seed_two_tenants();
@@ -34,6 +34,11 @@ select throws_ok($$ select public.admin_add_admin('no-existe@test.local', 'alta 
 select ok(public.admin_add_admin('Admin2@test.local', 'segundo administrador') ? 'user_id', 'se agrega un administrador (sin distinguir mayúsculas)');
 select throws_ok(format($$ select public.admin_remove_admin(%L, 'prueba de baja propia') $$, tests.uid('admin@test.local')), 'P0001', 'cannot_remove_self', 'no se puede quitar a uno mismo');
 select ok((public.admin_remove_admin(tests.uid('admin2@test.local'), 'baja de prueba') ->> 'removed')::boolean, 'se quita a otro administrador');
+select throws_ok(format($$ select public.admin_remove_admin(%L, 'baja de prueba') $$, gen_random_uuid()), 'P0001', 'admin_not_found', 'quitar a quien no es administrador falla');
+-- El seed de desarrollo trae otro superadmin: se deja solo a este para probar el último.
+select tests.as_postgres();
+delete from private.platform_admins where user_id <> tests.uid('admin@test.local');
+select tests.authenticate_as('admin@test.local');
 select throws_ok(format($$ select public.admin_remove_admin(%L, 'baja de prueba') $$, gen_random_uuid()), 'P0001', 'last_admin', 'siempre queda al menos un administrador');
 
 -- ── Ajustes y auditoría ──

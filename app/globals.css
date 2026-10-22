@@ -164,3 +164,9 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Controles de MapLibre: áreas táctiles de 44px (por defecto miden 29px). */
+.maplibregl-ctrl-group button {
+  width: 44px;
+  height: 44px;
+}

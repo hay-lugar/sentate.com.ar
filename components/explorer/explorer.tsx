@@ -211,7 +211,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
             value={text}
             maxLength={80}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Local, plato o zona"
+            placeholder="Local o plato"
             className={cn(inputClass, "pl-12")}
             autoComplete="off"
           />
@@ -380,7 +380,7 @@ export function Explorer({ facets, favorites }: { facets: FacetData; favorites: 
                   </Button>
                 )}
               </div>
-              <p className="pointer-events-none absolute right-3 bottom-6 rounded-md bg-background/90 px-2 py-1 text-[13px]" role="status">
+              <p className="pointer-events-none absolute right-3 bottom-10 rounded-md bg-background/90 px-2 py-1 text-[13px]" role="status">
                 {markerRes.status === "ok" ? `${markers.length} en esta vista${markerRes.data.total > markers.length ? ` de ${markerRes.data.total}` : ""}` : "Cargando mapa…"}
               </p>
               {selected && (

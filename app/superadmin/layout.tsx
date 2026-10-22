@@ -37,12 +37,12 @@ export default async function SuperadminLayout({ children }: { children: React.R
           <Link href="/" aria-label={`${BRAND.name}, inicio`} className="inline-flex min-h-11 items-center">
             <Logo size="sm" />
           </Link>
-          <span className="rounded-md border border-line-strong px-2 py-1 text-[13px] font-medium">Superadmin</span>
-          <span className="ml-auto hidden text-[13px] text-muted sm:inline">{user.email}</span>
-          <Link href="/cuenta" className="inline-flex min-h-11 items-center px-2 text-[15px] text-muted hover:text-foreground">
+          <span className="hidden rounded-md border border-line-strong px-2 py-1 text-[13px] font-medium min-[430px]:inline">Superadmin</span>
+          <span className="ml-auto hidden text-[13px] text-muted md:inline">{user.email}</span>
+          <Link href="/cuenta" className="hidden min-h-11 items-center px-2 text-[15px] text-muted hover:text-foreground sm:inline-flex">
             Mi cuenta
           </Link>
-          <form action={signOutAction}>
+          <form action={signOutAction} className="ml-auto md:ml-0">
             <button type="submit" className="pressable inline-flex min-h-11 items-center rounded-xl border border-line-strong px-3 text-[15px] hover:bg-subtle">
               Cerrar sesión
             </button>

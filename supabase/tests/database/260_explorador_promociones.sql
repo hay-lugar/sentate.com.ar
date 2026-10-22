@@ -14,7 +14,9 @@ insert into public.tenant_locations (tenant_id, lat, lng, province_code, localit
 update public.tenant_moderation set status = 'approved' where tenant_id in (tests.tenant_id('bodegon-a'), tests.tenant_id('esquina-b'));
 
 create or replace function tests.slugs(p jsonb) returns text[] language sql set search_path = '' as
-$$ select coalesce(array_agg(i ->> 'slug' order by i ->> 'slug'), '{}') from pg_catalog.jsonb_array_elements(public.explore_search(p) -> 'items') i $$;
+$$ select coalesce(array_agg(i ->> 'slug' order by i ->> 'slug'), '{}') from pg_catalog.jsonb_array_elements(public.explore_search(p) -> 'items') i
+   -- El seed de desarrollo trae otros comercios listados: se compara solo con los de esta prueba.
+   where i ->> 'slug' in ('bodegon-a', 'esquina-b') $$;
 grant execute on function tests.slugs(jsonb) to anon, authenticated;
 
 select tests.as_anon();

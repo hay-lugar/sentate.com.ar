@@ -22,7 +22,7 @@ export default defineConfig({
     ...devices["Desktop Chrome"],
   },
   webServer: {
-    command: `next build && next start -p ${PORT}`,
+    command: `npm run build && next start -p ${PORT}`,
     port: PORT,
     timeout: 300_000,
     reuseExistingServer: !process.env.CI,

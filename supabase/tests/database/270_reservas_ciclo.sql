@@ -1,6 +1,6 @@
 -- PR3 del plan de lanzamiento: «no se presentó» y el plazo de respuesta visible para quien pidió la mesa.
 begin;
-select plan(9);
+select plan(8);
 
 select tests.seed_two_tenants();
 select tests.create_user('diner@test.local');

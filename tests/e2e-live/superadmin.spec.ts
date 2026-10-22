@@ -159,3 +159,34 @@ test("consola: cerrar sesión, crear un restaurante, ponerle una promoción visi
   await expect(page).toHaveURL(/\/login/);
   await ctx.close();
 });
+
+test("una promoción puesta por la plataforma se ve en el explorador y en la carta, y se quita", async ({ browser, baseURL }) => {
+  const ctx = await newContextWithIp(browser, baseURL!, "203.0.113.73");
+  const page = await ctx.newPage();
+  await login(page, "superadmin@example.test", "/superadmin/comercios");
+  await page.getByLabel("Nombre o dirección web (slug)").fill("prueba-bodegon");
+  await page.getByRole("button", { name: "Buscar" }).click();
+  await page.getByRole("link", { name: /prueba-bodegon/ }).click();
+  const region = page.getByRole("region", { name: "Promoción" });
+  try {
+    await region.getByLabel("Título").fill("Happy hour 2x1");
+    await region.getByLabel("Detalle").fill("De 18 a 20 h");
+    await region.getByLabel("Razón").fill("prueba de promoción");
+    await region.getByRole("button", { name: "Publicar promoción" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Promoción publicada." })).toBeVisible();
+
+    const pub = await newContextWithIp(browser, baseURL!, "203.0.113.74");
+    const pp = await pub.newPage();
+    await pp.goto("/explorar");
+    await expect(pp.getByRole("article", { name: "El Bodegón" }).getByText("Happy hour 2x1")).toBeVisible();
+    await expect(pp.getByRole("article", { name: "La Esquina" }).getByText("Happy hour 2x1")).toHaveCount(0);
+    await pp.goto("/prueba-bodegon");
+    await expect(pp.getByLabel("Promoción").getByText("Happy hour 2x1")).toBeVisible();
+    await pub.close();
+  } finally {
+    await region.getByLabel("Razón").fill("fin de la prueba");
+    await region.getByRole("button", { name: "Quitar promoción" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Se quitó la promoción." })).toBeVisible();
+    await ctx.close();
+  }
+});

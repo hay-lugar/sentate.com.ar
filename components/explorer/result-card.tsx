@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Tag } from "lucide-react";
 import { cn } from "@/lib/format";
 import { buttonClass } from "@/components/ui/button";
 import { FavoriteButton } from "@/components/account/favorite-button";
@@ -45,6 +46,16 @@ export function ResultCard({ item, facets, selected, onSelect, compact, favorite
           {place}
           {distance ? ` · ${distance}` : ""}
         </p>
+        {item.promotion && (
+          <p className="mt-1 flex items-start gap-1.5 rounded-md bg-subtle px-2 py-1.5 text-[13px] leading-snug" title={item.promotion.detail || undefined}>
+            <Tag className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+            <span className="min-w-0 [overflow-wrap:anywhere]">
+              <span className="sr-only">Promoción: </span>
+              <span className="font-medium">{item.promotion.title}</span>
+              {item.promotion.detail && <span className="text-muted"> · {item.promotion.detail}</span>}
+            </span>
+          </p>
+        )}
         {item.featured && <p className="mt-1 inline-block rounded-md border border-line-strong px-1.5 py-1 text-[13px] leading-none font-medium">Destacado</p>}
         <p className={cn("mt-1 text-[13px] font-medium", item.open_now ? "text-success" : "text-muted")}>{item.open_now ? "Abierto ahora" : "Cerrado ahora"}</p>
         <div className="mt-2 flex flex-wrap gap-2">

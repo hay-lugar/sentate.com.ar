@@ -41,7 +41,7 @@ Navegación fija en `/superadmin`: **Bandeja** (moderación), **Resumen** (cifra
 |---|---|---|
 | Crear restaurante | `admin_create_tenant` | para un dueño con cuenta confirmada, o para el propio superadmin; queda sin publicar y en borrador |
 | Pausar / reactivar | `admin_set_suspension` | oculta carta y explorador; no borra nada |
-| Promoción | `admin_set_promotion` / `admin_clear_promotion` | una por comercio, hasta 90 días; se ve en la carta pública solo mientras está vigente y el comercio es visible |
+| Promoción | `admin_set_promotion` / `admin_clear_promotion` | una por comercio, hasta 90 días; se ve en la carta pública y en las tarjetas del explorador solo mientras está vigente y el comercio es visible |
 | Eliminar | `admin_delete_tenant` | **definitivo**: borra carta, reservas, horarios, membresías y favoritos; exige escribir el slug exacto y un motivo; queda en auditoría con nombre y slug. Las imágenes del Storage no se borran |
 | Administradores | `admin_add_admin` / `admin_remove_admin` | auditado |
 | Ajuste | `admin_set_platform_setting` | solo `public_menu_when_access_lapsed` |

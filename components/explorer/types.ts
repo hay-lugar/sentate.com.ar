@@ -16,6 +16,8 @@ export type ResultItem = {
   distance_m: number | null;
   featured?: boolean;
   accepts_reservations?: boolean;
+  /** Promoción vigente cargada por la plataforma (solo si hay). */
+  promotion?: { title: string; detail: string };
 };
 
 export type SearchResponse = { total: number; items: ResultItem[]; featured_items?: ResultItem[] };

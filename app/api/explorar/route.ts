@@ -44,7 +44,7 @@ function limited(key: string) {
   return recent.length > 90;
 }
 
-type Item = { cover_url: string | null; logo_url: string | null } & Record<string, unknown>;
+type Item = { id: string; cover_url: string | null; logo_url: string | null } & Record<string, unknown>;
 
 export async function POST(request: Request) {
   if (!isSupabaseConfigured()) return NextResponse.json({ total: 0, items: [], unavailable: true });
@@ -64,6 +64,17 @@ export async function POST(request: Request) {
   const result = data as { total: number; items: Item[]; featured_items?: Item[] };
   const featured = result.featured_items ?? [];
   const signed = await signImagePaths(supabase, [...result.items, ...featured].flatMap((i) => [i.cover_url, i.logo_url]));
-  const sign = (i: Item) => ({ ...i, cover_url: resolveImageRef(signed, i.cover_url), logo_url: resolveImageRef(signed, i.logo_url) });
+  // Promociones vigentes: la base (RLS) solo entrega las que están dentro de su ventana y de comercios visibles.
+  // Si la lectura falla, el explorador funciona igual, sin promociones.
+  const ids = [...new Set([...result.items, ...featured].map((i) => i.id as string))];
+  const promos = new Map<string, { title: string; detail: string }>();
+  if (ids.length) {
+    const { data: rows } = await supabase.from("tenant_promotions").select("tenant_id, title, detail").in("tenant_id", ids);
+    for (const p of rows ?? []) promos.set(p.tenant_id as string, { title: p.title as string, detail: (p.detail as string) ?? "" });
+  }
+  const sign = (i: Item) => {
+    const promotion = promos.get(i.id as string);
+    return { ...i, cover_url: resolveImageRef(signed, i.cover_url), logo_url: resolveImageRef(signed, i.logo_url), ...(promotion ? { promotion } : {}) };
+  };
   return NextResponse.json({ total: result.total, items: result.items.map(sign), featured_items: featured.map(sign) }, { headers: { "Cache-Control": "no-store" } });
 }

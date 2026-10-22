@@ -44,7 +44,9 @@ select is((select count(*)::int from private.notification_outbox where reservati
 -- Cancelación del propio comensal: no genera aviso.
 select tests.as_postgres();
 select tests.create_user('diner2@test.local');
+alter table public.reservations disable trigger reservations_guard_update;
 update public.reservations set user_id = tests.uid('diner2@test.local'), customer_email = 'diner2@example.com', notify_consent = true where id = (select id::uuid from r3);
+alter table public.reservations enable trigger reservations_guard_update;
 select tests.authenticate_as('diner2@test.local');
 select public.cancel_my_reservation((select id::uuid from r3));
 select tests.as_postgres();

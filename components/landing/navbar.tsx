@@ -10,7 +10,7 @@ export function Navbar() {
         <Link href="/" aria-label={`${BRAND.name}, inicio`} className="mr-auto inline-flex min-h-11 items-center">
           <Logo size="md" />
         </Link>
-        <Link href="/explorar" className="inline-flex h-11 items-center rounded-xl px-2 text-[15px] text-muted hover:text-foreground sm:px-3">
+        <Link href="/explorar" className="hidden h-11 items-center rounded-xl px-2 text-[15px] text-muted hover:text-foreground min-[430px]:inline-flex sm:px-3">
           Explorar
         </Link>
         <Link href="#negocios" className="hidden h-11 items-center rounded-xl px-3 text-[15px] text-muted hover:text-foreground sm:inline-flex">

@@ -63,7 +63,7 @@ begin
       when 'confirmed' then 'reservation_confirmed'
       when 'rejected' then 'reservation_rejected'
       -- Solo cancelaciones HECHAS POR EL LOCAL: quien cancela su propia reserva no necesita un aviso de eso.
-      when 'cancelled' then case when current_user in ('anon', 'authenticated') then 'reservation_cancelled' end
+      when 'cancelled' then case when auth.uid() is distinct from new.user_id or new.user_id is null then 'reservation_cancelled' end
       else null end;
   end if;
   if v_kind is null then

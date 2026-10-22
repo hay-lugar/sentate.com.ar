@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { AccessExpired } from "@/components/admin/access-expired";
+import { MotionProvider } from "@/components/ui/motion-provider";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminDemoProvider } from "@/components/admin/demo-provider";
 import { NoAccess } from "@/components/admin/no-access";
@@ -30,9 +31,11 @@ export default async function AdminLayout({ children, params }: Props) {
   if (demo) {
     // key: cambiar de comercio reinicia por completo el estado de la demo.
     return (
-      <AdminDemoProvider key={`demo:${demo.slug}`} record={demo}>
-        <AdminShell>{children}</AdminShell>
-      </AdminDemoProvider>
+      <MotionProvider>
+        <AdminDemoProvider key={`demo:${demo.slug}`} record={demo}>
+          <AdminShell>{children}</AdminShell>
+        </AdminDemoProvider>
+      </MotionProvider>
     );
   }
 
@@ -46,6 +49,7 @@ export default async function AdminLayout({ children, params }: Props) {
 
   const live = result.data;
   return (
+    <MotionProvider>
     <AdminDemoProvider
       key={`live:${live.id}`}
       record={live}
@@ -53,5 +57,6 @@ export default async function AdminLayout({ children, params }: Props) {
     >
       <AdminShell>{live.access.canOperate ? children : <AccessExpired access={live.access} />}</AdminShell>
     </AdminDemoProvider>
+    </MotionProvider>
   );
 }

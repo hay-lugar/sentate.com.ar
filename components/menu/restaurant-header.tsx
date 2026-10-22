@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
 import { Check, Clock3, MapPin, Phone, Share2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { PublicTenant } from "@/lib/domain/types";
@@ -118,28 +117,22 @@ export function RestaurantHeader({
   );
 }
 
-/** Barra compacta que aparece al scrollear: nombre y estado. */
+/** Barra compacta que aparece al scrollear: nombre y estado. Solo CSS (sin framer-motion): la carta carga menos JavaScript. */
 export function CompactBar({ tenant, status, visible }: { tenant: PublicTenant; status: OpenState; visible: boolean }) {
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
-          className="fixed inset-x-0 top-0 z-40 mx-auto max-w-xl border-b border-line bg-background pt-[env(safe-area-inset-top)]"
-        >
-          <div className="flex h-14 items-center gap-3 px-5">
-            <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className="size-8 rounded-lg text-[13px]" />
-            <span className="truncate text-[16px] font-semibold">{tenant.name}</span>
-            <span className="ml-auto inline-flex shrink-0 items-center gap-1.5 type-help">
-              <StatusDot open={status.open} />
-              {status.open ? "Abierto" : "Cerrado"}
-            </span>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <div
+      aria-hidden={!visible}
+      inert={!visible}
+      className={`fixed inset-x-0 top-0 z-40 mx-auto max-w-xl border-b border-line bg-background pt-[env(safe-area-inset-top)] transition-opacity duration-150 motion-reduce:transition-none ${visible ? "opacity-100" : "pointer-events-none opacity-0"}`}
+    >
+      <div className="flex h-14 items-center gap-3 px-5">
+        <TenantLogo name={tenant.name} logoUrl={tenant.logoUrl} className="size-8 rounded-lg text-[13px]" />
+        <span className="truncate text-[16px] font-semibold">{tenant.name}</span>
+        <span className="ml-auto inline-flex shrink-0 items-center gap-1.5 type-help">
+          <StatusDot open={status.open} />
+          {status.open ? "Abierto" : "Cerrado"}
+        </span>
+      </div>
+    </div>
   );
 }

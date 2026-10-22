@@ -57,3 +57,18 @@ describe("despachador", () => {
     expect(done.id3).toMatchObject({ ok: false, retryable: false });
   });
 });
+
+describe("aviso de solicitud vencida", () => {
+  it("dice que venció y que no quedó ninguna mesa, sin prometer nada", async () => {
+    const { renderNotification } = await import("@/lib/notifications/templates");
+    const m = renderNotification(
+      "reservation_expired",
+      { tenant_name: "El Bodegón", tenant_phone: "+54 11 0000-0101", timezone: "America/Argentina/Buenos_Aires", starts_at: "2026-11-05T00:30:00Z", guests: 2, first_name: "Ana" },
+      "{Sin Nombre}",
+    );
+    expect(m.subject).toContain("no llegó a responder");
+    expect(m.text).toContain("venció");
+    expect(m.text).toContain("No quedó ninguna mesa reservada");
+    expect(m.text).not.toMatch(/confirmad|te esperan/i);
+  });
+});

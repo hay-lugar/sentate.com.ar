@@ -127,6 +127,17 @@ test.describe("estado de demo por tenant", () => {
     await expect(page.getByRole("heading", { name: "Las reservas están desactivadas" })).toHaveCount(0);
   });
 
+  test("el registro ofrece las dos intenciones y respeta la elegida en el enlace", async ({ page }) => {
+    await page.goto("/registro");
+    await expect(page.getByRole("radio", { name: /Quiero descubrir locales/ })).toBeChecked();
+    await expect(page.getByRole("radio", { name: /Quiero publicar mi local/ })).not.toBeChecked();
+    await page.goto("/registro?intencion=local");
+    await expect(page.getByRole("radio", { name: /Quiero publicar mi local/ })).toBeChecked();
+    // Desde «Para negocios» se llega con la intención de publicar.
+    await page.goto("/");
+    await expect(page.getByRole("link", { name: "Crear cuenta" }).nth(1)).toHaveAttribute("href", "/registro?intencion=local");
+  });
+
   test("la carta larga se puede buscar (sin tildes) y se vuelve a la carta completa", async ({ page }) => {
     await page.goto("/el-bodegon");
     const box = page.getByRole("searchbox", { name: "Buscar en la carta" });

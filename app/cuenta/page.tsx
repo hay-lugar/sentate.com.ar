@@ -60,6 +60,18 @@ export default async function CuentaPage() {
         </section>
       )}
 
+      {tenants.status === "ok" && tenants.data.length === 0 && (
+        <section aria-labelledby="publicar">
+          <h2 id="publicar" className="mb-3 type-section">
+            ¿Tenés un local?
+          </h2>
+          <p className="mb-3 type-help">Podés publicar tu carta con QR y recibir solicitudes de mesa. Es opcional: tu cuenta de comensal sigue igual.</p>
+          <Link href="/registro/local" className={buttonClass({ variant: "secondary" })}>
+            Publicar mi local
+          </Link>
+        </section>
+      )}
+
       {adminRes.data === true && (
         <section aria-labelledby="sa">
           <h2 id="sa" className="mb-3 type-section">Plataforma</h2>

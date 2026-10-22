@@ -33,6 +33,10 @@ export type TenantRow = {
   accent_fg_color: string;
   is_published: boolean;
   updated_at: string;
+  /** Enlaces opcionales del perfil (la base los restringe a https y al dominio correcto). */
+  website_url?: string | null;
+  instagram_url?: string | null;
+  facebook_url?: string | null;
 };
 
 export type ShiftRow = { id: string; weekday: number; label: string; opens_at: string; closes_at: string };
@@ -67,7 +71,7 @@ const hhmm = (t: string) => t.slice(0, 5);
 
 // Columnas que se leen (compartidas por server y cliente, p. ej. el realtime del panel).
 export const TENANT_COLUMNS =
-  "id, slug, name, tagline, cuisine, price_range, address, phone, timezone, logo_url, cover_url, primary_color, primary_fg_color, accent_color, accent_fg_color, is_published, updated_at";
+  "id, slug, name, tagline, cuisine, price_range, address, phone, timezone, logo_url, cover_url, primary_color, primary_fg_color, accent_color, accent_fg_color, is_published, updated_at, website_url, instagram_url, facebook_url";
 export const SHIFT_COLUMNS = "id, weekday, label, opens_at, closes_at";
 export const CLOSURE_COLUMNS = "service_date, reason";
 export const CATEGORY_COLUMNS = "id, name, position, is_visible, updated_at";
@@ -169,6 +173,13 @@ export function rowToReservation(r: ReservationRow, timeZone: string, now: Zoned
 }
 
 /** Contrato público para un comercio real (misma lista permitida que las demos + id). */
+/** Solo enlaces https (defensa en profundidad: la base ya lo exige). Sin enlaces, no agrega la propiedad. */
+export function publicLinks(t: Pick<TenantRow, "website_url" | "instagram_url" | "facebook_url">): { links?: NonNullable<PublicTenant["links"]> } {
+  const ok = (u?: string | null) => (u && /^https:\/\/[^\s]+$/.test(u) ? u : undefined);
+  const links = { website: ok(t.website_url), instagram: ok(t.instagram_url), facebook: ok(t.facebook_url) };
+  return Object.values(links).some(Boolean) ? { links: Object.fromEntries(Object.entries(links).filter(([, v]) => v)) } : {};
+}
+
 export function liveToPublicTenant(
   t: TenantRow,
   shifts: ShiftRow[],
@@ -192,5 +203,6 @@ export function liveToPublicTenant(
     logoUrl: profile.logoUrl,
     coverImage: profile.coverImage,
     categories: toPublicMenu(rowsToCategories(categories.filter((c) => c.is_visible), items)),
+    ...publicLinks(t),
   };
 }

@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { isSupabaseConfigured } from "@/utils/supabase/env";
+import { parseIntent, postLoginPath, postSignupPath } from "@/lib/auth/destinations";
 import { safeNext } from "@/lib/auth/redirects";
 import { authCallbackUrl } from "@/lib/auth/app-url";
 import { RECOVERY_NEUTRAL_MESSAGE, RECOVERY_NEW_PASSWORD_PATH, RECOVERY_PATH } from "@/lib/auth/recovery";
@@ -29,6 +30,12 @@ async function supabase() {
   return createClient(await cookies());
 }
 
+/** ¿La persona administra algún local? (RLS: solo ve sus propias membresías). */
+async function hasTenants(client: Awaited<ReturnType<typeof supabase>>): Promise<boolean> {
+  const { count } = await client.from("tenant_members").select("tenant_id", { count: "exact", head: true });
+  return (count ?? 0) > 0;
+}
+
 export async function signInAction(_prev: FormState, form: FormData): Promise<FormState> {
   if (!isSupabaseConfigured()) return { error: "La autenticación no está configurada." };
   const email = String(form.get("email") ?? "").trim().toLowerCase();
@@ -39,7 +46,7 @@ export async function signInAction(_prev: FormState, form: FormData): Promise<Fo
   const client = await supabase();
   const { error } = await client.auth.signInWithPassword({ email, password });
   if (error) return { error: authMessage(error.message), fields: { email } };
-  redirect(next ?? "/admin");
+  redirect(postLoginPath({ next, hasTenants: await hasTenants(client) }));
 }
 
 export async function signUpAction(_prev: FormState, form: FormData): Promise<FormState> {
@@ -49,10 +56,11 @@ export async function signUpAction(_prev: FormState, form: FormData): Promise<Fo
   if (!EMAIL_RE.test(email)) return { error: "Ingresá un email válido.", fields: { email } };
   const problem = passwordProblem(password);
   if (problem) return { error: problem, fields: { email } };
+  const intent = parseIntent(form.get("intencion"));
 
   let emailRedirectTo: string;
   try {
-    emailRedirectTo = authCallbackUrl("/registro/local");
+    emailRedirectTo = authCallbackUrl(postSignupPath(intent));
   } catch {
     return { error: "La aplicación no está configurada para enviar emails. Avisale al equipo." };
   }
@@ -61,9 +69,11 @@ export async function signUpAction(_prev: FormState, form: FormData): Promise<Fo
   if (error) return { error: authMessage(error.message), fields: { email } };
   // Con confirmación de email activada no hay sesión todavía.
   if (!data.session) {
-    return { info: `Te enviamos un email a ${email}. Abrí el enlace para confirmar tu cuenta y seguir con el alta de tu local.` };
+    return {
+      info: `Te enviamos un email a ${email}. Abrí el enlace para confirmar tu cuenta${intent === "local" ? " y seguir con el alta de tu local" : ""}.`,
+    };
   }
-  redirect("/registro/local");
+  redirect(postSignupPath(intent));
 }
 
 /**
@@ -106,7 +116,7 @@ export async function setNewPasswordAction(_prev: FormState, form: FormData): Pr
 
   const { error } = await client.auth.updateUser({ password });
   if (error) return { error: authMessage(error.message) };
-  redirect("/admin");
+  redirect(postLoginPath({ hasTenants: await hasTenants(client) }));
 }
 
 export async function createLocalAction(_prev: FormState, form: FormData): Promise<FormState> {

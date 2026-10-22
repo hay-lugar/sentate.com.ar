@@ -194,3 +194,29 @@ describe("errores y redirecciones", () => {
     [null, null],
   ])("safeNext(%s) → %s", (input, expected) => expect(safeNext(input)).toBe(expected));
 });
+
+import { publicLinks } from "@/lib/data/live/mappers";
+import { restaurantJsonLd } from "@/lib/seo/structured-data";
+import type { PublicTenant } from "@/lib/domain/types";
+
+describe("enlaces públicos del local", () => {
+  it("solo pasa enlaces https y no agrega la propiedad si no hay ninguno", () => {
+    expect(publicLinks({ website_url: null, instagram_url: null, facebook_url: null })).toEqual({});
+    expect(publicLinks({ website_url: "http://inseguro.test", instagram_url: "javascript:alert(1)", facebook_url: "" })).toEqual({});
+    expect(publicLinks({ website_url: "https://mi-local.test", instagram_url: "https://www.instagram.com/mi.local", facebook_url: null })).toEqual({
+      links: { website: "https://mi-local.test", instagram: "https://www.instagram.com/mi.local" },
+    });
+    expect(publicLinks({})).toEqual({});
+  });
+
+  it("los datos estructurados incluyen sameAs solo con enlaces", () => {
+    const base = {
+      slug: "x", name: "X", tagline: "", cuisine: "", priceRange: "$$", address: "Calle 1", phone: "", timezone: "America/Argentina/Buenos_Aires",
+      schedule: { week: [[], [], [], [], [], [], []], exceptions: [] }, theme: {}, categories: [],
+      discovery: { lat: -34.6, lng: -58.4, locality: "CABA", province: "caba" },
+    } as unknown as PublicTenant;
+    expect(restaurantJsonLd(base, "https://x.test")).not.toHaveProperty("sameAs");
+    const withLinks = { ...base, links: { instagram: "https://www.instagram.com/x" } };
+    expect(restaurantJsonLd(withLinks, "https://x.test")?.sameAs).toEqual(["https://www.instagram.com/x"]);
+  });
+});

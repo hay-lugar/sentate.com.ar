@@ -14,10 +14,14 @@ import { absoluteMinutes, zonedNow } from "@/lib/time/zoned";
 import { useDemo } from "./demo-provider";
 import { resolveReservationTime } from "./reservation-time";
 
-type Filter = ReservationStatus | "all";
+type Filter = ReservationStatus | "all" | "today";
+
+/** Servicio de hoy: lo que el local tiene que atender (sin rechazadas ni canceladas). */
+const isToday = (r: Reservation) => r.dayOffset === 0 && r.status !== "rejected" && r.status !== "cancelled" && r.status !== "expired";
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: "pending", label: "Solicitudes" },
+  { id: "today", label: "Hoy" },
   { id: "confirmed", label: "Confirmadas" },
   { id: "rejected", label: "Rechazadas" },
   { id: "cancelled", label: "Canceladas" },
@@ -42,14 +46,17 @@ export function ReservationsList({
   const [filter, setFilter] = useState<Filter>("pending");
 
   const counts = useMemo(() => {
-    const c: Record<Filter, number> = { pending: 0, confirmed: 0, rejected: 0, cancelled: 0, expired: 0, finished: 0, all: reservations.length };
-    reservations.forEach((r) => c[r.status]++);
+    const c: Record<Filter, number> = { today: 0, pending: 0, confirmed: 0, rejected: 0, cancelled: 0, expired: 0, finished: 0, all: reservations.length };
+    reservations.forEach((r) => {
+      c[r.status]++;
+      if (isToday(r)) c.today++;
+    });
     return c;
   }, [reservations]);
 
   const list = useMemo(() => {
     const withTime = reservations
-      .filter((r) => filter === "all" || r.status === filter)
+      .filter((r) => filter === "all" || (filter === "today" ? isToday(r) : r.status === filter))
       .map((r) => ({ r, t: resolveReservationTime(r, state.profile.schedule, now) }));
     // Pendientes: la más nueva arriba. El resto: cronológico por fecha de servicio.
     const sorted =

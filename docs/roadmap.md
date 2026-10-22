@@ -28,5 +28,10 @@ Preview automático por PR en Vercel; producción solo con autorización. Migrac
 ## Pruebas
 `npm run check` (tipos, lint, unit, build); `npm run test:e2e` (demo); en CI: pgTAP, Data API, Realtime, concurrencia y `test:e2e:live`.
 
-## Registro de cambios (Fase 1)
+## Registro de cambios
+
+### Fase 3 (experiencia del comercio)
+El inicio y la página de Reservas del panel respetan las reservas opcionales: con las reservas apagadas no muestran solicitudes ni agenda vacías, sino un aviso con acceso a Capacidad (el historial se conserva). Nuevo filtro «Hoy» en reservas (mesas de hoy confirmadas y pendientes). Cubierto por E2E demo y E2E live.
+
+### Fase 1
 maplibre 6, reservas opcionales, filtro «Acepta reservas», SEO, landing híbrida, marca configurable, checklist, base de notificaciones.

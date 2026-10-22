@@ -1,10 +1,8 @@
 import { DashboardHeader } from "@/components/admin/dashboard-header";
-import { ReservationsList } from "@/components/admin/reservations-list";
 import { SetupChecklist } from "@/components/admin/setup-checklist";
-import { StatCards } from "@/components/admin/stat-cards";
-import { TodayAgenda } from "@/components/admin/today-agenda";
 import { getTenantRecord } from "@/lib/data/tenants";
 import { supabaseServer } from "@/lib/data/live/queries";
+import { DashboardBody } from "./_dashboard-body";
 import type { ChecklistInput } from "@/lib/admin/setup-checklist";
 import type { ModerationStatus } from "@/lib/explorer/profile";
 
@@ -45,13 +43,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ slug
     <>
       <DashboardHeader />
       {checklist && <SetupChecklist input={checklist} />}
-      <StatCards />
-      <div className="mt-8">
-        <ReservationsList limit={6} seeAllHref={`/admin/${slug}/reservas`} />
-      </div>
-      <div className="mt-8">
-        <TodayAgenda />
-      </div>
+      <DashboardBody slug={slug} />
     </>
   );
 }

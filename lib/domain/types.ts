@@ -143,6 +143,8 @@ export type LiveTenantRecord = TenantRecord & {
   settingsVersion: string;
   /** tenants.cover_url: ruta de Storage o URL https. La portada se edita aparte de Ajustes (no está en el perfil). */
   coverUrl: string | null;
+  /** tenant_reservation_settings.accepts_reservations: si está apagado, el panel no muestra solicitudes ni agenda. */
+  reservationsEnabled: boolean;
 };
 
 /* ───────────── Contrato público (lo único que llega al comensal) ───────────── */

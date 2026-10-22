@@ -1,6 +1,7 @@
 "use client";
 
 import { LocateFixed } from "lucide-react";
+import { loadMapLibre } from "@/lib/map/load-maplibre";
 import { useEffect, useRef } from "react";
 import type { Map as MapLibreMap, GeoJSONSource } from "maplibre-gl";
 import { AR_CENTER } from "@/lib/explorer/profile";
@@ -52,7 +53,7 @@ export default function ExplorerMap({ markers, selectedId, onSelect, onViewChang
     let cleanup = () => {};
     (async () => {
       try {
-        const [maplibregl] = await Promise.all([import("maplibre-gl"), import("maplibre-gl/dist/maplibre-gl.css")]);
+        const maplibregl = await loadMapLibre();
         if (disposed || !box.current) return;
         const map = new maplibregl.Map({
           container: box.current,

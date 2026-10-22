@@ -16,3 +16,4 @@ test-results
 
 # Capturas de la validación (las genera tests/e2e-live/capturas.spec.ts; se suben desde la CI)
 /capturas/
+/public/maplibre/

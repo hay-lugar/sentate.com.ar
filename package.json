@@ -13,7 +13,9 @@
     "check": "npm run typecheck && npm run lint && npm run test && npm run build",
     "test:e2e:live": "playwright test -c playwright.live.config.ts",
     "test:db": "supabase test db",
-    "preflight": "node scripts/preflight.ts"
+    "preflight": "node scripts/preflight.ts",
+    "predev": "node scripts/copy-maplibre-worker.mjs",
+    "prebuild": "node scripts/copy-maplibre-worker.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

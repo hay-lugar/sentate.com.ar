@@ -11,6 +11,7 @@ export function restaurantJsonLd(tenant: PublicTenant, origin: string): Record<s
   const hours = tenant.schedule.week.flatMap((shifts, day) =>
     shifts.map((s) => ({ "@type": "OpeningHoursSpecification", dayOfWeek: DAYS[day], opens: s.open, closes: s.close })),
   );
+  const sameAs = Object.values(tenant.links ?? {}).filter(Boolean);
   return {
     "@context": "https://schema.org",
     "@type": "Restaurant",
@@ -23,6 +24,7 @@ export function restaurantJsonLd(tenant: PublicTenant, origin: string): Record<s
     address: { "@type": "PostalAddress", streetAddress: tenant.address, addressLocality: tenant.discovery.locality, addressCountry: "AR" },
     geo: { "@type": "GeoCoordinates", latitude: tenant.discovery.lat, longitude: tenant.discovery.lng },
     hasMenu: `${origin}/${tenant.slug}`,
+    ...(sameAs.length ? { sameAs } : {}),
     ...(hours.length ? { openingHoursSpecification: hours } : {}),
   };
 }

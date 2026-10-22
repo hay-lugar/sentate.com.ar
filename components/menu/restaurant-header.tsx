@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Check, Clock3, MapPin, Navigation, Phone, Share2 } from "lucide-react";
+import { Check, Clock3, ExternalLink, Globe, MapPin, Navigation, Phone, Share2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { PublicTenant } from "@/lib/domain/types";
 import { describeWeek, type OpenState } from "@/lib/domain/schedule";
@@ -90,6 +90,33 @@ export function RestaurantHeader({
             <span>{copied ? "Copiado" : "Compartir"}</span>
           </button>
         </div>
+
+        {tenant.links && (
+          <ul aria-label="Enlaces del local" className="mt-3 flex flex-wrap gap-2">
+            {(
+              [
+                ["website", "Sitio web", Globe],
+                ["instagram", "Instagram", ExternalLink],
+                ["facebook", "Facebook", ExternalLink],
+              ] as const
+            ).map(([key, label, Icon]) =>
+              tenant.links?.[key] ? (
+                <li key={key}>
+                  <a
+                    href={tenant.links[key]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pressable inline-flex min-h-11 items-center gap-1.5 rounded-full bg-subtle px-4 text-[0.875rem] font-medium hover:bg-line/60"
+                  >
+                    <Icon className="size-4" aria-hidden />
+                    {label}
+                    <span className="sr-only">(se abre en una pestaña nueva)</span>
+                  </a>
+                </li>
+              ) : null,
+            )}
+          </ul>
+        )}
 
         <ul className="mt-3 divide-y divide-line/70 overflow-hidden rounded-2xl bg-subtle text-[0.9375rem]">
           <li className="flex items-start gap-3 px-4 py-3">

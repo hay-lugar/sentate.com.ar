@@ -36,6 +36,9 @@ Preview automático por PR en Vercel; producción solo con autorización. Migrac
 - **Sin hacer, a propósito:** catálogo de planes en base (un único plan; duplicaría `lib/config/plan.ts` sin necesidad), analítica de uso (requiere decidir consentimiento y qué medir), multisucursal (diseño arriba, sin caso real), pruebas de carga y Lighthouse (no hay entorno de producción accesible para medir con datos reales).
 - **Lanzamiento:** lista en `docs/AUDITORIA_ACTUAL.md` (acciones del dueño: credenciales, SMTP, OAuth, dominio, primer superadmin).
 
+### Plan de 30 pasos (lanzamiento) — PR2: ficha pública
+El sitio web, Instagram y Facebook que el local carga en su perfil ahora llegan a la ficha pública (chips en la carta) y a los datos estructurados (`sameAs`); solo https y solo si existen. **WhatsApp del local queda pospuesto** (exige un campo nuevo validado y su formulario; el teléfono público no se asume como WhatsApp) y la **galería** también (el modelo actual tiene logo y portada).
+
 ### Fase 4 (experiencia del comensal)
 Carta: buscador por nombre/descripción (sin tildes) en cartas de 10 o más platos, combinable con el filtro dietario; enlace «Cómo llegar» con las coordenadas confirmadas del local (o la dirección si no las hay); texto de carta vacía coherente con reservas apagadas. Cubierto por pruebas unitarias y E2E demo. No se agregó nada que dependa de datos de uso, que todavía no existen.
 

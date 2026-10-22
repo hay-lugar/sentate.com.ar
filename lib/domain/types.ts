@@ -92,7 +92,7 @@ export type TenantProfile = {
 };
 
 /** `cancelled`: la reserva se canceló después de confirmada (o la solicitud se retiró). */
-export type ReservationStatus = "pending" | "confirmed" | "rejected" | "cancelled" | "expired" | "finished";
+export type ReservationStatus = "pending" | "confirmed" | "rejected" | "cancelled" | "expired" | "finished" | "no_show";
 
 export type Reservation = {
   id: string;

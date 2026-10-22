@@ -1,4 +1,4 @@
-export type DisplayStatus = "pending" | "confirmed" | "rejected" | "cancelled" | "finished" | "expired";
+export type DisplayStatus = "pending" | "confirmed" | "rejected" | "cancelled" | "finished" | "expired" | "no_show";
 
 export const STATUS_LABEL: Record<DisplayStatus, string> = {
   pending: "Pendiente",
@@ -7,6 +7,7 @@ export const STATUS_LABEL: Record<DisplayStatus, string> = {
   cancelled: "Cancelada",
   finished: "Finalizada",
   expired: "Sin respuesta",
+  no_show: "No te presentaste",
 };
 
 export const STATUS_HELP: Record<DisplayStatus, string> = {
@@ -15,7 +16,8 @@ export const STATUS_HELP: Record<DisplayStatus, string> = {
   rejected: "El local no pudo aceptar tu solicitud.",
   cancelled: "Esta reserva fue cancelada.",
   finished: "Esta reserva ya pasó.",
-  expired: "El local no respondió a tiempo y la fecha ya pasó.",
+  expired: "El local no respondió a tiempo y la solicitud venció. No quedó ninguna mesa guardada.",
+  no_show: "El local registró que no llegaste a esta reserva. Si fue un error, comunicate con el local.",
 };
 
 export type MyReservation = {
@@ -28,6 +30,8 @@ export type MyReservation = {
   notes: string;
   created_at: string;
   decided_at: string | null;
+  /** Solo en solicitudes pendientes: hasta cuándo puede responder el local antes de que venza. */
+  respond_by?: string | null;
   can_cancel: boolean;
   cancel_cutoff_hours: number;
   tenant: { slug: string; name: string; address: string; phone: string; timezone: string; visible: boolean };

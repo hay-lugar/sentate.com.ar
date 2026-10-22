@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { CancelReservation } from "@/components/account/cancel-reservation";
+import { buttonClass } from "@/components/ui/button";
 import { getMyReservation } from "@/lib/account/queries";
 import { STATUS_HELP, STATUS_LABEL, formatWhen } from "@/lib/account/status";
 
@@ -31,9 +32,31 @@ export default async function ReservaPage({ params }: { params: Promise<{ id: st
         {r.notes && <Row label="Tu comentario" value={r.notes} />}
         <Row label="Pedida el" value={formatWhen(r.created_at, r.tenant.timezone)} />
       </dl>
+      {r.status === "pending" && r.respond_by && (
+        <p className="rounded-2xl bg-subtle p-3 text-[0.9375rem] leading-relaxed">
+          El local puede responder hasta el <b className="font-semibold">{formatWhen(r.respond_by, r.tenant.timezone)}</b>. Si no lo hace, la solicitud vence sola y no queda
+          ninguna mesa guardada.
+        </p>
+      )}
       {r.can_cancel && <CancelReservation id={r.id} pending={r.status === "pending"} cutoffHours={r.cancel_cutoff_hours} />}
       {!r.can_cancel && (r.status === "pending" || r.status === "confirmed") && r.display_status !== "finished" && r.display_status !== "expired" && (
         <p className="type-help">Falta poco para esta reserva: para cambiarla o cancelarla, comunicate con el local.</p>
+      )}
+      {r.tenant.visible && ["rejected", "cancelled", "expired", "no_show"].includes(r.display_status) && (
+        <p className="text-[0.9375rem]">
+          <Link href={`/${r.tenant.slug}?mesa=1`} className={buttonClass({ variant: "secondary" })}>
+            Pedir otra mesa
+          </Link>
+        </p>
+      )}
+      {r.tenant.visible && r.can_cancel && (
+        <p className="type-help">
+          ¿Querés cambiar el día o el horario? No se edita una reserva: pedí una mesa nueva ({" "}
+          <Link href={`/${r.tenant.slug}?mesa=1`} className="underline underline-offset-4">
+            pedir otra mesa
+          </Link>
+          ) y después cancelá esta.
+        </p>
       )}
       <div className="flex flex-wrap gap-4 text-[0.9375rem]">
         {r.tenant.visible && (

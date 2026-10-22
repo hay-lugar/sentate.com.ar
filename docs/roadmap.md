@@ -39,6 +39,9 @@ Preview automático por PR en Vercel; producción solo con autorización. Migrac
 ### Plan de 30 pasos (lanzamiento) — PR2: ficha pública
 El sitio web, Instagram y Facebook que el local carga en su perfil ahora llegan a la ficha pública (chips en la carta) y a los datos estructurados (`sameAs`); solo https y solo si existen. **WhatsApp del local queda pospuesto** (exige un campo nuevo validado y su formulario; el teléfono público no se asume como WhatsApp) y la **galería** también (el modelo actual tiene logo y portada).
 
+### Plan de 30 pasos — PR3: vida completa de la reserva
+Nuevo estado **«no se presentó»** (solo desde confirmada y después de la hora; acción «No se presentó» en el panel, filtro y mensaje de contacto). Quien pidió la mesa ve **hasta cuándo puede responder el local** (`respond_by`, el vencimiento ya existía: 4 h por defecto, configurable en Capacidad) y qué pasa si no responde; las reservas rechazadas, canceladas, vencidas o no presentadas ofrecen «Pedir otra mesa». **Modificar = pedir una mesa nueva y cancelar la anterior** (no se edita una reserva). Migración aditiva `20261104000100`, pgTAP 270.
+
 ### Fase 4 (experiencia del comensal)
 Carta: buscador por nombre/descripción (sin tildes) en cartas de 10 o más platos, combinable con el filtro dietario; enlace «Cómo llegar» con las coordenadas confirmadas del local (o la dirección si no las hay); texto de carta vacía coherente con reservas apagadas. Cubierto por pruebas unitarias y E2E demo. No se agregó nada que dependa de datos de uso, que todavía no existen.
 

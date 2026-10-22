@@ -57,7 +57,7 @@ export const liveMutation = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("setReservationStatus"),
     id: uuid,
-    status: z.enum(["confirmed", "rejected", "cancelled", "finished"]),
+    status: z.enum(["confirmed", "rejected", "cancelled", "finished", "no_show"]),
     /** Estado que el panel tenía a la vista: si cambió (otra pestaña), no se pisa. */
     expectedStatus: z.enum(["pending", "confirmed"]),
   }),

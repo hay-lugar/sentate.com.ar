@@ -89,6 +89,7 @@ El CI (`.github/workflows/ci.yml`) corre en cada PR: typecheck, lint, Vitest, bu
 | Superadministración | [`docs/superadmin.md`](docs/superadmin.md) |
 | Notificaciones por email (base, apagadas) | [`docs/notificaciones.md`](docs/notificaciones.md) |
 | Pagos / Mercado Pago (base, sin cobrar) | [`docs/pagos.md`](docs/pagos.md) |
+| **Lista de lanzamiento (acciones del dueño)** | [`docs/lanzamiento.md`](docs/lanzamiento.md) |
 | **Estado real, riesgos y prioridades** | [`docs/AUDITORIA_ACTUAL.md`](docs/AUDITORIA_ACTUAL.md), [`docs/roadmap.md`](docs/roadmap.md), [`docs/auditoria-visual.md`](docs/auditoria-visual.md) |
 
 ## Seguridad en una línea

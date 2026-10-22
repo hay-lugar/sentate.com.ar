@@ -37,21 +37,26 @@ export function FiltersPanel({ filters, facets, onChange, onLocate, geo, hasPoin
         </select>
       </div>
 
-      <Group label="Tipo de comercio">
-        {facets.business_types.map((b) => (
-          <Pill key={b.code} on={filters.businessTypes.includes(b.code)} onClick={() => set({ businessTypes: toggle(filters.businessTypes, b.code) })}>
-            {b.label} <span className="text-muted">({b.count})</span>
-          </Pill>
-        ))}
-      </Group>
+      {/* Sin comercios listados no hay opciones: un título sin nada debajo parece un error, así que no se muestra. */}
+      {facets.business_types.length > 0 && (
+        <Group label="Tipo de comercio">
+          {facets.business_types.map((b) => (
+            <Pill key={b.code} on={filters.businessTypes.includes(b.code)} onClick={() => set({ businessTypes: toggle(filters.businessTypes, b.code) })}>
+              {b.label} <span className="text-muted">({b.count})</span>
+            </Pill>
+          ))}
+        </Group>
+      )}
 
-      <Group label="Cocina">
-        {facets.cuisines.map((c) => (
-          <Pill key={c.code} on={filters.cuisines.includes(c.code)} onClick={() => set({ cuisines: toggle(filters.cuisines, c.code) })}>
-            {c.label} <span className="text-muted">({c.count})</span>
-          </Pill>
-        ))}
-      </Group>
+      {facets.cuisines.length > 0 && (
+        <Group label="Cocina">
+          {facets.cuisines.map((c) => (
+            <Pill key={c.code} on={filters.cuisines.includes(c.code)} onClick={() => set({ cuisines: toggle(filters.cuisines, c.code) })}>
+              {c.label} <span className="text-muted">({c.count})</span>
+            </Pill>
+          ))}
+        </Group>
+      )}
 
       <Group label="Rango de precios (declarado por el local)">
         {(["$", "$$", "$$$"] as Price[]).map((p) => (
@@ -62,7 +67,7 @@ export function FiltersPanel({ filters, facets, onChange, onLocate, geo, hasPoin
       </Group>
 
       <label className="flex min-h-11 cursor-pointer items-center gap-3">
-        <input type="checkbox" checked={filters.openNow} onChange={(e) => set({ openNow: e.target.checked })} className="size-5 accent-foreground" />
+        <input type="checkbox" checked={filters.openNow} onChange={(e) => set({ openNow: e.target.checked })} className="size-5 shrink-0 accent-foreground" />
         <span>
           <span className="block text-[15px] font-medium">Abierto ahora</span>
           <span className="block type-help">Según el horario del local y su zona horaria.</span>
@@ -70,7 +75,7 @@ export function FiltersPanel({ filters, facets, onChange, onLocate, geo, hasPoin
       </label>
 
       <label className="flex min-h-11 cursor-pointer items-center gap-3">
-        <input type="checkbox" checked={filters.acceptsReservations} onChange={(e) => set({ acceptsReservations: e.target.checked })} className="size-5 accent-foreground" />
+        <input type="checkbox" checked={filters.acceptsReservations} onChange={(e) => set({ acceptsReservations: e.target.checked })} className="size-5 shrink-0 accent-foreground" />
         <span>
           <span className="block text-[15px] font-medium">Acepta reservas</span>
           <span className="block type-help">Locales que reciben solicitudes de mesa por la web.</span>
@@ -83,7 +88,7 @@ export function FiltersPanel({ filters, facets, onChange, onLocate, geo, hasPoin
         {hasPoint ? (
           <div className="space-y-3">
             <label className="flex min-h-11 cursor-pointer items-center gap-3">
-              <input type="checkbox" checked={filters.nearby} onChange={(e) => set({ nearby: e.target.checked, sort: e.target.checked ? "distance" : "relevance", radiusKm: e.target.checked ? filters.radiusKm : null })} className="size-5 accent-foreground" />
+              <input type="checkbox" checked={filters.nearby} onChange={(e) => set({ nearby: e.target.checked, sort: e.target.checked ? "distance" : "relevance", radiusKm: e.target.checked ? filters.radiusKm : null })} className="size-5 shrink-0 accent-foreground" />
               <span className="text-[15px]">Solo cerca de mi ubicación</span>
             </label>
             {filters.nearby && (

@@ -10,7 +10,7 @@ grant select (tenant_id, accepts_reservations, max_party_size, slot_interval_min
   on table public.tenant_reservation_settings to authenticated;
 
 -- El upsert del panel leía columnas privadas con los permisos de quien llama: pasa a DEFINER con la misma compuerta.
-create or replace function public.save_reservation_settings(p_tenant_id uuid, p_settings jsonb)
+create or replace function private.save_reservation_settings_impl(p_tenant_id uuid, p_settings jsonb)
 returns jsonb
 language plpgsql
 volatile
@@ -39,11 +39,21 @@ begin
   return pg_catalog.to_jsonb(v);
 end;
 $$;
+revoke all on function private.save_reservation_settings_impl(uuid, jsonb) from public;
+grant execute on function private.save_reservation_settings_impl(uuid, jsonb) to authenticated;
+-- Envoltorio SECURITY INVOKER en el esquema expuesto (misma firma y mismo permiso que antes).
+create or replace function public.save_reservation_settings(p_tenant_id uuid, p_settings jsonb)
+returns jsonb
+language sql
+volatile
+security invoker
+set search_path = ''
+as $$ select private.save_reservation_settings_impl(p_tenant_id, p_settings) $$;
 revoke all on function public.save_reservation_settings(uuid, jsonb) from public;
 grant execute on function public.save_reservation_settings(uuid, jsonb) to authenticated;
 
 -- Lectura completa para el panel (miembros del local).
-create or replace function public.get_reservation_settings(p_tenant_id uuid)
+create or replace function private.get_reservation_settings_impl(p_tenant_id uuid)
 returns jsonb
 language plpgsql
 stable
@@ -63,6 +73,15 @@ begin
   return pg_catalog.to_jsonb(v);
 end;
 $$;
+revoke all on function private.get_reservation_settings_impl(uuid) from public;
+grant execute on function private.get_reservation_settings_impl(uuid) to authenticated;
+create or replace function public.get_reservation_settings(p_tenant_id uuid)
+returns jsonb
+language sql
+stable
+security invoker
+set search_path = ''
+as $$ select private.get_reservation_settings_impl(p_tenant_id) $$;
 revoke all on function public.get_reservation_settings(uuid) from public;
 grant execute on function public.get_reservation_settings(uuid) to authenticated;
 

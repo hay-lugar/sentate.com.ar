@@ -191,6 +191,11 @@ describe("errores y redirecciones", () => {
     ["//evil.com", null],
     ["https://evil.com", null],
     ["/\\evil.com", null],
+    ["/\t/evil.com", null],
+    ["/\n/evil.com", null],
+    ["/\r/evil.com", null],
+    ["/\u0000/x", null],
+    ["/admin?x=1", "/admin?x=1"],
     [null, null],
   ])("safeNext(%s) → %s", (input, expected) => expect(safeNext(input)).toBe(expected));
 });

@@ -17,7 +17,7 @@ async function loadChecklist(slug: string): Promise<ChecklistInput | null> {
       supabase.rpc("tenant_profile_missing", { p_tenant_id: t.id }),
       supabase.from("tenant_moderation").select("status").eq("tenant_id", t.id).maybeSingle(),
       supabase.from("menu_items").select("id", { count: "exact", head: true }).eq("tenant_id", t.id).eq("is_available", true),
-      supabase.from("tenant_reservation_settings").select("accepts_reservations, capacity_guests").eq("tenant_id", t.id).maybeSingle(),
+      supabase.rpc("get_reservation_settings", { p_tenant_id: t.id }),
     ]);
     if (missing.error || mod.error || dishes.error || settings.error) return null;
     return {

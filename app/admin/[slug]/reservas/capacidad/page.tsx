@@ -31,11 +31,14 @@ export default async function CapacidadPage({ params }: { params: Promise<{ slug
   if (error) throw new TemporaryDataError("capacidad");
   if (!tenant) notFound();
   const [settings, blocks] = await Promise.all([
-    supabase.from("tenant_reservation_settings").select("*").eq("tenant_id", tenant.id).maybeSingle(),
+    supabase.rpc("get_reservation_settings", { p_tenant_id: tenant.id }),
     supabase.from("tenant_reservation_blocks").select("id, starts_at, ends_at, reason").eq("tenant_id", tenant.id).gte("ends_at", new Date().toISOString()).order("starts_at"),
   ]);
   if (settings.error || blocks.error) throw new TemporaryDataError("capacidad");
-  const s = settings.data;
+  const s = settings.data as {
+    accepts_reservations?: boolean; capacity_guests?: number | null; max_party_size?: number; slot_interval_minutes?: number;
+    occupancy_minutes?: number; min_notice_minutes?: number; kitchen_cutoff_minutes?: number; pending_hold_minutes?: number; hold_pending?: boolean;
+  } | null;
   return (
     <>
       {back}
